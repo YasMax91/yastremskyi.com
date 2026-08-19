@@ -1,0 +1,88 @@
+---
+/**
+ * The site's only runtime JavaScript.
+ *
+ * The theme is applied before first paint by an inline script in <head>, so a
+ * dark-mode visitor never sees a white flash. This component only owns the
+ * button and the flip.
+ */
+import { useTranslations, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<button class="toggle" type="button" id="theme-toggle" aria-pressed="false">
+  {t('theme.toggle')}
+</button>
+
+<style>
+  .toggle {
+    padding: var(--space-1) var(--space-3);
+    border: var(--rule) solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .toggle:hover {
+    background: var(--ink);
+    color: var(--surface);
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+  const labels = { light: root.dataset.labelDark, dark: root.dataset.labelLight };
+
+  function apply(theme: 'light' | 'dark') {
+    root.dataset.theme = theme;
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', String(theme === 'dark'));
+    btn.textContent = labels[theme] ?? 'Theme';
+  }
+
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem('theme');
+  } catch {
+    /* private mode: fall back to the OS preference */
+  }
+
+  const initial =
+    stored === 'light' || stored === 'dark'
+      ? stored
+      : matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+  apply(initial);
+
+  btn?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    // Suppress transitions for one frame, or every colour crossfades at once
+    // and the flip reads as a smear rather than a switch.
+    root.classList.add('theme-switching');
+    apply(next);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => root.classList.remove('theme-switching')),
+    );
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* nothing to persist to; the choice still applies for this page */
+    }
+  });
+</script>

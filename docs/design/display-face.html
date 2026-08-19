@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Display face — Archivo has no Cyrillic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;800&family=Onest:wght@400;800&family=Golos+Text:wght@400;800&family=Inter:wght@400;800&family=Unbounded:wght@400;800&family=JetBrains+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fff;
+        --ink: #000;
+        --mute: #4a4a4a;
+        --accent: #ff3b00;
+        --line: #000;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #000;
+          --ink: #fff;
+          --mute: #a6a6a6;
+          --accent: #ff5227;
+          --line: #fff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      .wrap {
+        width: min(100% - 2rem, 72rem);
+        margin-inline: auto;
+        padding: 2rem 0;
+      }
+      h1 {
+        font-size: 1.3rem;
+        margin: 0 0 0.5rem;
+      }
+      .intro {
+        color: var(--mute);
+        max-width: 62ch;
+        margin: 0 0 2rem;
+      }
+      .intro b {
+        color: var(--ink);
+      }
+      .card {
+        border-top: 2px solid var(--line);
+        padding: 1.75rem 0;
+      }
+      .tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--mute);
+        margin: 0 0 0.9rem;
+      }
+      .tag em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .name {
+        font-weight: 800;
+        font-size: clamp(2rem, 7vw, 4.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.045em;
+        text-transform: uppercase;
+        margin: 0 0 0.3rem;
+      }
+      .name.uk {
+        margin-bottom: 0.8rem;
+      }
+      .body {
+        font-weight: 400;
+        font-size: 1.05rem;
+        max-width: 56ch;
+        margin: 0 0 0.4rem;
+      }
+      .missing {
+        color: var(--accent);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+      }
+      .f-archivo {
+        font-family: Archivo, sans-serif;
+      }
+      .f-onest {
+        font-family: Onest, sans-serif;
+      }
+      .f-golos {
+        font-family: 'Golos Text', sans-serif;
+      }
+      .f-inter {
+        font-family: Inter, sans-serif;
+      }
+      .f-unbounded {
+        font-family: Unbounded, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Display face — the Ukrainian problem</h1>
+      <p class="intro">
+        Archivo, the face chosen with Concept C, ships <b>latin, latin-ext and vietnamese only</b>.
+        It has no Cyrillic, so the Ukrainian locale would fall back to a system font for every
+        heading — a different identity on half the site. Below: the same two lines in each
+        candidate. The first Archivo block is what breaks; everything under it covers both scripts.
+        Verified against the Google Fonts API, not assumed.
+      </p>
+
+      <div class="card">
+        <p class="tag">Archivo <em>— current choice · NO CYRILLIC</em></p>
+        <p class="name f-archivo">Max Yastremskyi</p>
+        <p class="name uk f-archivo">Макс Ястремський</p>
+        <p class="missing">
+          ↑ that Ukrainian line is NOT Archivo — the browser silently substituted a system font
+        </p>
+        <p class="body f-archivo">
+          I own the parts of a system that must not be approximately right.
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="tag">Onest <em>— recommended replacement · 100–900 · Cyrillic</em></p>
+        <p class="name f-onest">Max Yastremskyi</p>
+        <p class="name uk f-onest">Макс Ястремський</p>
+        <p class="body f-onest">
+          I own the parts of a system that must not be approximately right.
+        </p>
+        <p class="body f-onest">
+          Я відповідаю за ті частини системи, які не мають права бути приблизно правильними.
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="tag">Golos Text <em>— 400–900 · Cyrillic-first grotesque</em></p>
+        <p class="name f-golos">Max Yastremskyi</p>
+        <p class="name uk f-golos">Макс Ястремський</p>
+        <p class="body f-golos">
+          I own the parts of a system that must not be approximately right.
+        </p>
+        <p class="body f-golos">
+          Я відповідаю за ті частини системи, які не мають права бути приблизно правильними.
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="tag">Inter <em>— 100–900 · the safe neo-grotesque</em></p>
+        <p class="name f-inter">Max Yastremskyi</p>
+        <p class="name uk f-inter">Макс Ястремський</p>
+        <p class="body f-inter">
+          I own the parts of a system that must not be approximately right.
+        </p>
+        <p class="body f-inter">
+          Я відповідаю за ті частини системи, які не мають права бути приблизно правильними.
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="tag">Unbounded <em>— 200–900 · most distinctive, least neutral</em></p>
+        <p class="name f-unbounded">Max Yastremskyi</p>
+        <p class="name uk f-unbounded">Макс Ястремський</p>
+        <p class="body f-unbounded">
+          I own the parts of a system that must not be approximately right.
+        </p>
+        <p class="body f-unbounded">
+          Я відповідаю за ті частини системи, які не мають права бути приблизно правильними.
+        </p>
+      </div>
+
+      <p class="intro" style="margin-top: 2rem">
+        The Ukrainian specimen line is a translation of the hero sentence and, like every Ukrainian
+        string on this project, needs Max's review as a native speaker before it ships anywhere.
+      </p>
+    </div>
+  </body>
+</html>

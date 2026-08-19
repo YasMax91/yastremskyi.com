@@ -1,0 +1,428 @@
+---
+/**
+ * The signature element (brief §6). Exactly one, executed properly.
+ *
+ * Ships ZERO JavaScript: radio inputs plus `:checked` sibling selectors. That
+ * makes it keyboard-operable natively — Tab into the group, arrow keys to move —
+ * and it keeps working with scripting disabled, which the brief requires of the
+ * whole site anyway. The budget allowed under 5 KB of JS for this; it costs none.
+ *
+ * The levels, agent names and gate names are read from the installed plugin at
+ * v0.27.1, not from the brief's older figures.
+ */
+
+const LEVELS = [
+  {
+    id: 'typo',
+    kind: 'Typo',
+    task: 'Fix a typo in a code comment',
+    level: 'L0 — Tiny',
+    gist: 'No spec. No plan. No review agents. No approval. The automatic gates are the entire Definition of Done.',
+    reviewers: [],
+    reviewersEmpty: 'Nobody — and that is deliberate.',
+    requires: ['The gates that fire on their own'],
+  },
+  {
+    id: 'bug',
+    kind: 'Bug',
+    task: 'Wrong subject line on a notification email',
+    level: 'L1 — Small fix',
+    gist: 'A regression test that fails first, then one live exercise of the single thing fixed — not a sweep of every consumer.',
+    reviewers: [],
+    reviewersEmpty: 'No agents — a targeted self-trace instead.',
+    requires: [
+      'Short inline spec',
+      'Fail-first regression test',
+      'Live check of the one thing fixed',
+    ],
+  },
+  {
+    id: 'feature',
+    kind: 'Feature',
+    task: 'Add an orders export endpoint',
+    level: 'L2 — Feature',
+    gist: 'Discovery fans out before anything is planned. The blast radius is mapped, not assumed, and nothing is written before the plan is agreed.',
+    reviewers: [
+      { name: 'impact-mapper', role: 'what will this break' },
+      { name: 'conformance-reviewer', role: 'does the diff satisfy the criteria' },
+    ],
+    reviewersEmpty: '',
+    requires: [
+      'Spec, plan, approval',
+      'Up to 2 rounds of questions',
+      'Tests written before the code',
+    ],
+  },
+  {
+    id: 'access',
+    kind: 'Access',
+    task: 'Change who can see supplier prices',
+    level: 'L3 — High risk',
+    gist: 'Permissions, migrations, public contracts, financial visibility. Here the intent gets challenged, not only the code.',
+    reviewers: [
+      { name: 'impact-mapper', role: '' },
+      { name: 'blind-spot-map', role: 'what nobody thought to ask' },
+      { name: 'grounded-researcher', role: 'what the provider actually does, cited' },
+      { name: 'conformance-reviewer', role: '' },
+      { name: 'adversarial-verifier', role: 'is “it works” true' },
+    ],
+    reviewersEmpty: '',
+    requires: [
+      'Spec, plan, requirements check, deployment notes',
+      'Up to 4 rounds of questions',
+      'An ADR when the decision is cross-cutting',
+    ],
+  },
+  {
+    id: 'money',
+    kind: 'Money',
+    task: 'Change how VAT is calculated on refunds',
+    level: 'L4 — Critical',
+    gist: 'Financial calculation, order lifecycle, the permission model, destructive migrations. Being approximately right here is being wrong.',
+    reviewers: [
+      { name: 'Everything L3 engages', role: '' },
+      {
+        name: 'An adversarial panel',
+        role: 'at least two independent skeptics on the riskiest claims',
+      },
+    ],
+    reviewersEmpty: '',
+    requires: ['Everything L3 requires', 'Rollback notes', 'Human approval, always'],
+  },
+] as const;
+
+const GATES = [
+  'format on edit',
+  'static analysis',
+  'test suite',
+  'OpenAPI contract',
+  'enforced runner',
+  'migrations locked',
+  'edits locked in discovery',
+  'unpushed work',
+  'coverage claim',
+  'task intent',
+  'agent contract',
+];
+
+interface Props {
+  /**
+   * Distinguishes one instance from another when a page carries more than one.
+   * Explicit rather than random: a build has to be reproducible, and an id that
+   * changes every run turns a no-op rebuild into a diff.
+   */
+  id?: string;
+}
+
+const { id = 'gs' } = Astro.props;
+const DEFAULT_INDEX = 2;
+---
+
+<div class="sim">
+  <div class="sim-head">
+    <h3>Pick a task. Watch the process resize.</h3>
+    <p>
+      Zero JavaScript — radio inputs and CSS. Keyboard: Tab into the group, then arrow keys. Works
+      with scripting disabled.
+    </p>
+  </div>
+
+  {
+    LEVELS.map((l, i) => (
+      <input
+        type="radio"
+        name={id}
+        id={`${id}-${l.id}`}
+        data-level={l.id}
+        checked={i === DEFAULT_INDEX}
+      />
+    ))
+  }
+
+  <fieldset>
+    <legend class="visually-hidden">Choose a task</legend>
+    <div class="opts">
+      {
+        LEVELS.map((l) => (
+          <label class={`o-${l.id}`} for={`${id}-${l.id}`}>
+            <i>{l.kind}</i>
+            {l.task}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <div class="panels">
+    {
+      LEVELS.map((l) => (
+        <div class={`panel p-${l.id}`}>
+          <p class="verdict">{l.level}</p>
+          <p class="gist">{l.gist}</p>
+          <div class="cols">
+            <div>
+              <h4>Who reviews</h4>
+              {l.reviewers.length === 0 ? (
+                <p class="empty">{l.reviewersEmpty}</p>
+              ) : (
+                <ul>
+                  {l.reviewers.map((r) => (
+                    <li>
+                      {r.name}
+                      {r.role && <em> — {r.role}</em>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <h4>What is required</h4>
+              <ul>
+                {l.requires.map((r) => (
+                  <li>{r}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="gates">
+    <span class="label">Gates — armed at every level, including L0</span>
+    <ul class="chips">{GATES.map((g) => <li>{g}</li>)}</ul>
+    <small>Process weight scales with risk. The gates do not — that is the point.</small>
+  </div>
+</div>
+
+<style>
+  .sim {
+    border: var(--rule) solid var(--border);
+  }
+
+  .sim-head {
+    padding: var(--space-5);
+    border-bottom: var(--rule) solid var(--border);
+    background: var(--ink);
+    color: var(--surface);
+  }
+
+  .sim-head h3 {
+    font-size: var(--display-s);
+    margin-bottom: var(--space-2);
+  }
+
+  .sim-head p {
+    max-width: 56ch;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    opacity: 0.8;
+  }
+
+  .sim input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .opts {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 52rem) {
+    .opts {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  .opts label {
+    display: block;
+    padding: var(--space-4);
+    border-bottom: var(--rule) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  @media (min-width: 52rem) {
+    .opts label {
+      min-height: 7rem;
+      border-right: var(--rule) solid var(--border);
+      border-bottom: 0;
+    }
+
+    .opts label:last-of-type {
+      border-right: 0;
+    }
+  }
+
+  .opts label i {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-style: normal;
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .opts label:hover {
+    background: var(--surface-sunk);
+  }
+
+  .sim input:focus-visible + label {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+
+  .panel {
+    display: none;
+    padding: var(--space-5);
+  }
+
+  /* Matched on a data attribute rather than an id, so a page can carry two
+     simulators without the selectors colliding. The `~` combinator keeps each
+     rule inside its own .sim. One rule per level, because CSS cannot say "the
+     nth panel after the nth checked input". */
+  input[data-level='typo']:checked ~ .panels .p-typo,
+  input[data-level='bug']:checked ~ .panels .p-bug,
+  input[data-level='feature']:checked ~ .panels .p-feature,
+  input[data-level='access']:checked ~ .panels .p-access,
+  input[data-level='money']:checked ~ .panels .p-money {
+    display: block;
+  }
+
+  /* The selected task keeps the accent fill. Black on this vermilion measures
+     5.88:1; white would be 3.57:1 and fail AA. */
+  input[data-level='typo']:checked ~ fieldset .o-typo,
+  input[data-level='bug']:checked ~ fieldset .o-bug,
+  input[data-level='feature']:checked ~ fieldset .o-feature,
+  input[data-level='access']:checked ~ fieldset .o-access,
+  input[data-level='money']:checked ~ fieldset .o-money {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  input[data-level='typo']:checked ~ fieldset .o-typo i,
+  input[data-level='bug']:checked ~ fieldset .o-bug i,
+  input[data-level='feature']:checked ~ fieldset .o-feature i,
+  input[data-level='access']:checked ~ fieldset .o-access i,
+  input[data-level='money']:checked ~ fieldset .o-money i {
+    color: var(--on-accent);
+  }
+
+  .verdict {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--display-s);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .gist {
+    max-width: var(--measure);
+    margin-bottom: var(--space-5);
+    color: var(--ink-muted);
+  }
+
+  .cols {
+    display: grid;
+    border-top: var(--rule) solid var(--border);
+  }
+
+  @media (min-width: 46rem) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .cols > div {
+    padding: var(--space-5) var(--space-5) var(--space-5) 0;
+  }
+
+  @media (min-width: 46rem) {
+    .cols > div + div {
+      padding-left: var(--space-5);
+      border-left: var(--rule) solid var(--border);
+    }
+  }
+
+  .cols ul {
+    margin-top: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cols li {
+    padding: var(--space-2) 0;
+    border-bottom: var(--rule-thin) solid var(--border);
+    font-size: var(--text-sm);
+  }
+
+  .cols li:last-child {
+    border-bottom: 0;
+  }
+
+  .cols li em {
+    font-style: normal;
+    color: var(--ink-muted);
+  }
+
+  .cols .empty {
+    margin-top: var(--space-3);
+    color: var(--ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  .gates {
+    padding: var(--space-5);
+    border-top: var(--rule) solid var(--border);
+    background: var(--surface-sunk);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .chips li {
+    padding: var(--space-1) var(--space-2);
+    border: var(--rule-thin) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .gates small {
+    display: block;
+    max-width: var(--measure);
+    margin-top: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--ink-muted);
+  }
+</style>

@@ -14,22 +14,22 @@
   color-scheme: light;
 
   /* Surfaces and ink */
-  --surface:        #ffffff;
-  --surface-sunk:   #f2f2f2;   /* panels, the gates strip, quiet blocks     */
-  --ink:            #000000;   /* 21.00:1 on surface                        */
-  --ink-muted:      #4a4a4a;   /*  8.86:1 on surface — secondary prose      */
-  --border:         #000000;   /* the structural rules are ink, not grey    */
+  --surface: #ffffff;
+  --surface-sunk: #f2f2f2; /* panels, the gates strip, quiet blocks     */
+  --ink: #000000; /* 21.00:1 on surface                        */
+  --ink-muted: #4a4a4a; /*  8.86:1 on surface — secondary prose      */
+  --border: #000000; /* the structural rules are ink, not grey    */
 
   /* The single accent, in two roles.
      --accent is a FILL and a DISPLAY colour: 3.57:1 on white, which clears
      the 3.0 bar for large text but not the 4.5 bar for small.
      --accent-text is the same hue taken down until small text passes at
      5.87:1. Using the wrong one is the easiest way to break this palette. */
-  --accent:         #ff3b00;
-  --accent-text:    #c42200;
-  --on-accent:      #000000;   /* 5.88:1. White would be 3.57:1 and fail.   */
+  --accent: #ff3b00;
+  --accent-text: #c42200;
+  --on-accent: #000000; /* 5.88:1. White would be 3.57:1 and fail.   */
 
-  --focus:          #0040ff;   /* deliberately NOT the accent: a focus ring
+  --focus: #0040ff; /* deliberately NOT the accent: a focus ring
                                   that matches a fill disappears on top of it */
 }
 
@@ -38,85 +38,91 @@
    would soften the 2px rules into mush. The accent warms slightly so it does
    not vibrate against black, and the muted ink is lifted rather than dimmed. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme='light']) {
     color-scheme: dark;
-    --surface:      #000000;
+    --surface: #000000;
     --surface-sunk: #121212;
-    --ink:          #ffffff;
-    --ink-muted:    #a6a6a6;
-    --border:       #ffffff;
-    --accent:       #ff5227;
-    --accent-text:  #ff7a52;
-    --on-accent:    #000000;
-    --focus:        #66a3ff;
+    --ink: #ffffff;
+    --ink-muted: #a6a6a6;
+    --border: #ffffff;
+    --accent: #ff5227;
+    --accent-text: #ff7a52;
+    --on-accent: #000000;
+    --focus: #66a3ff;
   }
 }
 
 /* The manual toggle wins over the OS in both directions. */
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   color-scheme: dark;
-  --surface:      #000000;
+  --surface: #000000;
   --surface-sunk: #121212;
-  --ink:          #ffffff;
-  --ink-muted:    #a6a6a6;
-  --border:       #ffffff;
-  --accent:       #ff5227;
-  --accent-text:  #ff7a52;
-  --on-accent:    #000000;
-  --focus:        #66a3ff;
+  --ink: #ffffff;
+  --ink-muted: #a6a6a6;
+  --border: #ffffff;
+  --accent: #ff5227;
+  --accent-text: #ff7a52;
+  --on-accent: #000000;
+  --focus: #66a3ff;
 }
 
 :root {
   /* --- Type -------------------------------------------------------------
      Two families, three weights — the brief's ceiling, spent deliberately:
-     Archivo 800 for display, Archivo 400 for prose, JetBrains Mono 400 for
-     data, labels and anything a reader might want to copy. */
-  --font-display: "Archivo", Helvetica, Arial, sans-serif;
-  --font-body:    "Archivo", Helvetica, Arial, sans-serif;
-  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+     Onest 800 for display, Onest 400 for prose, JetBrains Mono 400 for data,
+     labels and anything a reader might want to copy.
+
+     Onest replaced Archivo after the Google Fonts API confirmed Archivo ships
+     latin, latin-ext and vietnamese only. With no Cyrillic, every Ukrainian
+     heading would have fallen back to a system font — two typographic
+     identities on one site. Onest covers both scripts across the same 100-900
+     variable range, so one file per script serves both weights. */
+  --font-display: 'Onest', Helvetica, Arial, sans-serif;
+  --font-body: 'Onest', Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --weight-regular: 400;
-  --weight-bold:    800;
+  --weight-bold: 800;
 
   /* Fluid scale. Every display step has a floor that fits "Yastremskyi" on
      one line at 320px — the defect that shipped in the concept and was fixed. */
-  --text-2xs:  0.6875rem;                        /* 11px — mono micro-labels */
-  --text-xs:   0.75rem;
-  --text-sm:   0.8125rem;
+  --text-2xs: 0.6875rem; /* 11px — mono micro-labels */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
   --text-base: 1rem;
-  --text-lg:   clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
-  --text-xl:   clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  --text-lg: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
 
-  --display-s:  clamp(1.4rem, 1.15rem + 1.2vw, 2.2rem);
-  --display-m:  clamp(1.75rem, 1.3rem + 2.2vw, 3.2rem);
-  --display-l:  clamp(2.2rem, 1.4rem + 4vw, 5rem);
-  --display-xl: clamp(2.5rem, 11vw, 11.5rem);    /* the name, and only it     */
+  --display-s: clamp(1.4rem, 1.15rem + 1.2vw, 2.2rem);
+  --display-m: clamp(1.75rem, 1.3rem + 2.2vw, 3.2rem);
+  --display-l: clamp(2.2rem, 1.4rem + 4vw, 5rem);
+  --display-xl: clamp(2.5rem, 11vw, 11.5rem); /* the name, and only it     */
 
   --leading-display: 0.92;
-  --leading-tight:   1.25;
-  --leading-body:    1.55;
-  --tracking-display: -0.045em;                  /* tight, as display wants   */
-  --tracking-label:    0.16em;                   /* loose, as small caps want */
-  --measure: 62ch;                               /* 60-75 characters          */
+  --leading-tight: 1.25;
+  --leading-body: 1.55;
+  --tracking-display: -0.045em; /* tight, as display wants   */
+  --tracking-label: 0.16em; /* loose, as small caps want */
+  --measure: 62ch; /* 60-75 characters          */
 
   /* --- Space ------------------------------------------------------------
      One 4px-rooted scale. Section rhythm is --space-16 on desktop and
      --space-10 below 48rem; nothing in the design invents a gap outside it. */
-  --space-1:  0.25rem;
-  --space-2:  0.5rem;
-  --space-3:  0.75rem;
-  --space-4:  1rem;
-  --space-5:  1.5rem;
-  --space-6:  2rem;
-  --space-8:  2.5rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 2.5rem;
   --space-10: 3.5rem;
   --space-12: 4.5rem;
   --space-16: 6rem;
 
-  --rule:       2px;                             /* the structural hairline   */
-  --rule-thin:  1px;                             /* inside dense lists only   */
-  --gutter:     clamp(1rem, 0.5rem + 2vw, 2.5rem);
-  --page:       84rem;
+  --rule: 2px; /* the structural hairline   */
+  --rule-thin: 1px; /* inside dense lists only   */
+  --gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  --page: 84rem;
 
   /* --- Radii ------------------------------------------------------------
      Zero, everywhere, on purpose. The token exists so that Phase 3 cannot
@@ -126,21 +132,26 @@
   /* --- Elevation --------------------------------------------------------
      No blur. This direction expresses depth by offset and rule, so a soft
      shadow would read as a different design system. */
-  --shadow-hard:  6px 6px 0 var(--border);
+  --shadow-hard: 6px 6px 0 var(--border);
   --shadow-press: 2px 2px 0 var(--border);
 
   /* --- Motion -----------------------------------------------------------
      The brief caps entrance reveals at 400ms and forbids linear easing. */
-  --dur-fast:  120ms;
-  --dur-base:  200ms;
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
   --dur-enter: 380ms;
-  --ease-out:    cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --stagger:   60ms;
+  --stagger: 60ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-enter: 0ms; --stagger: 0ms; }
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-enter: 0ms;
+    --stagger: 0ms;
+  }
 }
 
 /* ---------------------------------------------------------------------------

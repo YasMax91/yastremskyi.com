@@ -1,0 +1,105 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { useTranslations, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
+import { site } from '../data/site';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  locale?: Locale;
+  /** Path of the current page, for the nav's current-page marker. */
+  current?: string;
+  /** Structured data for this route. Rendered as-is into a JSON-LD script. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, locale = DEFAULT_LOCALE, current = '', jsonLd } = Astro.props;
+const t = useTranslations(locale);
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.origin).href;
+const ogImage = new URL('/og/default.png', Astro.site ?? site.origin).href;
+const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
+---
+
+<!doctype html>
+<html lang={locale} data-label-dark={t('theme.toDark')} data-label-light={t('theme.toLight')}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {/* Applied before first paint: a dark-mode visitor must never see a white flash. */}
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {
+        // Storage can be blocked (private mode, third-party context). The OS
+        // preference then decides, which is the correct fallback anyway.
+        void e;
+      }
+    </script>
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {
+      /* Only the latin faces are preloaded. The Cyrillic files are declared with
+        a unicode-range and are never fetched by an English reader. */
+    }
+    <link rel="preload" href="/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={locale === 'uk' ? 'uk_UA' : 'en_GB'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+
+  <body>
+    <a class="skip" href="#main">{t('skip.content')}</a>
+    <Header locale={locale} current={current} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+
+    <style>
+      .skip {
+        position: absolute;
+        left: -9999px;
+      }
+
+      .skip:focus {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 99;
+        padding: var(--space-3) var(--space-4);
+        background: var(--accent);
+        color: var(--on-accent);
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+      }
+    </style>
+  </body>
+</html>

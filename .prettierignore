@@ -1,0 +1,13 @@
+dist
+.astro
+node_modules
+package-lock.json
+public/fonts
+docs/concepts
+
+# Contract documents are hand-formatted and are not the formatter's business:
+# AGENTS.md and CLAUDE.md carry aligned comment markers, and the brief is an
+# input we do not own.
+AGENTS.md
+CLAUDE.md
+portfolio-site-prompt.md

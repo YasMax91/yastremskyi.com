@@ -1,0 +1,103 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+  /** Path of the current page, so the nav can mark it. */
+  current?: string;
+}
+
+const { locale, current = '' } = Astro.props;
+const t = useTranslations(locale);
+
+const links = [
+  { href: '/groundwork', label: t('nav.groundwork') },
+  { href: '/work', label: t('nav.work') },
+  { href: '/about', label: t('nav.about') },
+  { href: '/cv', label: t('nav.cv') },
+];
+---
+
+<header>
+  <div class="wrap">
+    <a class="brand" href={localePath('/', locale)}>{site.name.split(' ')[1]}</a>
+    <div class="right">
+      <nav aria-label={t('nav.primary')}>
+        <ul>
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={localePath(link.href, locale)}
+                  aria-current={current === link.href ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <ThemeToggle locale={locale} />
+    </div>
+  </div>
+</header>
+
+<style>
+  header {
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-lg);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    list-style: none;
+    padding: 0;
+  }
+
+  nav a {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--accent-text);
+  }
+
+  nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+</style>
