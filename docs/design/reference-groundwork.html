@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en" data-theme-default>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groundwork — Max Yastremskyi</title>
+<meta name="description" content="An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification, five review agents, eleven gates.">
+<!-- Theme applied before first paint. This inline script and the toggle below
+     are the only JavaScript on the page; the gate simulator uses none. -->
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* ===========================================================================
+   Reference page — every component in the Phase 2 inventory, in situ.
+   Uses ONLY the tokens in tokens.css. A hard-coded value here is a defect, with
+   one deliberate exception: the print block, which is black on white regardless
+   of theme because paper has no theme to follow.
+   =========================================================================== */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--ink);
+  font-family:var(--font-body);font-weight:var(--weight-regular);
+  font-size:var(--text-base);line-height:var(--leading-body);
+  -webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--on-accent)}
+a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:.08em}
+a:hover{text-decoration-color:var(--accent-text)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+/* A theme switch should look instant. Without this, every transitioned property
+   crossfades at once and the flip reads as a smear rather than a switch. */
+.theme-switching *,.theme-switching *::before,.theme-switching *::after{
+  transition:none!important}
+img{max-width:100%;height:auto;display:block}
+
+h1,h2,h3{font-family:var(--font-display);font-weight:var(--weight-bold);
+  line-height:var(--leading-display);letter-spacing:var(--tracking-display);
+  text-transform:uppercase;margin:0;text-wrap:balance}
+h4{font-family:var(--font-mono);font-weight:var(--weight-regular);
+  font-size:var(--text-2xs);letter-spacing:var(--tracking-label);
+  text-transform:uppercase;color:var(--ink-muted);margin:0}
+p{margin:0}
+
+/* --- primitives ---------------------------------------------------------- */
+.wrap{width:min(100% - (var(--gutter) * 2),var(--page));margin-inline:auto}
+.prose{max-width:var(--measure)}
+.prose p + p{margin-top:var(--space-4)}
+.label{font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-muted)}
+.num{font-variant-numeric:tabular-nums lining-nums}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:fixed;left:0;top:0;z-index:99;background:var(--accent);
+  color:var(--on-accent);padding:var(--space-3) var(--space-4);
+  font-family:var(--font-mono);font-size:var(--text-sm)}
+
+/* --- header + theme toggle ----------------------------------------------- */
+header{border-bottom:var(--rule) solid var(--border)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-4);padding:var(--space-3) 0;flex-wrap:wrap}
+.brand{font-family:var(--font-display);font-weight:var(--weight-bold);
+  text-transform:uppercase;letter-spacing:var(--tracking-display);font-size:var(--text-lg);
+  text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap}
+nav ul{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-4);
+  list-style:none;margin:0;padding:0}
+nav a{font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;text-decoration:none}
+nav a:hover,nav a[aria-current="page"]{color:var(--accent-text)}
+nav a[aria-current="page"]{text-decoration:underline;text-decoration-thickness:2px}
+.toggle{font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;
+  background:var(--surface);color:var(--ink);border:var(--rule) solid var(--border);
+  border-radius:var(--radius);padding:var(--space-1) var(--space-3);cursor:pointer;
+  transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+.toggle:hover{background:var(--ink);color:var(--surface)}
+
+/* --- page header --------------------------------------------------------- */
+.page-head{border-bottom:var(--rule) solid var(--border);padding:var(--space-10) 0 var(--space-8)}
+.page-head h1{font-size:var(--display-l);margin:var(--space-3) 0 var(--space-5)}
+.lede{font-size:var(--text-xl);line-height:var(--leading-tight);max-width:34ch}
+.lede b{background:var(--accent);color:var(--on-accent);font-weight:var(--weight-regular);
+  padding:0 .18em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.meta-row{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-5);
+  margin-top:var(--space-6);padding-top:var(--space-4);
+  border-top:var(--rule-thin) solid var(--border)}
+.meta-row span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-muted)}
+.meta-row b{color:var(--ink);font-weight:var(--weight-regular)}
+
+/* --- section ------------------------------------------------------------- */
+section{border-bottom:var(--rule) solid var(--border);padding:var(--space-10) 0}
+@media(min-width:48rem){section{padding:var(--space-16) 0}}
+.sec-head{display:grid;gap:var(--space-3);margin-bottom:var(--space-8)}
+@media(min-width:56rem){.sec-head{grid-template-columns:minmax(0,1fr) minmax(0,26rem);
+  gap:var(--space-8);align-items:end}}
+.sec-head h2{font-size:var(--display-m)}
+.sec-head .prose{color:var(--ink-muted)}
+
+/* --- pull quote ---------------------------------------------------------- */
+.pull{font-size:var(--text-xl);line-height:var(--leading-tight);max-width:36ch;
+  border-left:8px solid var(--accent);padding-left:var(--space-5);margin:0}
+.pull cite{display:block;margin-top:var(--space-3);font-style:normal;
+  font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-muted)}
+
+/* --- step list ----------------------------------------------------------- */
+.steps{display:grid;gap:0;margin:var(--space-8) 0 0;padding:0;list-style:none;
+  border-top:var(--rule) solid var(--border)}
+.steps li{display:grid;gap:var(--space-3);padding:var(--space-5) 0;
+  border-bottom:var(--rule) solid var(--border)}
+@media(min-width:52rem){.steps li{grid-template-columns:minmax(0,6rem) minmax(0,1fr);
+  gap:var(--space-5)}}
+.steps .n{font-family:var(--font-display);font-weight:var(--weight-bold);
+  font-size:var(--display-s);line-height:1;letter-spacing:var(--tracking-display);
+  color:var(--accent-text)}
+.steps h3{font-size:var(--text-xl);margin-bottom:var(--space-2)}
+.steps p{color:var(--ink-muted);max-width:var(--measure)}
+
+/* --- matrix table -------------------------------------------------------- */
+.table-scroll{overflow-x:auto;border:var(--rule) solid var(--border)}
+table{border-collapse:collapse;width:100%;min-width:44rem;font-size:var(--text-sm)}
+caption{text-align:left;padding:var(--space-4);border-bottom:var(--rule) solid var(--border);
+  font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-muted)}
+th,td{text-align:left;padding:var(--space-3) var(--space-4);
+  border-bottom:var(--rule-thin) solid var(--border);vertical-align:top}
+thead th{font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--weight-regular);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-muted);
+  border-bottom:var(--rule) solid var(--border);white-space:nowrap}
+tbody th{font-family:var(--font-mono);font-size:var(--text-xs);white-space:nowrap;color:var(--accent-text)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+
+/* --- agent cards --------------------------------------------------------- */
+.agents{display:grid;gap:0;border-top:var(--rule) solid var(--border);
+  border-left:var(--rule) solid var(--border);
+  grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+.agents>div{border-right:var(--rule) solid var(--border);
+  border-bottom:var(--rule) solid var(--border);padding:var(--space-5)}
+.agents h3{font-family:var(--font-mono);font-weight:var(--weight-regular);
+  text-transform:none;letter-spacing:0;font-size:var(--text-sm);
+  color:var(--accent-text);margin-bottom:var(--space-2)}
+.agents p{color:var(--ink-muted);font-size:var(--text-sm)}
+
+/* --- stats --------------------------------------------------------------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));
+  border-top:var(--rule) solid var(--border);border-left:var(--rule) solid var(--border);
+  margin:0;padding:0}
+.stats>div{border-right:var(--rule) solid var(--border);
+  border-bottom:var(--rule) solid var(--border);padding:var(--space-5) var(--space-4)}
+.stats dt{font-family:var(--font-display);font-weight:var(--weight-bold);
+  font-size:var(--display-s);line-height:1;letter-spacing:var(--tracking-display);
+  color:var(--accent);margin-bottom:var(--space-2)}
+.stats dd{margin:0;font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;
+  color:var(--ink-muted);line-height:1.5}
+.asof{margin-top:var(--space-3);font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-muted)}
+
+/* --- gate simulator (signature element, zero JavaScript) ------------------ */
+.sim{border:var(--rule) solid var(--border);margin-top:var(--space-8)}
+.sim-head{padding:var(--space-5);border-bottom:var(--rule) solid var(--border);
+  background:var(--ink);color:var(--surface)}
+.sim-head h3{font-size:var(--display-s);margin-bottom:var(--space-2)}
+.sim-head p{font-family:var(--font-mono);font-size:var(--text-xs);
+  line-height:1.7;max-width:56ch;opacity:.8}
+.sim input{position:absolute;opacity:0;width:1px;height:1px}
+.sim fieldset{border:0;margin:0;padding:0;border-bottom:var(--rule) solid var(--border)}
+.sim legend{position:absolute;left:-9999px}
+.opts{display:grid;grid-template-columns:1fr}
+@media(min-width:52rem){.opts{grid-template-columns:repeat(5,1fr)}}
+.opts label{display:block;padding:var(--space-4);cursor:pointer;
+  font-family:var(--font-mono);font-size:var(--text-xs);line-height:1.55;
+  border-bottom:var(--rule) solid var(--border);
+  transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+@media(min-width:52rem){.opts label{border-bottom:0;
+  border-right:var(--rule) solid var(--border);min-height:7rem}
+  .opts label:last-of-type{border-right:0}}
+.opts label i{display:block;font-style:normal;font-size:var(--text-2xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;
+  color:var(--ink-muted);margin-bottom:var(--space-2)}
+.opts label:hover{background:var(--surface-sunk)}
+.sim input:focus-visible + label{outline:3px solid var(--focus);outline-offset:-3px}
+#s0:checked ~ fieldset .o0,#s1:checked ~ fieldset .o1,#s2:checked ~ fieldset .o2,
+#s3:checked ~ fieldset .o3,#s4:checked ~ fieldset .o4{background:var(--accent);color:var(--on-accent)}
+#s0:checked ~ fieldset .o0 i,#s1:checked ~ fieldset .o1 i,#s2:checked ~ fieldset .o2 i,
+#s3:checked ~ fieldset .o3 i,#s4:checked ~ fieldset .o4 i{color:var(--on-accent)}
+.panel{display:none;padding:var(--space-5)}
+#s0:checked ~ .panels .p0,#s1:checked ~ .panels .p1,#s2:checked ~ .panels .p2,
+#s3:checked ~ .panels .p3,#s4:checked ~ .panels .p4{display:block}
+.verdict{font-family:var(--font-display);font-weight:var(--weight-bold);
+  font-size:var(--display-s);line-height:1;letter-spacing:var(--tracking-display);
+  text-transform:uppercase;margin-bottom:var(--space-3)}
+.panel > p{color:var(--ink-muted);max-width:var(--measure);margin-bottom:var(--space-5)}
+.cols{display:grid;gap:0;border-top:var(--rule) solid var(--border)}
+@media(min-width:46rem){.cols{grid-template-columns:1fr 1fr}}
+.cols > div{padding:var(--space-5) var(--space-5) var(--space-5) 0}
+@media(min-width:46rem){.cols > div + div{border-left:var(--rule) solid var(--border);
+  padding-left:var(--space-5)}}
+.cols ul{margin:var(--space-3) 0 0;padding:0;list-style:none}
+.cols li{padding:var(--space-2) 0;border-bottom:var(--rule-thin) solid var(--border);
+  font-size:var(--text-sm)}
+.cols li:last-child{border-bottom:0}
+.cols li em{font-style:normal;color:var(--ink-muted)}
+.cols .empty{margin:var(--space-3) 0 0;color:var(--ink-muted);font-size:var(--text-sm)}
+.gates-strip{padding:var(--space-5);border-top:var(--rule) solid var(--border);
+  background:var(--surface-sunk)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--space-1);list-style:none;
+  margin:var(--space-3) 0 0;padding:0}
+.chips li{font-family:var(--font-mono);font-size:var(--text-2xs);
+  letter-spacing:.04em;text-transform:uppercase;padding:var(--space-1) var(--space-2);
+  border:var(--rule-thin) solid var(--border)}
+.gates-strip small{display:block;margin-top:var(--space-4);font-family:var(--font-mono);
+  font-size:var(--text-xs);color:var(--ink-muted);line-height:1.7;max-width:var(--measure)}
+
+/* --- code block + callout ------------------------------------------------ */
+pre{margin:0;padding:var(--space-5);background:var(--ink);color:var(--surface);
+  border-radius:var(--radius);overflow-x:auto;
+  font-family:var(--font-mono);font-size:var(--text-sm);line-height:1.9}
+pre b{color:var(--accent);font-weight:var(--weight-regular)}
+.callout{border:var(--rule) solid var(--accent);padding:var(--space-5);
+  margin-top:var(--space-5);max-width:var(--measure)}
+.callout h4{color:var(--accent-text);margin-bottom:var(--space-2)}
+.callout p{font-size:var(--text-sm)}
+
+/* --- buttons ------------------------------------------------------------- */
+.cta{display:flex;flex-wrap:wrap;gap:0;border:var(--rule) solid var(--border);
+  margin-top:var(--space-8)}
+.btn{flex:1 1 16rem;text-align:center;padding:var(--space-4);text-decoration:none;
+  font-family:var(--font-mono);font-size:var(--text-xs);
+  letter-spacing:var(--tracking-label);text-transform:uppercase;
+  background:var(--accent);color:var(--on-accent);
+  transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+.btn + .btn{border-left:var(--rule) solid var(--border)}
+.btn-2{background:var(--surface);color:var(--ink)}
+.btn-2:hover{background:var(--ink);color:var(--surface)}
+
+footer{padding:var(--space-5) 0}
+footer .wrap{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-5);
+  justify-content:space-between;font-family:var(--font-mono);
+  font-size:var(--text-2xs);letter-spacing:var(--tracking-label);
+  text-transform:uppercase;color:var(--ink-muted)}
+
+/* --- print: a clean one-pager, per the brief ----------------------------- */
+@media print{
+  .skip,header .nav-right,.sim,.cta,.toggle{display:none}
+  body{background:#fff;color:#000;font-size:10pt}
+  section{padding:var(--space-4) 0;break-inside:avoid}
+  .agents,.stats,.table-scroll{break-inside:avoid}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#444}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="/">Yastremskyi</a>
+    <div class="nav-right">
+      <nav aria-label="Primary"><ul>
+        <li><a href="/groundwork" aria-current="page">Groundwork</a></li>
+        <li><a href="/work">Work</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/cv">CV</a></li>
+      </ul></nav>
+      <button class="toggle" type="button" id="theme" aria-pressed="false">Theme</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="label">Open source · MIT · the flagship</p>
+    <h1>Groundwork</h1>
+    <p class="lede">An agent that is <b>not allowed to say “done”</b> until the work has been checked.</p>
+    <div class="meta-row">
+      <span>Licence <b>MIT</b></span>
+      <span>Runs in <b>Claude Code</b></span>
+      <span>Targets <b>Laravel backends</b></span>
+      <span>Author <b>Max Yastremskyi</b></span>
+    </div>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label">The problem</p><h2>Plausible is not the same as correct</h2></div>
+      <div class="prose"><p>Every safeguard below exists because the failure it prevents happened first.</p></div>
+    </div>
+    <blockquote class="pull">“An agent will happily write plausible code and just as happily report that it is done. Groundwork makes the checking part of the process.”
+      <cite>The design principle the plugin is built on</cite></blockquote>
+    <ol class="steps">
+      <li><span class="n num">01</span><div><h3>It guesses about other people’s APIs</h3>
+        <p>An agent asked what a payment provider returns will produce a confident, well-formatted, entirely invented answer. Groundwork requires a citation from official documentation, or a sandbox result — anything else is recorded as unknown rather than assumed.</p></div></li>
+      <li><span class="n num">02</span><div><h3>It plans from the files it was shown</h3>
+        <p>The change looks contained because nobody looked outward. Discovery maps the blast radius first — callers, events, jobs, policies, cascade relationships, the tests that cover any of it — so the plan is built on connections rather than on the three files in the prompt.</p></div></li>
+      <li><span class="n num">03</span><div><h3>It answers the question it was asked</h3>
+        <p>Which is not always the question worth answering. A separate pass predicts what nobody thought to ask, and the interview puts those decisions back to the person who owns them instead of settling them quietly.</p></div></li>
+      <li><span class="n num">04</span><div><h3>It reports success</h3>
+        <p>“It works” is a claim, and a claim is not evidence. A reviewer whose only job is to refute the claim gets to look before it is believed.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section id="design">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label">The design</p><h2>Weight scales with risk</h2></div>
+      <div class="prose"><p>A typo and a change to how VAT is calculated do not deserve the same ceremony. Applying the full process to everything is how a process stops being used — so the level decides what runs.</p></div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <caption>Task classification L0–L4</caption>
+        <thead><tr><th scope="col">Level</th><th scope="col">What it covers</th><th scope="col">Review agents</th><th scope="col">Approval</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">L0</th><td>Typo, comment, documentation</td><td>None</td><td>Not required</td></tr>
+          <tr><th scope="row">L1</th><td>Small bug fix</td><td>None — a targeted self-trace</td><td>Unless told to apply now</td></tr>
+          <tr><th scope="row">L2</th><td>Normal feature</td><td>Impact map, conformance</td><td>Required</td></tr>
+          <tr><th scope="row">L3</th><td>Permissions, migrations, public contracts, financial visibility</td><td>All five</td><td>Required</td></tr>
+          <tr><th scope="row">L4</th><td>Financial calculation, order lifecycle, the permission model, destructive migrations</td><td>All five, plus an adversarial panel</td><td>Human, always</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sim">
+      <div class="sim-head">
+        <h3>Pick a task. Watch the process resize.</h3>
+        <p>Zero JavaScript — radio inputs and CSS. Keyboard: Tab into the group, then arrow keys. Works with scripting disabled.</p>
+      </div>
+      <input type="radio" name="task" id="s0"><input type="radio" name="task" id="s1">
+      <input type="radio" name="task" id="s2" checked><input type="radio" name="task" id="s3">
+      <input type="radio" name="task" id="s4">
+      <fieldset>
+        <legend>Choose a task</legend>
+        <div class="opts">
+          <label class="o0" for="s0"><i>Typo</i>Fix a typo in a code comment</label>
+          <label class="o1" for="s1"><i>Bug</i>Wrong subject line on a notification email</label>
+          <label class="o2" for="s2"><i>Feature</i>Add an orders export endpoint</label>
+          <label class="o3" for="s3"><i>Access</i>Change who can see supplier prices</label>
+          <label class="o4" for="s4"><i>Money</i>Change how VAT is calculated on refunds</label>
+        </div>
+      </fieldset>
+      <div class="panels">
+        <div class="panel p0"><p class="verdict">L0 — Tiny</p>
+          <p>No spec. No plan. No review agents. No approval. The automatic gates are the entire Definition of Done.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><p class="empty">Nobody — and that is deliberate.</p></div>
+            <div><h4>What is required</h4><ul><li>The gates that fire on their own</li></ul></div>
+          </div></div>
+        <div class="panel p1"><p class="verdict">L1 — Small fix</p>
+          <p>A regression test that fails first, then one live exercise of the single thing fixed — not a sweep of every consumer.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><p class="empty">No agents — a targeted self-trace instead.</p></div>
+            <div><h4>What is required</h4><ul><li>Short inline spec</li><li>Fail-first regression test</li><li>Live check of the one thing fixed</li></ul></div>
+          </div></div>
+        <div class="panel p2"><p class="verdict">L2 — Feature</p>
+          <p>Discovery fans out before anything is planned. The blast radius is mapped, not assumed, and nothing is written before the plan is agreed.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul>
+              <li>impact-mapper <em>— what will this break</em></li>
+              <li>conformance-reviewer <em>— does the diff satisfy the criteria</em></li></ul></div>
+            <div><h4>What is required</h4><ul><li>Spec, plan, approval</li>
+              <li>Up to 2 rounds of questions</li><li>Tests written before the code</li></ul></div>
+          </div></div>
+        <div class="panel p3"><p class="verdict">L3 — High risk</p>
+          <p>Permissions, migrations, public contracts, financial visibility. Here the intent gets challenged, not only the code.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul>
+              <li>impact-mapper</li><li>blind-spot-map <em>— what nobody thought to ask</em></li>
+              <li>grounded-researcher <em>— what the provider actually does, cited</em></li>
+              <li>conformance-reviewer</li><li>adversarial-verifier <em>— is “it works” true</em></li></ul></div>
+            <div><h4>What is required</h4><ul>
+              <li>Spec, plan, requirements check, deployment notes</li>
+              <li>Up to 4 rounds of questions</li><li>An ADR when the decision is cross-cutting</li></ul></div>
+          </div></div>
+        <div class="panel p4"><p class="verdict">L4 — Critical</p>
+          <p>Financial calculation, order lifecycle, the permission model, destructive migrations. Being approximately right here is being wrong.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul><li>Everything L3 engages</li>
+              <li>An adversarial panel <em>— at least two independent skeptics on the riskiest claims</em></li></ul></div>
+            <div><h4>What is required</h4><ul><li>Everything L3 requires</li>
+              <li>Rollback notes</li><li>Human approval, always</li></ul></div>
+          </div></div>
+      </div>
+      <div class="gates-strip">
+        <span class="label">Gates — armed at every level, including L0</span>
+        <ul class="chips">
+          <li>format on edit</li><li>static analysis</li><li>test suite</li><li>OpenAPI contract</li>
+          <li>enforced runner</li><li>migrations locked</li><li>edits locked in discovery</li>
+          <li>unpushed work</li><li>coverage claim</li><li>task intent</li><li>agent contract</li>
+        </ul>
+        <small>Process weight scales with risk. The gates do not — that is the point.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label">Review</p><h2>Five specialists, one job each</h2></div>
+      <div class="prose"><p>Each runs in a fresh context, so the reasoning that produced a mistake cannot quietly reproduce it.</p></div>
+    </div>
+    <div class="agents">
+      <div><h3>impact-mapper</h3><p>What will this break? Traces outward from every touched symbol — callers, events, listeners, jobs, scheduled commands, policies, cascade relationships, and the tests covering any of it.</p></div>
+      <div><h3>blind-spot-mapper</h3><p>What did nobody think to ask? Predicts the omitted dimension rather than the existing coupling: unintended consequences, missing requirements, the domain angle the requester is not the expert in.</p></div>
+      <div><h3>grounded-researcher</h3><p>What does the provider actually do? Reads the official documentation and returns findings that each carry a source, or are marked unknown. It is not allowed to guess instead of check.</p></div>
+      <div><h3>adversarial-verifier</h3><p>Is the “it works” claim true? Tries to refute it against real code, official docs and sandbox results. Defaults to skeptical.</p></div>
+      <div><h3>conformance-reviewer</h3><p>Does the diff satisfy the acceptance criteria that were agreed? Judges implementation against spec in a fresh context, and reports gaps rather than style.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="adoption">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label">Adoption</p><h2>In daily use, not in a demo</h2></div>
+      <div class="prose"><p>Numbers are approximate and point-in-time, which is why they carry a date.</p></div>
+    </div>
+    <dl class="stats">
+      <div><dt class="num">7</dt><dd>production codebases</dd></div>
+      <div><dt class="num">340</dt><dd>procedure runs</dd></div>
+      <div><dt class="num">160</dt><dd>written specs</dd></div>
+      <div><dt class="num">27</dt><dd>frontend hand-offs</dd></div>
+      <div><dt class="num">1/3</dt><dd>stopped before code</dd></div>
+    </dl>
+    <p class="asof">Approximate, as of August 2026</p>
+    <div class="callout">
+      <h4>The number worth arguing about</h4>
+      <p>Roughly one task in three never reaches code. Not because the tooling refused, but because writing the specification showed the request was mis-scoped, already solved elsewhere, or cheaper to handle without development at all.</p>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label">Install</p><h2>Three lines</h2></div>
+      <div class="prose"><p><code>init</code> derives thin, domain-only contracts from the code itself and labels anything it had to assume.</p></div>
+    </div>
+    <pre><code><b>/plugin</b> marketplace add YasMax91/groundwork
+<b>/plugin</b> install groundwork@yasmax
+<b>/groundwork:init</b></code></pre>
+    <div class="cta">
+      <a class="btn" href="https://github.com/YasMax91/groundwork">Read the source</a>
+      <a class="btn btn-2" href="mailto:m.yastremskyj@gmail.com?subject=Groundwork">Ask me about it</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 Max Yastremskyi</span>
+  <span>Phase 2 reference page</span>
+  <span><a href="https://github.com/YasMax91/groundwork">Groundwork</a> · Source of this site</span>
+</div></footer>
+
+<script>
+// The theme toggle — the site's only runtime JavaScript.
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme');
+  var apply = function (t) {
+    root.dataset.theme = t;
+    btn.setAttribute('aria-pressed', String(t === 'dark'));
+    btn.textContent = t === 'dark' ? 'Light' : 'Dark';
+  };
+  var stored = null;
+  try { stored = localStorage.getItem('theme'); } catch (e) {}
+  apply(stored || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  btn.addEventListener('click', function () {
+    var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.classList.add('theme-switching');
+    apply(next);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { root.classList.remove('theme-switching'); });
+    });
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
