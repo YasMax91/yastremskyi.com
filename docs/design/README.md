@@ -92,20 +92,33 @@ Real browser, 2026-08-19:
 | Check | Result |
 |---|---|
 | Contrast, both themes | **22/22 pairs pass** WCAG 2.2 AA (`contrast.mjs`) |
-| Horizontal overflow at 320 / 1440 | **0 px** — the wide table scrolls inside its own container |
+| Horizontal overflow at 320 / 375 / 768 / 1440 | **0 px** — the wide table scrolls inside its own container |
+| Looked at, both themes | 375 and 768 reviewed visually in light and dark |
 | Theme toggle | Switches both directions, persists, applies before first paint, flips instantly |
 | Gate simulator | Switches L0–L4; keyboard reaches it; **zero** JavaScript involved |
 | Runtime JavaScript, whole page | **806 bytes uncompressed** — the theme toggle and nothing else. Budget was 30 KB gzipped. |
+| Print | Rendered to PDF from headless Chrome **in dark mode**: 4 pages, all legible |
 | Console errors | none |
+
+### Defects this pass found and fixed
+
+1. **White on the vermilion CTA measured 3.57:1** — an AA failure on the primary button of the
+   winning concept. `--on-accent` is black in both themes: 5.88:1, accent at full strength.
+2. **The portrait frame blew out the single-column layout** — ~968 px of dead space at tablet width.
+3. **Concept C scrolled horizontally at 320–375 px** — the surname could not fit on one line, then
+   the primary nav could not wrap.
+4. **The simulator's level name rendered as secondary text.** `.panel > p` outranks a bare
+   `.verdict` on specificity, so the single most important output of the signature element was
+   painted in the muted colour. Only visible by looking — no measurement would have caught it.
+5. **Printing from dark mode produced invisible text.** The print block recoloured `body` but every
+   element taking its colour from a token kept the dark value, so the meta row's values were white
+   on white paper. The print block now pins the light token set outright, because paper has one
+   theme. Page count also dropped from 6 to 4, and page one is no longer two-thirds blank.
 
 ## Known gaps, stated rather than skipped
 
-- **Screenshots at 375 and 768 are not attached.** The browser pane went hidden mid-pass, so the
-  visual checks were completed through DOM measurement instead. Measurement is the stronger evidence
-  for overflow and contrast, but it is not a substitute for looking, and the screenshot pass is
-  outstanding.
-- **Print is defined but not verified against real output.** The rules are in place — nav, simulator,
-  CTAs and toggle drop out; links reveal their href — but nobody has produced a PDF from it yet.
 - **Fonts still load from Google.** Phase 3 self-hosts a subset with `font-display: swap` and
   preload, per §1.
 - **The portrait is still absent**, so no page yet proves the image treatment.
+- **Lighthouse has not been run.** It belongs to Phase 4 and needs the real build, not this
+  standalone page.
