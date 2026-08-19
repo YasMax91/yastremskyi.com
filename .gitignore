@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+.astro/
+.output/
+.vercel/
+.netlify/
+.wrangler/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# logs & caches
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.eslintcache
+
+# OS
+.DS_Store
+
+# Groundwork working memory — per-developer state, not a deliverable.
+# A team that wants a shared discovery cache can un-ignore impact/.
+.claude/groundwork/
+
+# personal, machine-specific Claude Code settings (absolute plugin paths)
+.claude/settings.local.json

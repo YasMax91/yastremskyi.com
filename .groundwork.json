@@ -1,0 +1,31 @@
+{
+  "runner": "host",
+  "database": {
+    "default": "none"
+  },
+  "commands": {},
+  "gates": {
+    "format_on_edit": false,
+    "analyse_on_stop": false,
+    "analyse_skip_reason": "No PHP in this repository: it is an Astro/TypeScript static site, so the analyse gate (which only fires on changed *.php) can never run. Static analysis here is `astro check` + `tsc --noEmit` + ESLint, run as npm scripts and in CI once the toolchain is scaffolded. Re-run /groundwork:init after scaffolding to record verified commands.",
+    "test_on_stop": false,
+    "openapi_on_stop": false,
+    "enforce_runner": false,
+    "lock_shipped_migrations": false,
+    "lock_edits_in_discovery": false,
+    "check_unpushed": true,
+    "coverage_claim": true,
+    "task_intent": true,
+    "agent_contract": true,
+    "trim_tool_output": true
+  },
+  "memory": {
+    "session_context": true,
+    "checkpoint": true,
+    "impact_cache": true
+  },
+  "ui": {
+    "statusline": true,
+    "status_messages": true
+  }
+}
