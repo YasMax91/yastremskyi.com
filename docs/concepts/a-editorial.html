@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept A — Editorial · Max Yastremskyi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONCEPT A — "EDITORIAL"
+   Typography-first. Generous whitespace. One restrained accent
+   carried from Max's existing CV (#c4520a). Magazine hierarchy.
+   Concept-only shortcut: fonts load from Google. The real build
+   self-hosts a subset, per the brief's font rule.
+   ============================================================ */
+:root{
+  --paper:#faf7f2; --ink:#191510; --ink-2:#4a423a; --ink-3:#7d7268;
+  --rule:#e0d8cc; --panel:#f3eee5; --accent:#c4520a; --on-accent:#fff;
+  --measure:66ch;
+  --s1:.5rem; --s2:1rem; --s3:1.5rem; --s4:2.5rem; --s5:4rem; --s6:6.5rem;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --text:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --paper:#14110d; --ink:#efe8dd; --ink-2:#b3a897; --ink-3:#8a7f70;
+         --rule:#2e281f; --panel:#1c1813; --accent:#f08a3c; --on-accent:#1a1409; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--text);font-size:clamp(1rem,.96rem + .2vw,1.075rem);line-height:1.65;
+  font-feature-settings:"kern","liga";text-rendering:optimizeLegibility}
+::selection{background:var(--accent);color:var(--on-accent)}
+a{color:inherit;text-underline-offset:.22em;text-decoration-thickness:.06em}
+a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.08;
+  letter-spacing:-.02em;text-wrap:balance;margin:0}
+.wrap{width:min(100% - 2.5rem,72rem);margin-inline:auto}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:1rem;top:1rem;position:fixed;z-index:99;background:var(--accent);
+  color:var(--on-accent);padding:.6rem 1rem;border-radius:3px}
+.rule{border:0;border-top:1px solid var(--rule);margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+/* ---- header ---- */
+header{padding:var(--s3) 0}
+header .wrap{display:flex;gap:var(--s3);align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.brand{font-family:var(--display);font-size:1.05rem;letter-spacing:-.01em}
+nav ul{display:flex;flex-wrap:wrap;gap:.5rem var(--s3);list-style:none;margin:0;padding:0;font-size:.92rem}
+nav a{text-decoration:none;color:var(--ink-2)}
+nav a:hover{color:var(--accent)}
+
+/* ---- hero ---- */
+.hero{padding:var(--s5) 0 var(--s4)}
+.hero-grid{display:grid;gap:var(--s4);grid-template-columns:1fr}
+@media(min-width:56rem){.hero-grid{grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr);align-items:end}}
+h1{font-size:clamp(2.9rem,1.6rem + 5.6vw,5.6rem);margin-bottom:var(--s2)}
+.role{font-size:clamp(1rem,.94rem + .3vw,1.15rem);color:var(--ink-2);margin:0 0 var(--s3)}
+.lead{font-family:var(--display);font-size:clamp(1.35rem,1.1rem + 1.1vw,1.9rem);
+  line-height:1.32;max-width:24ch;margin:0 0 var(--s4);hanging-punctuation:first}
+.lead b{color:var(--accent);font-weight:inherit}
+.cta{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center}
+.btn{display:inline-block;padding:.72rem 1.35rem;background:var(--accent);color:var(--on-accent);
+  text-decoration:none;font-weight:500;font-size:.95rem;border-radius:2px}
+.btn-2{background:none;color:var(--ink);border:1px solid var(--rule);padding:.7rem 1.3rem}
+.btn-2:hover{border-color:var(--accent);color:var(--accent)}
+.portrait{aspect-ratio:4/5;max-width:22rem;margin-inline:auto;width:100%;background:var(--panel);border:1px solid var(--rule);
+  display:grid;place-content:center;text-align:center;padding:var(--s3);
+  filter:grayscale(1) contrast(1.05)}
+.portrait span{font-size:.78rem;color:var(--ink-3);letter-spacing:.06em;line-height:1.5}
+.stack{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--rule);
+  font-size:.88rem;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:.4rem 1.1rem}
+
+/* ---- sections ---- */
+section{padding:var(--s6) 0}
+.sec-head{display:grid;gap:var(--s2);margin-bottom:var(--s4);max-width:var(--measure)}
+h2{font-size:clamp(1.9rem,1.4rem + 1.9vw,3rem)}
+.sec-head p{color:var(--ink-2);margin:0;max-width:58ch}
+
+/* ---- groundwork ---- */
+.gw{background:var(--panel);border-block:1px solid var(--rule)}
+.pull{font-family:var(--display);font-size:clamp(1.25rem,1.05rem + .9vw,1.7rem);
+  line-height:1.35;border-left:3px solid var(--accent);padding-left:var(--s3);
+  margin:0 0 var(--s4);max-width:44ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));
+  gap:var(--s3) var(--s2);margin:0 0 var(--s2);padding:0;list-style:none}
+.stats div{font-family:var(--display);font-size:clamp(1.8rem,1.4rem + 1.4vw,2.6rem);
+  line-height:1;color:var(--accent)}
+.stats dt{font-size:.86rem;color:var(--ink-2);margin-top:.35rem;max-width:15ch}
+.asof{font-size:.8rem;color:var(--ink-3);margin:0 0 var(--s5)}
+
+/* ---- gate simulator (zero JavaScript) ---- */
+.sim{border:1px solid var(--rule);background:var(--paper)}
+.sim-head{padding:var(--s3);border-bottom:1px solid var(--rule)}
+.sim-head h3{font-size:1.35rem;margin-bottom:.4rem}
+.sim-head p{margin:0;color:var(--ink-2);font-size:.93rem;max-width:52ch}
+.sim fieldset{border:0;margin:0;padding:var(--s3);border-bottom:1px solid var(--rule)}
+.sim legend{padding:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;margin-bottom:.85rem}
+.sim input{position:absolute;opacity:0;width:1px;height:1px}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts label{display:inline-block;padding:.5rem .95rem;border:1px solid var(--rule);
+  border-radius:2px;font-size:.9rem;cursor:pointer;background:var(--paper);
+  transition:border-color .18s ease,color .18s ease}
+.opts label:hover{border-color:var(--accent);color:var(--accent)}
+.sim input:focus-visible + label{outline:2px solid var(--accent);outline-offset:3px}
+.panel{display:none;padding:var(--s3)}
+#a0:checked ~ .panels .p0,#a1:checked ~ .panels .p1,#a2:checked ~ .panels .p2,
+#a3:checked ~ .panels .p3,#a4:checked ~ .panels .p4{display:block}
+#a0:checked ~ fieldset .l0,#a1:checked ~ fieldset .l1,#a2:checked ~ fieldset .l2,
+#a3:checked ~ fieldset .l3,#a4:checked ~ fieldset .l4{
+  background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.lvl{font-family:var(--display);font-size:1.5rem;color:var(--accent);margin-bottom:.3rem}
+.gist{margin:0 0 var(--s3);max-width:56ch;color:var(--ink-2)}
+.cols{display:grid;gap:var(--s3);grid-template-columns:1fr}
+@media(min-width:44rem){.cols{grid-template-columns:1fr 1fr}}
+.cols h4{margin:0 0 .6rem;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;font-family:var(--text)}
+.cols ul{margin:0;padding-left:1.1rem;font-size:.93rem;color:var(--ink-2)}
+.cols ul li{margin-bottom:.3rem}
+.none{font-size:.93rem;color:var(--ink-3);font-style:italic;margin:0}
+.gates{padding:var(--s3);background:var(--panel);border-top:1px solid var(--rule)}
+.gates p{margin:0 0 .7rem;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;list-style:none;margin:0;padding:0}
+.chips li{font-size:.78rem;padding:.25rem .6rem;border:1px solid var(--rule);
+  border-radius:2px;color:var(--ink-3)}
+.gates small{display:block;margin-top:.8rem;color:var(--ink-3);font-size:.82rem;max-width:52ch}
+
+/* ---- work ---- */
+.cases{display:grid;gap:0;border-top:1px solid var(--rule)}
+.case{display:grid;gap:var(--s2);padding:var(--s4) 0;border-bottom:1px solid var(--rule)}
+@media(min-width:52rem){.case{grid-template-columns:minmax(0,7rem) minmax(0,1fr) minmax(0,18rem);gap:var(--s3);align-items:start}}
+.case-n{font-family:var(--display);font-size:2rem;color:var(--rule);line-height:1}
+.case h3{font-size:1.5rem;margin-bottom:.6rem}
+.case p{margin:0;color:var(--ink-2);max-width:52ch}
+.subtle{border-left:2px solid var(--accent);padding-left:var(--s2);font-size:.9rem}
+.subtle b{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:.3rem;font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;list-style:none;margin:.9rem 0 0;padding:0}
+.tags li{font-size:.76rem;color:var(--ink-3);border:1px solid var(--rule);padding:.2rem .55rem;border-radius:2px}
+
+/* ---- capability map ---- */
+.caps{display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+.caps h3{font-size:1.15rem;margin-bottom:.7rem;padding-bottom:.5rem;border-bottom:1px solid var(--rule)}
+.caps ul{margin:0;padding:0;list-style:none;font-size:.92rem;color:var(--ink-2)}
+.caps li{padding:.22rem 0}
+
+/* ---- principles ---- */
+.prin{display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.prin h3{font-size:1.35rem;color:var(--accent);margin-bottom:.5rem}
+.prin p{margin:0;color:var(--ink-2);font-size:.95rem}
+
+/* ---- contact ---- */
+.contact{background:var(--panel);border-top:1px solid var(--rule)}
+.contact .wrap{display:grid;gap:var(--s3);max-width:var(--measure)}
+footer{padding:var(--s4) 0;font-size:.85rem;color:var(--ink-3)}
+footer .wrap{display:flex;gap:var(--s2) var(--s3);flex-wrap:wrap;justify-content:space-between}
+footer a{color:var(--ink-3)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  header nav,.cta,.sim,.portrait{display:none}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  section{padding:1rem 0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap">
+    <span class="brand">Max Yastremskyi</span>
+    <nav aria-label="Primary"><ul>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#groundwork">Groundwork</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main id="main">
+
+<div class="hero"><div class="wrap"><div class="hero-grid">
+  <div>
+    <p class="eyebrow">Senior Backend Engineer · Tech Lead</p>
+    <h1>Max<br>Yastremskyi</h1>
+    <p class="role">Ukraine (UTC+3) · open to remote worldwide and to relocation · 6+ years</p>
+    <p class="lead">I own the parts of a system that <b>must not be approximately right</b> — money, orders, production workflows — and I build the tooling that proves the work was actually done.</p>
+    <div class="cta">
+      <a class="btn" href="mailto:m.yastremskyj@gmail.com?subject=Senior%20Backend%20role">Email me</a>
+      <a class="btn btn-2" href="https://github.com/YasMax91/groundwork">Groundwork on GitHub</a>
+    </div>
+    <div class="stack">
+      <span>PHP 8.4 / Laravel 12</span><span>Node / NestJS</span><span>MySQL 8</span>
+      <span>Redis</span><span>Docker</span>
+    </div>
+  </div>
+  <!-- Swap this whole .portrait block for <img src="…"> when the file lands. -->
+  <div class="portrait" role="img" aria-label="Portrait of Max Yastremskyi, pending">
+    <span>PORTRAIT<br>reserved 4:5 frame<br>duotone treatment</span>
+  </div>
+</div></div></div>
+
+<section class="gw" id="groundwork">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Open source · MIT · the flagship</p>
+      <h2>Groundwork</h2>
+      <p>A Claude Code plugin that makes verification part of the development process instead of leaving it to the human.</p>
+    </div>
+
+    <blockquote class="pull">“An agent will happily write plausible code and just as happily report that it is done. Groundwork makes the checking part of the process.”</blockquote>
+
+    <dl class="stats">
+      <div class="num">7</div><dt>production codebases</dt>
+      <div class="num">~340</div><dt>procedure runs</dt>
+      <div class="num">~160</div><dt>written specs</dt>
+      <div class="num">27</div><dt>frontend API hand-offs</dt>
+      <div class="num">1 in 3</div><dt>tasks stopped before any code</dt>
+    </dl>
+    <p class="asof">As of August 2026.</p>
+
+    <div class="sim">
+      <div class="sim-head">
+        <h3>What does the process actually do?</h3>
+        <p>Pick a task. Risk decides the weight — a typo and a change to VAT do not get the same ceremony. No JavaScript on this page: it is radio inputs and CSS, and it works with scripting disabled.</p>
+      </div>
+
+      <input type="radio" name="task" id="a0">
+      <input type="radio" name="task" id="a1">
+      <input type="radio" name="task" id="a2" checked>
+      <input type="radio" name="task" id="a3">
+      <input type="radio" name="task" id="a4">
+
+      <fieldset>
+        <legend>Choose a task</legend>
+        <div class="opts">
+          <label class="l0" for="a0">Fix a typo in a comment</label>
+          <label class="l1" for="a1">Wrong subject line on a notification email</label>
+          <label class="l2" for="a2">Add an orders export endpoint</label>
+          <label class="l3" for="a3">Change who can see supplier prices</label>
+          <label class="l4" for="a4">Change how VAT is calculated on refunds</label>
+        </div>
+      </fieldset>
+
+      <div class="panels">
+        <div class="panel p0">
+          <p class="lvl">L0 · Tiny</p>
+          <p class="gist">No spec. No plan. No review agents. No approval. The automatic gates are the entire Definition of Done.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><p class="none">Nobody. This does not need it, and pretending otherwise is how a process stops being used.</p></div>
+            <div><h4>What is required</h4><ul><li>The gates that fire on their own</li></ul></div>
+          </div>
+        </div>
+        <div class="panel p1">
+          <p class="lvl">L1 · Small bug fix</p>
+          <p class="gist">A regression test that fails first, then one live exercise of the single thing that was fixed — not a sweep of every consumer.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><p class="none">No agents. A targeted self-trace instead.</p></div>
+            <div><h4>What is required</h4><ul><li>Short inline spec</li><li>Fail-first regression test</li><li>Live check of the one thing fixed</li></ul></div>
+          </div>
+        </div>
+        <div class="panel p2">
+          <p class="lvl">L2 · Normal feature</p>
+          <p class="gist">Discovery fans out before anything is planned. The blast radius is mapped, not assumed, and the plan is agreed before code exists.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul><li>impact-mapper — what will this break</li><li>conformance-reviewer — does the diff satisfy the agreed criteria</li></ul></div>
+            <div><h4>What is required</h4><ul><li>Spec, plan, approval</li><li>Up to 2 rounds of questions</li><li>Tests written before the code</li></ul></div>
+          </div>
+        </div>
+        <div class="panel p3">
+          <p class="lvl">L3 · High risk</p>
+          <p class="gist">Permissions, migrations, public contracts, financial visibility. Here the intent is challenged, not only the code.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul><li>impact-mapper</li><li>blind-spot-map — what did nobody think to ask</li><li>grounded-researcher — what the provider actually does, with a citation</li><li>conformance-reviewer</li><li>adversarial-verifier — is the “it works” claim true</li></ul></div>
+            <div><h4>What is required</h4><ul><li>Spec, plan, requirements check, deployment notes</li><li>Up to 4 rounds of questions</li><li>An ADR when the decision is cross-cutting</li></ul></div>
+          </div>
+        </div>
+        <div class="panel p4">
+          <p class="lvl">L4 · Critical</p>
+          <p class="gist">Financial calculation, order lifecycle, the permission model, destructive migrations. Human approval is never optional here.</p>
+          <div class="cols">
+            <div><h4>Who reviews</h4><ul><li>Everything L3 engages</li><li>An adversarial panel — at least two independent skeptics on the riskiest claims</li></ul></div>
+            <div><h4>What is required</h4><ul><li>Everything L3 requires</li><li>Rollback notes</li><li>Human approval, always</li></ul></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gates">
+        <p>Gates — armed at every level, including L0</p>
+        <ul class="chips">
+          <li>format on edit</li><li>static analysis</li><li>test suite</li><li>OpenAPI contract</li>
+          <li>enforced runner</li><li>shipped migrations locked</li><li>edits locked in discovery</li>
+          <li>unpushed work</li><li>coverage claim</li><li>task intent</li><li>agent contract</li>
+        </ul>
+        <small>The process weight scales with risk. The gates do not — that is the point.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Selected work</p>
+      <h2>Four decisions worth reading</h2>
+      <p>Not feature lists. Each one records the constraint, what was chosen over what, and the detail a mid-level engineer would have got wrong.</p>
+    </div>
+    <div class="cases">
+
+      <article class="case">
+        <div class="case-n num">01</div>
+        <div>
+          <h3>Groundwork</h3>
+          <p>Risk-based task classification L0–L4, five specialised review agents, eleven automated gates, eleven workflow procedures and a companion-plugin ecosystem. Open source under MIT.</p>
+          <ul class="tags"><li>Claude Code</li><li>Bash</li><li>Static analysis</li><li>OpenAPI</li></ul>
+        </div>
+        <div class="subtle"><b>The subtle part</b>Roughly one task in three is stopped before any code is written — mis-scoped, conflicting with existing behaviour, or cheaper to solve without development.</div>
+      </article>
+
+      <article class="case">
+        <div class="case-n num">02</div>
+        <div>
+          <h3>Voice to structured data</h3>
+          <p>Speech becomes a validated task rather than a guess: Whisper transcription tuned with domain vocabulary, schema-constrained extraction at temperature zero, relative time such as “tomorrow at six” resolved to an absolute, timezone-aware instant. Queued, so HTTP answers instantly and the result arrives over WebSocket.</p>
+          <ul class="tags"><li>Whisper STT</li><li>Tool calling</li><li>WebSocket</li><li>Queues</li><li>Hebrew</li></ul>
+        </div>
+        <div class="subtle"><b>The subtle part</b>The model provider is mocked in CI, so the test suite never calls a paid API — and a model upgrade is caught by response-regression tests instead of by a user.</div>
+      </article>
+
+      <article class="case">
+        <div class="case-n num">03</div>
+        <div>
+          <h3>Payments, clearing and tax documents</h3>
+          <p>PCI card tokenization where raw card data is never stored or returned, hierarchical payment requests, idempotency-keyed clearing transactions, money as decimal strings with bcmath rather than floats, multi-currency and VAT, signed-webhook reconciliation, standing orders and direct-debit collection.</p>
+          <ul class="tags"><li>Laravel</li><li>bcmath</li><li>Idempotency</li><li>Signed webhooks</li><li>VAT</li></ul>
+        </div>
+        <div class="subtle"><b>The subtle part</b>A zero-total tax document is rejected by the provider — so those items have to be closed locally instead, or the whole issuance silently fails.</div>
+      </article>
+
+      <article class="case">
+        <div class="case-n num">04</div>
+        <div>
+          <h3>Multi-market commerce platform</h3>
+          <p>One Laravel codebase cloned per market with config-driven currency, locale and timezone: storefront JSON API, retail and wholesale pricing and discount engine, driver-abstracted payments and delivery, buyer auth over JWT, OAuth and email OTP, and an ERP catalogue sync.</p>
+          <ul class="tags"><li>Laravel 12</li><li>JSON API</li><li>JSON-LD</li><li>Job chains</li><li>Typed DTOs</li></ul>
+        </div>
+        <div class="subtle"><b>The subtle part</b>Catalogue sync from the ERP stages every product change as a typed DTO for review before it applies. An import that applies itself is an import nobody can undo.</div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Capability map</p><h2>What I actually do</h2>
+      <p>Grouped honestly. No percentages — a bar chart of skills tells a reader nothing they can verify.</p></div>
+    <div class="caps">
+      <div><h3>Backend &amp; platform</h3><ul>
+        <li>PHP 8.4, Laravel 12</li><li>Node, NestJS</li><li>MySQL 8, Redis</li>
+        <li>Docker</li><li>Microservices</li></ul></div>
+      <div><h3>Money &amp; correctness</h3><ul>
+        <li>PCI card tokenization</li><li>Idempotency keys</li><li>Decimal money with bcmath</li>
+        <li>Multi-currency and VAT</li><li>Accounting and tax export</li><li>Recurring billing, direct debit</li></ul></div>
+      <div><h3>Applied AI in production</h3><ul>
+        <li>Schema-constrained extraction</li><li>Tool calling without auto-execution</li>
+        <li>Per-call cost accounting</li><li>Provider abstraction and fallback</li>
+        <li>Prompt-injection defence</li><li>Response-regression tests</li></ul></div>
+      <div><h3>Integration &amp; reliability</h3><ul>
+        <li>Driver fallback chains</li><li>Delivery-status webhooks</li>
+        <li>Integration health-probe registry</li><li>Queued job chains</li>
+        <li>OAuth2 machine-to-machine</li></ul></div>
+      <div><h3>Hard rendering &amp; data</h3><ul>
+        <li>Hebrew RTL and bidi PDF</li><li>OCR by morphological grid extraction</li>
+        <li>CIE-Lab colour classification</li><li>Typo-tolerant search and ranking</li>
+        <li>FFmpeg and Imagick pipelines</li></ul></div>
+      <div><h3>How I lead</h3><ul>
+        <li>Spec-driven development</li><li>Blast-radius discovery before planning</li>
+        <li>Adversarial verification</li><li>OpenAPI contracts kept current</li>
+        <li>Server-side RBAC</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">How I work</p><h2>Three rules I do not bend</h2></div>
+    <div class="prin">
+      <div><h3>Ground it, don’t guess it.</h3>
+        <p>What an external provider does is confirmed against its official documentation with a citation, or it is marked unknown and proven in a sandbox. A plausible answer about someone else’s API is the most expensive kind of wrong.</p></div>
+      <div><h3>The spec is the cheap place to be wrong.</h3>
+        <p>Discovery is wide; the change is narrow. One task in three never reaches code because the discussion showed it was mis-scoped, already solved, or cheaper without development.</p></div>
+      <div><h3>A claim is not evidence.</h3>
+        <p>Tests, static analysis and contract checks run as gates rather than as good intentions. “It works” gets challenged by a reviewer whose only job is to try to refute it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <p class="eyebrow">Contact</p>
+    <h2>Open to Senior Backend and Tech Lead roles</h2>
+    <p>Remote worldwide or relocation. English B2, Ukrainian native. I have worked the Israeli and Ukrainian markets, including Hebrew and right-to-left products.</p>
+    <div class="cta">
+      <a class="btn" href="mailto:m.yastremskyj@gmail.com?subject=Senior%20Backend%20role">m.yastremskyj@gmail.com</a>
+      <a class="btn btn-2" href="https://www.linkedin.com/in/maksym-yastremskyi-49b344212">LinkedIn</a>
+      <a class="btn btn-2" href="https://github.com/YasMax91">GitHub</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <hr class="rule">
+  <div class="wrap" style="padding-top:1.5rem">
+    <span>© 2026 Max Yastremskyi</span>
+    <span>Concept A — Editorial</span>
+    <span><a href="https://github.com/YasMax91/groundwork">Groundwork</a> · <a href="#main">Source of this site</a></span>
+  </div>
+</footer>
+</body>
+</html>
