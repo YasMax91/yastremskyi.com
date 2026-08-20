@@ -175,3 +175,60 @@ samp {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ===========================================================================
+   Print
+   ---------------------------------------------------------------------------
+   Chrome is what generates /cv.pdf from /cv, so these rules are not a courtesy
+   for the rare person who prints a web page — they are the layout of a document
+   a recruiter downloads. Navigation, the theme toggle and the skip link are
+   interface, and interface does not belong in a document.
+   =========================================================================== */
+
+@page {
+  size: A4;
+  margin: 12mm 12mm 14mm;
+}
+
+@media print {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 9pt;
+    line-height: 1.45;
+  }
+
+  header,
+  footer,
+  .skip {
+    display: none !important;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* A URL is unclickable on paper, so the ones worth typing are spelled out and
+     the rest stay quiet. */
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 7pt;
+    color: #444;
+    word-break: break-all;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  .wrap {
+    width: 100%;
+  }
+}

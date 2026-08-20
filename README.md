@@ -169,12 +169,30 @@ One file in `src/content/notes/`. See
 [`src/content/notes/README.md`](src/content/notes/README.md), including the one
 gotcha: a _deleted_ post survives in Astro's content store until `npm run clean`.
 
-## The CV PDF
+## The CV PDF is generated, not maintained
 
-`public/cv.pdf` is **git-ignored on purpose** — see `deploy/README.md`. Keep your
-copy at that path locally; the build picks it up, and the `/cv` page renders its
-download button only when the file is actually there, so a missing file degrades
-to a page without a dead link rather than to a 404.
+```bash
+npm run build && npm run cv
+```
+
+`/cv.pdf` is printed from the site's own `/cv` page by headless Chrome, so the
+page and the PDF cannot say different things. They already had: a hand-made PDF
+was still quoting figures that were true two plugin versions earlier while the
+page quoted the current ones, and nobody would have noticed until a reader did.
+
+The print stylesheet is not an afterthought — it is the layout of the document a
+recruiter downloads. Two pages, light, dense, no navigation, no theme toggle, and
+no download button inside the download.
+
+There is **no phone number** on it, deliberately. The PDF is printed from the
+page, so anything on the PDF is in the HTML of `/cv`, and `/cv` is indexed —
+`display: none` hides a value from a reader, not from a crawler, so a
+"print-only" number would have been published by the mechanism meant to keep it
+private. Putting it back means a separate `/cv-print` route, noindex and out of
+the sitemap; the reasoning is written up in `src/pages/cv.astro`.
+
+`public/cv.pdf` stays git-ignored: it is a build artefact, and the repository is
+public.
 
 ## Editing copy without touching markup
 

@@ -54,6 +54,9 @@ config, a hardened systemd unit and a deploy script.
   Adding a DMARC record and sending a few real messages is how that improves.
 - **The form has never been used by a person**, only by curl. Open the site and
   send yourself one from the actual form.
+- **The CV is now generated from the site**, so the two can no longer disagree.
+  It carries no phone number, for the reason written up in `src/pages/cv.astro`.
+  If you want one on it, say so and I will add the separate print route it needs.
 
 ## 3. For you as a native Ukrainian speaker
 

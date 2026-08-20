@@ -25,7 +25,8 @@
     "lighthouse": "node scripts/lighthouse.mjs",
     "clean": "rm -rf dist .astro node_modules/.astro",
     "audit:external": "node scripts/check-html.mjs --external",
-    "facts": "node scripts/check-facts.mjs"
+    "facts": "node scripts/check-facts.mjs",
+    "cv": "node scripts/cv-pdf.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

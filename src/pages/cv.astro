@@ -12,7 +12,22 @@ import { site } from '../data/site';
  * rendered when the file is actually there — a CV button that 404s is worse than
  * no button, and the brief allows no broken links.
  */
-const hasPdf = existsSync('public/cv.pdf');
+const hasPdf = existsSync('dist/cv.pdf') || existsSync('public/cv.pdf');
+
+/**
+ * There is deliberately no phone number here, on the page or in the PDF.
+ *
+ * The PDF is printed from this page, so anything rendered here lands in the HTML
+ * of /cv — which is indexed. `display: none` hides a value from a reader and not
+ * from a crawler, so a print-only phone number would have been published by the
+ * very mechanism meant to keep it private.
+ *
+ * Putting it back means a separate `/cv-print` route, excluded from the sitemap
+ * and served noindex, used only as the source for the PDF. That is buildable;
+ * it was judged not worth the machinery for a number a recruiter can ask for in
+ * one reply, when a downloadable PDF is forwarded, uploaded to applicant systems
+ * and scraped regardless of any header on it.
+ */
 
 const ACHIEVEMENTS = [
   'Authored and open-sourced Groundwork (MIT) — an AI spec-driven development platform for Claude Code: risk-based task classification, five specialised review agents, automated gates and a companion-plugin ecosystem. Adopted across seven production codebases; roughly one task in three is stopped before code as mis-scoped.',
@@ -316,5 +331,142 @@ const ACHIEVEMENTS = [
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--accent-text);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Print. This is not a styled web page that happens to print — it is the CV,
+     and /cv.pdf is generated from it, so what a printer produces and what a
+     recruiter downloads are the same document. One source, so the page and the
+     PDF cannot drift apart.
+
+     The screen version leads with display type because a visitor is deciding
+     whether to read on. A reader holding the CV has already decided, so print
+     trades the scale for density: two pages instead of six, and every heading
+     doing work.
+     --------------------------------------------------------------------------- */
+  @media print {
+    /* Paper has one theme. Recolouring the body alone is not enough — anything
+       taking its colour from a token would keep the dark value. */
+    :global(:root),
+    :global(:root[data-theme='dark']),
+    :global(:root[data-theme='light']) {
+      --surface: #fff;
+      --surface-sunk: #fff;
+      --ink: #000;
+      --ink-muted: #333;
+      --border: #000;
+      --accent: #000;
+      --accent-text: #000;
+    }
+
+    /* A download link inside the download, and a row of buttons that are not
+       clickable on paper. The accent button is the worse of the two: print maps
+       the accent to black, so it rendered as a black rectangle with black text. */
+    .pdf {
+      display: none !important;
+    }
+
+    :global(.cta) {
+      display: none !important;
+    }
+
+    .page-head {
+      padding: 0 0 0.6rem !important;
+      border-bottom: 1.5pt solid #000;
+    }
+
+    .page-head h1 {
+      margin: 0.1rem 0 0.4rem;
+      font-size: 22pt;
+      letter-spacing: -0.03em;
+    }
+
+    .meta {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.15rem 1.5rem;
+      padding-top: 0.4rem;
+      border-top: 0.5pt solid #000;
+      font-size: 8pt;
+    }
+
+    .meta dd {
+      margin: 0;
+    }
+
+    .achievements > li,
+    .roles > li {
+      padding: 0.35rem 0;
+      break-inside: avoid;
+    }
+
+    .achievements > li {
+      max-width: none;
+      font-size: 8.5pt;
+      line-height: 1.4;
+    }
+
+    .roles > li {
+      grid-template-columns: 5.5rem 1fr !important;
+      gap: 0.75rem !important;
+      padding: 0.35rem 0 !important;
+    }
+
+    .roles h3 {
+      margin-bottom: 0.1rem;
+      font-size: 10.5pt;
+    }
+
+    .roles ul li {
+      padding: 0.12rem 0;
+      border: 0;
+      font-size: 8.5pt;
+      line-height: 1.35;
+    }
+
+    .roles ul {
+      max-width: none;
+    }
+
+    .org,
+    .when {
+      font-size: 8pt;
+    }
+
+    .skills {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .skills > div {
+      padding: 0.4rem 0.6rem;
+      break-inside: avoid;
+    }
+
+    .skills h3 {
+      margin-bottom: 0.2rem;
+      font-size: 9pt;
+    }
+
+    .skills ul {
+      font-size: 7.5pt;
+      line-height: 1.5;
+    }
+
+    .langs {
+      grid-template-columns: repeat(4, 1fr) !important;
+      margin-bottom: 0 !important;
+    }
+
+    .langs > div {
+      padding: 0.4rem 0.6rem;
+    }
+
+    .langs dt {
+      font-size: 10pt;
+    }
+
+    .langs dd {
+      font-size: 7.5pt;
+    }
   }
 </style>

@@ -49,6 +49,46 @@ const { label, title, lead, id, last = false } = Astro.props;
     }
   }
 
+  /* On paper the mono kicker is the heading and the editorial one is noise:
+     a CV wants "Experience", not "Roles" set in 40pt. */
+  @media print {
+    section {
+      padding: 0.5rem 0 0;
+      border-bottom: 0;
+      break-inside: auto;
+    }
+
+    /* `!important` on purpose. The screen layout lives inside a min-width media
+       query, and after bundling these rules cannot be relied on to come later —
+       measured: the head kept display:grid and a 40px margin, which is where the
+       empty band under every heading came from. Print has to win deterministically,
+       not by source order. */
+    .sec-head {
+      display: block !important;
+      grid-template-columns: none !important;
+      gap: 0 !important;
+      margin-bottom: 0.25rem !important;
+      padding-top: 0.4rem;
+      border-top: 0.5pt solid #000;
+      break-after: avoid;
+    }
+
+    .sec-head h2 {
+      display: none;
+    }
+
+    .sec-head :global(.label) {
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #000;
+    }
+
+    .sec-head .prose {
+      display: none;
+    }
+  }
+
   .sec-head {
     display: grid;
     gap: var(--space-3);
