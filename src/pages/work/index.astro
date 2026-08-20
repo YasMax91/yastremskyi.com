@@ -1,0 +1,184 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+
+const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base
+  title="Work"
+  description="Four engineering decision records: Groundwork, a voice-to-structured-data pipeline, payments and clearing, and a multi-market commerce platform."
+  current="/work"
+  ogCard="work"
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="label">Selected work</p>
+      <h1>Four decisions</h1>
+      <p class="lede">
+        Not feature lists. Each one records the constraint, what was chosen over what, and the
+        detail a mid-level engineer would have got wrong — because that is what a senior reader
+        actually evaluates.
+      </p>
+      <p class="nda">
+        Three of the four are under NDA. The domains are described concretely and the clients are
+        not named, which is the whole of the compromise: no logos, no product names, no screenshots.
+        Groundwork is the exception — it is public, and it is linked.
+      </p>
+    </div>
+  </div>
+
+  <ol class="cases">
+    <li>
+      <div class="wrap inner">
+        <span class="n num">01</span>
+        <div>
+          <h2><a href="/groundwork">Groundwork</a></h2>
+          <p>
+            Risk-based task classification L0–L4, {site.groundwork.agents} specialised review agents,
+            {site.groundwork.gates} automated gates and {site.groundwork.procedures} workflow procedures,
+            shipped under {site.groundwork.licence} with semantic versioning.
+          </p>
+          <ul class="tags">
+            <li>Claude Code</li><li>Bash</li><li>Static analysis</li><li>OpenAPI</li>
+          </ul>
+        </div>
+        <div class="subtle">
+          <b>The subtle part</b>
+          <span>
+            Roughly one task in three is stopped before any code is written — mis-scoped,
+            conflicting with existing behaviour, or cheaper to solve without development.
+          </span>
+        </div>
+      </div>
+    </li>
+    {
+      cases.map((entry, i) => (
+        <li>
+          <div class="wrap inner">
+            <span class="n num">0{i + 2}</span>
+            <div>
+              <h2>
+                <a href={`/work/${entry.id}`}>{entry.data.title}</a>
+              </h2>
+              <p>{entry.data.summary}</p>
+              <ul class="tags">
+                {entry.data.stack.map((chip) => (
+                  <li>{chip}</li>
+                ))}
+              </ul>
+            </div>
+            <div class="subtle">
+              <b>The subtle part</b>
+              <span>{entry.data.subtle}</span>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</Base>
+
+<style>
+  .page-head {
+    padding: var(--space-10) 0 var(--space-8);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .page-head h1 {
+    margin: var(--space-3) 0 var(--space-5);
+    font-size: var(--display-l);
+  }
+
+  .lede {
+    max-width: 38ch;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+
+  .nda {
+    max-width: var(--measure);
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .cases {
+    padding: 0;
+    list-style: none;
+  }
+
+  .cases li {
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .inner {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-8) 0;
+  }
+
+  @media (min-width: 60rem) {
+    .inner {
+      grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) minmax(0, 22rem);
+    }
+  }
+
+  .n {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--display-s);
+    line-height: 0.8;
+    letter-spacing: var(--tracking-display);
+    color: var(--accent-text);
+  }
+
+  h2 {
+    margin-bottom: var(--space-3);
+    font-size: var(--display-s);
+  }
+
+  .inner p {
+    max-width: 54ch;
+    color: var(--ink-muted);
+  }
+
+  .subtle {
+    padding: var(--space-4);
+    border: var(--rule) solid var(--accent);
+  }
+
+  .subtle b {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .subtle span {
+    font-size: var(--text-sm);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: 0.16rem 0.45rem;
+    border: var(--rule-thin) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>

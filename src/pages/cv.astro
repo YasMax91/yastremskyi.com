@@ -1,0 +1,320 @@
+---
+import { existsSync } from 'node:fs';
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import ButtonRow from '../components/ButtonRow.astro';
+import Button from '../components/Button.astro';
+import { site } from '../data/site';
+
+/**
+ * The PDF is Max's own file rather than something generated from this page, so
+ * the two are separate sources by his decision. The link is therefore only
+ * rendered when the file is actually there — a CV button that 404s is worse than
+ * no button, and the brief allows no broken links.
+ */
+const hasPdf = existsSync('public/cv.pdf');
+
+const ACHIEVEMENTS = [
+  'Authored and open-sourced Groundwork (MIT) — an AI spec-driven development platform for Claude Code: risk-based task classification, five specialised review agents, automated gates and a companion-plugin ecosystem. Adopted across seven production codebases; roughly one task in three is stopped before code as mis-scoped.',
+  'Shipped applied AI to production: voice intake behind schema-constrained, temperature-zero extraction, an intent gateway that validates model output instead of executing it, OCR and computer-vision pipelines — with provider fallback, prompt-injection defence and response-regression tests.',
+  'Engineered payment and financial subsystems: card tokenization (tokens only), hierarchical payment requests, idempotency-keyed clearing, multi-currency decimal money with bcmath, accounting and tax export, signed-webhook reconciliation and all-or-nothing document issuance.',
+  'Built a reusable multi-market headless commerce platform: storefront JSON API plus back-office admin, a retail and wholesale pricing engine, driver-abstracted payments and delivery, and an ERP catalogue sync.',
+  'Delivered order-lifecycle and production-workflow platforms: multi-station scan tracking, quality control, weighted auto-assignment, server-side RBAC and right-to-left document rendering.',
+];
+---
+
+<Base
+  title="CV"
+  description="Senior Backend Engineer and Tech Lead — six years across payments, order lifecycles, production workflows and applied AI, on PHP/Laravel and Node/NestJS."
+  current="/cv"
+  ogCard="cv"
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="label">{site.title}</p>
+      <h1>{site.name}</h1>
+      <dl class="meta">
+        <div><dt>Based</dt><dd>{site.location}, {site.timezone}</dd></div>
+        <div><dt>Open to</dt><dd>{site.availability}</dd></div>
+        <div>
+          <dt>Email</dt><dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd>
+        </div>
+        <div>
+          <dt>Profiles</dt>
+          <dd>
+            <a href={site.contact.linkedin}>LinkedIn</a> · <a href={site.contact.github}>GitHub</a>
+          </dd>
+        </div>
+      </dl>
+      {
+        hasPdf ? (
+          <p class="pdf">
+            <a href="/cv.pdf" download>
+              Download as PDF
+            </a>
+            — the printable version, which also carries a phone number this page deliberately does
+            not.
+          </p>
+        ) : (
+          <p class="pdf pending">
+            The PDF version is not published yet. Everything it contains is on this page, except a
+            phone number, which is kept off the indexable web on purpose.
+          </p>
+        )
+      }
+    </div>
+  </div>
+
+  <Section label="Summary" title="In one paragraph">
+    <p class="prose">
+      Senior Backend Engineer and Tech Lead with {site.experience} shipping production Laravel platforms
+      for CRM, e-commerce, manufacturing and premium-services businesses. I own complex domains end to
+      end — order lifecycles, multi-station production workflows, payments, clearing and accounting —
+      and design microservice back-ends on PHP 8.4 and Laravel 12, integrating payment, messaging, calendar
+      and logistics providers with sandbox-verified reliability. I also build and lead AI-assisted engineering:
+      I authored Groundwork, and I ship applied-AI features to production with a strict bias toward tests,
+      grounding and verified integrations.
+    </p>
+  </Section>
+
+  <Section label="Selected achievements" title="What I have actually shipped">
+    <ul class="achievements">
+      {ACHIEVEMENTS.map((a) => <li>{a}</li>)}
+    </ul>
+  </Section>
+
+  <Section label="Experience" title="Roles">
+    <ol class="roles">
+      {
+        site.timeline.map((job) => (
+          <li>
+            <div class="when">
+              <span class="num">
+                {job.from} — {job.to}
+              </span>
+            </div>
+            <div>
+              <h3>{job.role}</h3>
+              <p class="org">{job.org}</p>
+              <ul>
+                {job.highlights.map((h) => (
+                  <li>{h}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  <Section label="Technical skills" title="Grouped, not scored">
+    <div class="skills">
+      {
+        site.capabilities.map((group) => (
+          <div>
+            <h3>{group.group}</h3>
+            <ul>
+              {group.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section label="Languages & availability" title="Practicalities" last>
+    <dl class="langs">
+      {
+        site.languages.map((l) => (
+          <div>
+            <dt>{l.name}</dt>
+            <dd>{l.level}</dd>
+          </div>
+        ))
+      }
+      <div>
+        <dt>Availability</dt>
+        <dd>{site.availability}</dd>
+      </div>
+    </dl>
+    <ButtonRow>
+      <Button
+        href={`mailto:${site.contact.email}?subject=${encodeURIComponent(site.contact.emailSubject)}`}
+      >
+        {site.contact.email}
+      </Button>
+      {
+        hasPdf && (
+          <Button href="/cv.pdf" variant="outline">
+            Download PDF
+          </Button>
+        )
+      }
+    </ButtonRow>
+  </Section>
+</Base>
+
+<style>
+  .page-head {
+    padding: var(--space-10) 0 var(--space-8);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .page-head h1 {
+    margin: var(--space-3) 0 var(--space-5);
+    font-size: var(--display-l);
+  }
+
+  .meta {
+    display: grid;
+    gap: var(--space-2) var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    padding-top: var(--space-4);
+    border-top: var(--rule-thin) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .meta dt {
+    color: var(--ink-muted);
+  }
+
+  .meta dd {
+    margin: var(--space-1) 0 0;
+  }
+
+  .pdf {
+    max-width: var(--measure);
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .pdf a {
+    color: var(--accent-text);
+  }
+
+  .achievements,
+  .roles {
+    padding: 0;
+    border-top: var(--rule) solid var(--border);
+    list-style: none;
+  }
+
+  .achievements > li {
+    max-width: var(--measure);
+    padding: var(--space-4) 0;
+    border-bottom: var(--rule) solid var(--border);
+    color: var(--ink-muted);
+  }
+
+  .roles > li {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-6) 0;
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  @media (min-width: 52rem) {
+    .roles > li {
+      grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .when {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+  }
+
+  .roles h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+  }
+
+  .org {
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--accent-text);
+  }
+
+  .roles ul {
+    max-width: var(--measure);
+    padding: 0;
+    list-style: none;
+  }
+
+  .roles ul li {
+    padding: var(--space-2) 0;
+    border-bottom: var(--rule-thin) solid var(--border);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .roles ul li:last-child {
+    border-bottom: 0;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    border-top: var(--rule) solid var(--border);
+    border-left: var(--rule) solid var(--border);
+  }
+
+  .skills > div {
+    padding: var(--space-5);
+    border-right: var(--rule) solid var(--border);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .skills h3 {
+    margin-bottom: var(--space-4);
+    font-size: var(--text-lg);
+  }
+
+  .skills ul {
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 2;
+    color: var(--ink-muted);
+  }
+
+  .langs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    margin-bottom: var(--space-8);
+    border-top: var(--rule) solid var(--border);
+    border-left: var(--rule) solid var(--border);
+  }
+
+  .langs > div {
+    padding: var(--space-5);
+    border-right: var(--rule) solid var(--border);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .langs dt {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+  }
+
+  .langs dd {
+    margin: var(--space-1) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+</style>

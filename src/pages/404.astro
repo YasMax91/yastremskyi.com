@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import ButtonRow from '../components/ButtonRow.astro';
+import Button from '../components/Button.astro';
+import { site } from '../data/site';
+---
+
+<Base title="404" description="That page does not exist." current="">
+  <div class="wrap panel">
+    <p class="label">Error 404</p>
+    <h1>Not<br />found</h1>
+    <p class="lede">
+      This address does not resolve to anything. Nothing on this site is generated dynamically, so
+      the page was either renamed or never existed.
+    </p>
+    <p class="prose sub">
+      If you followed a link from somewhere and it should work, I would genuinely like to know — a
+      broken link on a site whose argument is craft is not a small thing.
+    </p>
+    <ButtonRow>
+      <Button href="/">Back to the start</Button>
+      <Button href="/work" variant="outline">Selected work</Button>
+      <Button
+        href={`mailto:${site.contact.email}?subject=${encodeURIComponent('Broken link')}`}
+        variant="outline"
+      >
+        Tell me about it
+      </Button>
+    </ButtonRow>
+  </div>
+</Base>
+
+<style>
+  .panel {
+    padding: var(--space-16) 0;
+  }
+
+  h1 {
+    margin: var(--space-3) 0 var(--space-5);
+    font-size: var(--display-l);
+    color: var(--accent);
+  }
+
+  .lede {
+    max-width: 34ch;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+
+  .sub {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-8);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+</style>

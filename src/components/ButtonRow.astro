@@ -1,0 +1,23 @@
+---
+/**
+ * The full-bleed row of hard-edged buttons the direction uses instead of
+ * floating pills. Children are <Button> elements.
+ */
+---
+
+<div class="cta">
+  <slot />
+</div>
+
+<style>
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    border-block: var(--rule) solid var(--border);
+  }
+
+  /* The divider belongs between buttons, and only the row knows where they are. */
+  .cta > :global(a + a) {
+    border-left: var(--rule) solid var(--border);
+  }
+</style>

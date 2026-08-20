@@ -1,0 +1,47 @@
+---
+interface Props {
+  href: string;
+  /** `fill` is the accent block; `outline` is the quieter partner beside it. */
+  variant?: 'fill' | 'outline';
+}
+
+const { href, variant = 'fill' } = Astro.props;
+const external = href.startsWith('http');
+---
+
+<a class:list={['btn', variant]} href={href} rel={external ? 'noopener' : undefined}>
+  <slot />
+</a>
+
+<style>
+  .btn {
+    flex: 1 1 16rem;
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  /* Black on this vermilion measures 5.88:1. White would be 3.57:1 and fail AA —
+     see docs/design/contrast.mjs. */
+  .fill {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .outline {
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .outline:hover {
+    background: var(--ink);
+    color: var(--surface);
+  }
+</style>

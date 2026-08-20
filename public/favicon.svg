@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Y">
+  <!-- Concept C in 32 pixels: a hard vermilion field, a geometric Y, no rounding.
+       Drawn as a path rather than text so it does not depend on a font being
+       available in a favicon context. -->
+  <rect width="32" height="32" fill="#ff3b00"/>
+  <path d="M6 6 L16 17 L26 6" fill="none" stroke="#000" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter"/>
+  <path d="M16 16 L16 26" fill="none" stroke="#000" stroke-width="5" stroke-linecap="butt"/>
+</svg>

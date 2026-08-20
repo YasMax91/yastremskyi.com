@@ -19,7 +19,7 @@ export default tseslint.config(
     // rather than pulling in a globals package for two names.
     files: ['**/*.mjs', 'eslint.config.js', 'astro.config.mjs'],
     languageOptions: {
-      globals: { console: 'readonly', process: 'readonly' },
+      globals: { console: 'readonly', process: 'readonly', Buffer: 'readonly' },
     },
   },
 );

@@ -1,0 +1,73 @@
+---
+/**
+ * A page section with the standard two-column head: heading on the left,
+ * framing prose on the right at wide widths, stacked below 56rem.
+ *
+ * Every section on the site uses this, which is why the rhythm is consistent
+ * without anyone having to remember what the rhythm is.
+ */
+interface Props {
+  /** Mono kicker above the heading. */
+  label?: string;
+  title: string;
+  /** Optional framing sentence, shown beside the heading on wide screens. */
+  lead?: string;
+  id?: string;
+  /** Drop the bottom rule — for the last section before the footer. */
+  last?: boolean;
+}
+
+const { label, title, lead, id, last = false } = Astro.props;
+---
+
+<section id={id} class={last ? 'last' : undefined}>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        {label && <p class="label">{label}</p>}
+        <h2>{title}</h2>
+      </div>
+      {lead && <p class="prose">{lead}</p>}
+    </div>
+    <slot />
+  </div>
+</section>
+
+<style>
+  section {
+    padding: var(--space-10) 0;
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  section.last {
+    border-bottom: 0;
+  }
+
+  @media (min-width: 48rem) {
+    section {
+      padding: var(--space-16) 0;
+    }
+  }
+
+  .sec-head {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 56rem) {
+    .sec-head {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+      gap: var(--space-8);
+      align-items: end;
+    }
+  }
+
+  .sec-head h2 {
+    font-size: var(--display-m);
+  }
+
+  .sec-head .prose {
+    color: var(--ink-muted);
+  }
+</style>

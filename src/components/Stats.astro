@@ -1,0 +1,71 @@
+---
+import { site } from '../data/site';
+
+/**
+ * The adoption figures. They are point-in-time by nature, so the "as of" stamp
+ * is part of the component rather than something a page might forget to add.
+ */
+const rows = [
+  { value: String(site.stats.codebases), label: 'production codebases' },
+  { value: String(site.stats.procedureRuns), label: 'procedure runs' },
+  { value: String(site.stats.specsWritten), label: 'written specs' },
+  { value: String(site.stats.frontendHandoffs), label: 'frontend hand-offs' },
+  { value: site.stats.stoppedBeforeCode, label: 'stopped before code' },
+];
+---
+
+<dl class="stats">
+  {
+    rows.map((row) => (
+      <div>
+        <dt class="num">{row.value}</dt>
+        <dd>{row.label}</dd>
+      </div>
+    ))
+  }
+</dl>
+<p class="asof">Approximate, as of {site.stats.asOf}</p>
+
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    border-top: var(--rule) solid var(--border);
+    border-left: var(--rule) solid var(--border);
+  }
+
+  .stats > div {
+    padding: var(--space-5) var(--space-4);
+    border-right: var(--rule) solid var(--border);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .stats dt {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--display-s);
+    line-height: 0.85;
+    letter-spacing: var(--tracking-display);
+    color: var(--accent);
+  }
+
+  .stats dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .asof {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+</style>

@@ -79,6 +79,14 @@ export const site = {
       role: 'Senior Backend Engineer · Tech Lead',
       org: 'RaDevs',
       note: 'Laravel platforms and the studio’s AI engineering practice.',
+      highlights: [
+        'Authored and open-sourced Groundwork, and set the team’s engineering standards and Definition of Done around it.',
+        'Built a reusable multi-market headless commerce platform: storefront JSON API, back-office admin, retail and wholesale pricing engine, driver-abstracted payments and delivery.',
+        'Shipped applied AI to production — an intent gateway that validates model output instead of executing it, voice intake behind schema-constrained extraction, OCR and computer-vision pipelines.',
+        'Engineered the payment and financial subsystems: card tokenization, idempotency-keyed clearing, decimal money with bcmath, accounting and tax export, signed-webhook reconciliation.',
+        'Architected order-lifecycle and production-workflow systems with multi-station scan tracking, quality control, weighted auto-assignment and centralised state-transition guards.',
+        'Mentored engineers through review agents and architecture decisions.',
+      ],
     },
     {
       from: 'Aug 2022',
@@ -86,6 +94,13 @@ export const site = {
       role: 'Full-Stack PHP Engineer',
       org: 'TerraForce Software',
       note: 'E-commerce, admin and CRM platforms, mobile app APIs.',
+      highlights: [
+        'Built and maintained e-commerce backends with subscription payments, local checkout and delivery, multi-language storefronts and response-query caching.',
+        'Developed admin panels with custom tools, cards, fields and dashboards, including a leads-management CRM with rich-text editing and invoice generation.',
+        'Built API-first mobile app backends: JWT auth, push notifications, QR codes, two-factor auth, and PDF/Word/Excel document generation.',
+        'Delivered search-driven features — full-text search, geo-targeting, SMS and messenger notifications, real-time sockets, social login.',
+        'Integrated an early LLM alongside Google APIs and web-scraping pipelines for content generation.',
+      ],
     },
     {
       from: 'Jun 2020',
@@ -93,6 +108,11 @@ export const site = {
       role: 'PHP Engineer',
       org: 'Imrev',
       note: 'E-commerce and corporate platforms, integrations.',
+      highlights: [
+        'Built e-commerce and corporate platforms end to end — custom modules, admin panels and storefronts — across concurrent client projects.',
+        'Integrated payment, shipping and analytics providers, replacing manual client workflows with automated order flows.',
+        'Optimised page, catalogue and search performance through query tuning, indexing and caching, and owned post-production incident handling.',
+      ],
     },
     {
       from: 'Jan 2020',
@@ -100,6 +120,9 @@ export const site = {
       role: 'Junior Engineer (C++ / .NET)',
       org: 'YUKS++',
       note: 'Legacy desktop maintenance and a WinForms migration.',
+      highlights: [
+        'Maintained and extended legacy modules, contributed to a migration to WinForms, and resolved pre-release defects during QA and hardening cycles.',
+      ],
     },
   ],
 
