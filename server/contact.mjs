@@ -18,12 +18,22 @@
  *   MAIL_TO          required — where messages land
  *   MAIL_FROM        required — must be on a Resend-verified domain
  *   PORT             default 8788
+ *   BIND_ADDR        default 127.0.0.1 — set to the docker bridge gateway when
+ *                    the reverse proxy is a container
  *   SITE_ORIGIN      default https://yastremskyi.com
  */
 
 import { createServer } from 'node:http';
 
 const PORT = Number(process.env.PORT ?? 8788);
+/**
+ * Which address to listen on. Loopback by default, because that is right when
+ * the reverse proxy runs on the host. When the proxy is a container, loopback is
+ * unreachable from it — the container arrives on the docker bridge — so this is
+ * set to the bridge gateway instead. Never 0.0.0.0: the address is chosen
+ * deliberately rather than left open and firewalled afterwards.
+ */
+const BIND = process.env.BIND_ADDR ?? '127.0.0.1';
 const ORIGIN = process.env.SITE_ORIGIN ?? 'https://yastremskyi.com';
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const MAIL_TO = process.env.MAIL_TO;
@@ -266,8 +276,16 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
       await send(buildEmail(body));
     } catch (err) {
       console.error('[contact] delivery failed:', err.message);
+      // 200 with ok:false, not 502.
+      //
+      // The status describes the request to *this* endpoint, which succeeded —
+      // it was read, validated and acted on. The payload describes the delivery,
+      // which did not. That distinction matters here for a practical reason:
+      // Cloudflare replaces the body of any 5xx with its own error page, and the
+      // visitor then loses the one sentence telling them what to do instead.
+      // Verified by comparing the origin's response with the proxied one.
       respond(req, res, {
-        status: 502,
+        status: 200,
         ok: false,
         message: 'The message did not go through. Email me directly and I will see it.',
       });
@@ -293,7 +311,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const limiter = createLimiter();
   setInterval(() => limiter.sweep(), RATE.windowMs).unref?.();
 
-  createServer(createApp({ limiter })).listen(PORT, '127.0.0.1', () => {
-    console.log(`[contact] listening on 127.0.0.1:${PORT}`);
+  createServer(createApp({ limiter })).listen(PORT, BIND, () => {
+    console.log(`[contact] listening on ${BIND}:${PORT}`);
   });
 }

@@ -17,6 +17,7 @@ set -euo pipefail
 HOST="${DEPLOY_HOST:?set DEPLOY_HOST, e.g. deploy@yastremskyi.com}"
 WEB_ROOT="${DEPLOY_WEB_ROOT:-/var/www/yastremskyi.com}"
 APP_ROOT="${DEPLOY_APP_ROOT:-/srv/yastremskyi-contact}"
+SITE="${DEPLOY_SITE:-yastremskyi.com}"
 
 if [[ ! -d dist ]]; then
   echo "dist/ is missing — run 'npm run verify' first." >&2
@@ -30,17 +31,27 @@ rsync -az --delete --human-readable \
 
 echo "→ contact endpoint to ${HOST}:${APP_ROOT}"
 rsync -az --human-readable server/contact.mjs "${HOST}:${APP_ROOT}/"
+ssh "${HOST}" "chown www-data:www-data ${APP_ROOT}/contact.mjs"
 
 echo "→ restarting the endpoint"
-ssh "${HOST}" 'sudo systemctl restart contact && sleep 1 && systemctl is-active contact'
+ssh "${HOST}" 'systemctl restart contact && sleep 2 && systemctl is-active contact'
 
-echo "→ health check"
-curl -fsS "https://${HOST#*@}/api/contact" -X POST \
+echo "→ checking the site answers"
+curl -fsS -o /dev/null -w '  https://%{host} %{http_code}\n' "https://${SITE}/"
+
+echo "→ checking the endpoint validates"
+curl -fsS "https://${SITE}/api/contact" -X POST \
   -H 'Accept: application/json' -H 'Content-Type: application/json' \
   -d '{"name":"","email":"","message":""}' \
   | grep -q '"ok":false' && echo "  endpoint answers and validates" || {
     echo "  endpoint did not answer as expected" >&2
     exit 1
   }
+
+echo "→ checking the site that shares this Caddy is still up"
+curl -fsS -o /dev/null -w '  warmap %{http_code}\n' https://warmap.duckdns.org/ || {
+  echo "  warmap.duckdns.org did not answer — check the Caddy config" >&2
+  exit 1
+}
 
 echo "done"

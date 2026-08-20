@@ -1,89 +1,89 @@
-# Caddy site block for yastremskyi.com
+# Caddy site block for yastremskyi.com — AS DEPLOYED on 2026-08-20.
 #
-# This is ONE SITE, not a whole Caddyfile. The box already runs Caddy and is
-# already serving something — replacing /etc/caddy/Caddyfile with this file would
-# take that down. It is installed alongside, never over:
+# This is not a standalone Caddyfile. The server already runs Caddy inside a
+# container (`tiles-web-1`) which owns ports 80 and 443, so this block is
+# appended to that project's Caddyfile at /opt/tiles/deploy/Caddyfile and the
+# file is bind-mounted into the container. The tiles block above it is untouched,
+# and `caddy validate` runs before every reload — if it fails, nothing has
+# changed and the site that was already running is still running.
 #
-#   sudo mkdir -p /etc/caddy/conf.d
-#   sudo cp deploy/yastremskyi.com.caddy /etc/caddy/conf.d/
-#   # once, at the very top of /etc/caddy/Caddyfile:
-#   #   import /etc/caddy/conf.d/*.caddy
-#   sudo caddy validate --config /etc/caddy/Caddyfile
-#   sudo systemctl reload caddy
+#   docker run --rm -e SITE_ADDRESS=... -v /opt/tiles/deploy/Caddyfile:/etc/caddy/Caddyfile:ro \
+#     caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+#   docker exec tiles-web-1 caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 #
-# Caddy rather than nginx because it provisions and renews TLS on its own —
-# "Automatic HTTPS provisions TLS certificates for all your sites and keeps them
-# renewed" — and redirects 80 to 443 without being asked. Nothing here has to
-# think about certificates.
-#
-# Compression is zstd and gzip: those are what the standard Caddy build ships.
-# Brotli needs a custom build with a third-party module, which is not worth
-# maintaining for a handful of kilobytes on an already small site. Stated rather
-# than quietly claimed.
-#
-yastremskyi.com, www.yastremskyi.com {
-	root * /var/www/yastremskyi.com
+# Kept here so the repository holds what actually runs. Copied back from the
+# server rather than written from memory.
 
-	encode zstd gzip
+# ---------------------------------------------------------------------------
+# yastremskyi.com — a static personal site sharing this Caddy, because this
+# container owns 80 and 443 on the box. Added rather than substituted: the
+# tiles block above is untouched.
+#
+# The file is bind-mounted into the container from this directory, so what runs
+# and what this repository tracks are the same file — no rebuild, and no baked
+# copy silently diverging from the one on disk.
+#
+# Behind Cloudflare's proxy the TLS-ALPN challenge cannot work: TLS terminates
+# at the edge, so the challenge never reaches this server. Caddy picks a
+# challenge at random when several are enabled, which would mean roughly half of
+# all issuance attempts failing, so only HTTP-01 is left on.
+# ---------------------------------------------------------------------------
+# www is one canonical redirect, not a second copy of the site. Serving both
+# would be duplicate content competing with itself in search results.
+www.yastremskyi.com {
+	redir https://yastremskyi.com{uri} permanent
+}
 
-	# Behind Cloudflare's proxy, TLS is terminated at the edge, so the TLS-ALPN
-	# challenge can never reach this server. Caddy documents that with several
-	# challenges enabled it "chooses one at random" — which would mean roughly
-	# half of every issuance and renewal attempt failing and retrying. HTTP-01
-	# is the one that works through the proxy, so it is the only one left on.
-	#
-	# This requires "Always Use HTTPS" to stay OFF in Cloudflare, because it
-	# redirects /.well-known/acme-challenge/ along with everything else. Use a
-	# redirect rule that exempts that path instead — Cloudflare's own guidance.
+yastremskyi.com {
 	tls {
 		issuer acme {
 			disable_tlsalpn_challenge
 		}
 	}
 
-	# The contact endpoint runs on the same box, bound to loopback only, so this
-	# proxy is the sole way in.
-	#
-	# Headers are passed through untouched on purpose. An earlier version set
-	# X-Forwarded-For to {remote_host}, which behind Cloudflare is the edge
-	# address — that would have collapsed every visitor onto a handful of IPs and
-	# let the first person to send two messages exhaust the rate limit for
-	# everyone. The endpoint reads CF-Connecting-IP, which Cloudflare documents
-	# as "the client IP address connecting to Cloudflare", and falls back to
-	# X-Forwarded-For when the proxy is not in front.
+	encode zstd gzip
+
+	# The contact endpoint runs on the host under systemd, bound to loopback.
+	# Headers pass through untouched so it can read CF-Connecting-IP — behind the
+	# proxy that is the only header carrying the visitor's real address, and the
+	# rate limiter is worse than useless without it.
 	handle /api/contact* {
-		reverse_proxy 127.0.0.1:8788
+		reverse_proxy host.docker.internal:8788
 	}
 
-	# The CV carries a phone number and names the providers Max has integrated.
-	# It stays reachable by link and out of the index — a PDF is crawled and
-	# ranked exactly like a page, and search results are not something you can
-	# take back.
+	# The CV carries a phone number and names the providers Max integrated. It
+	# stays reachable by link and out of the index: a PDF is crawled and ranked
+	# exactly like a page, and a search result is not something you can take back.
 	header /cv.pdf X-Robots-Tag "noindex, noarchive"
 
-	# Astro fingerprints everything under /_astro, so those URLs can never go
-	# stale: cache them for a year and never revalidate.
-	header /_astro/* Cache-Control "public, max-age=31536000, immutable"
-	header /fonts/* Cache-Control "public, max-age=31536000, immutable"
-	header /og/* Cache-Control "public, max-age=604800"
+	# Cache-Control, with matchers that genuinely exclude each other.
+	#
+	# Written first as three path-scoped `header` lines plus a global one, which
+	# silently did nothing: Caddy applies every matching header directive, so the
+	# global "max-age=0" ran last and overwrote the immutable values. Measured at
+	# the origin — the fingerprinted assets were being served with max-age=0.
+	@immutable path /_astro/* /fonts/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
 
-	# HTML is not fingerprinted, so it must revalidate or a deploy takes a week
+	@og path /og/*
+	header @og Cache-Control "public, max-age=604800"
+
+	# Everything else — HTML above all — must revalidate, or a deploy takes days
 	# to reach anyone.
-	header {
-		Cache-Control "public, max-age=0, must-revalidate"
+	@revalidate not path /_astro/* /fonts/* /og/*
+	header @revalidate Cache-Control "public, max-age=0, must-revalidate"
 
-		# The site loads nothing from anywhere else — no analytics beacon
-		# except Cloudflare's, no fonts from a CDN, no embedded frames — so the
-		# policy can be strict enough to be worth having.
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; form-action 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'"
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()"
+		Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
 		-Server
 	}
 
 	handle {
+		root * /srv/yastremskyi
 		try_files {path} {path}/index.html {path}.html
 		file_server
 	}
@@ -91,6 +91,7 @@ yastremskyi.com, www.yastremskyi.com {
 	handle_errors {
 		@404 expression {err.status_code} == 404
 		rewrite @404 /404.html
+		root * /srv/yastremskyi
 		file_server
 	}
 }

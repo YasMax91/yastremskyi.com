@@ -35,8 +35,14 @@ ProtectControlGroups=true
 RestrictAddressFamilies=AF_INET AF_INET6
 RestrictNamespaces=true
 LockPersonality=true
-MemoryDenyWriteExecute=true
 SystemCallFilter=@system-service
+
+# MemoryDenyWriteExecute is deliberately NOT set. It forbids memory that is both
+# writable and executable, which is precisely what a JIT needs — V8 dies at
+# startup with "Fatal javascript OOM in MemoryChunk allocation failed during
+# deserialization", and the message names memory rather than the real cause.
+# Verified by running the same binary under systemd-run with and without it.
+# The same applies to any JVM, .NET or LuaJIT service; do not add it back.
 SystemCallErrorNumber=EPERM
 
 [Install]

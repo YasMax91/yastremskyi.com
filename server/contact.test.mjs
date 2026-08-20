@@ -242,7 +242,10 @@ describe('the endpoint', () => {
     });
   });
 
-  test('reports a delivery failure instead of pretending it worked', async () => {
+  test('reports a delivery failure in the body, not as a 5xx', async () => {
+    // A 5xx has its body replaced by the CDN in front of this, which loses the
+    // sentence that tells the visitor to email directly. The status describes
+    // the request; `ok` describes the delivery.
     await withServer(
       {
         send: async () => {
@@ -251,8 +254,10 @@ describe('the endpoint', () => {
       },
       async ({ post }) => {
         const res = await post({ ...VALID, started: Date.now() - 30_000 });
-        assert.equal(res.status, 502);
-        assert.equal((await res.json()).ok, false);
+        assert.equal(res.status, 200);
+        const body = await res.json();
+        assert.equal(body.ok, false, 'it must not claim the message was sent');
+        assert.match(body.message, /email me directly/i);
       },
     );
   });

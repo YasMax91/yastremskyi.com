@@ -8,7 +8,7 @@ survive being read as evidence for that claim. That is why the gates below are
 scripts rather than intentions, and why the numbers in this file come from runs
 whose reports are committed in `docs/evidence/`.
 
-**Live:** not yet deployed — see [`deploy/README.md`](deploy/README.md).
+**Live: https://yastremskyi.com** — see [`deploy/README.md`](deploy/README.md) for how it runs.
 
 ---
 
