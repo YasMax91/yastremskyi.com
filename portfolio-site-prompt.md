@@ -61,7 +61,10 @@ job titles, or technologies. If you want a fact that is not here, ask.
        the CV PDF, which is git-ignored for the same reason: /cv.pdf is served with
        X-Robots-Tag: noindex so the number stays out of search results, and committing it
        to a public repo would have made that header meaningless. -->
-- **LinkedIn:** https://www.linkedin.com/in/maksym-yastremskyi-49b344212
+- **LinkedIn:** https://www.linkedin.com/in/max-yastremskyi-49b344212  
+  <!-- Corrected 2026-08-20: this document originally read `maksym-yastremskyi-…`, which is
+       not the profile. A link check could not catch it — LinkedIn answers 999 to anything
+       that is not a browser, so a wrong URL looks exactly like a right one. -->
 - **Markets worked:** Israel and Ukraine (Hebrew/RTL products, Israeli fintech & accounting systems)
 
 ### The flagship: Groundwork (this is the hero of the site)

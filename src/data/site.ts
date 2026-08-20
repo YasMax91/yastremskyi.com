@@ -44,7 +44,7 @@ export const site = {
   contact: {
     email: 'm.yastremskyj@gmail.com',
     emailSubject: 'Senior Backend role',
-    linkedin: 'https://www.linkedin.com/in/maksym-yastremskyi-49b344212',
+    linkedin: 'https://www.linkedin.com/in/max-yastremskyi-49b344212',
     github: 'https://github.com/YasMax91',
   },
 
