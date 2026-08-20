@@ -12,6 +12,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import {
+  clientIp,
   validate,
   looksAutomated,
   createLimiter,
@@ -107,6 +108,31 @@ describe('createLimiter', () => {
     assert.equal(limiter.size, 2);
     limiter.sweep(2000);
     assert.equal(limiter.size, 0);
+  });
+});
+
+describe('clientIp', () => {
+  const req = (headers) => ({ headers, socket: { remoteAddress: '10.0.0.1' } });
+
+  test('prefers the header Cloudflare sets', () => {
+    assert.equal(
+      clientIp(req({ 'cf-connecting-ip': '203.0.113.7', 'x-forwarded-for': '172.16.0.1' })),
+      '203.0.113.7',
+    );
+  });
+
+  test('falls back to the first entry of x-forwarded-for', () => {
+    assert.equal(clientIp(req({ 'x-forwarded-for': '203.0.113.9, 172.16.0.1' })), '203.0.113.9');
+  });
+
+  test('falls back to the socket when there is no proxy', () => {
+    assert.equal(clientIp(req({})), '10.0.0.1');
+  });
+
+  test('does not collapse two visitors onto one edge address', () => {
+    const a = clientIp(req({ 'cf-connecting-ip': '203.0.113.7', 'x-forwarded-for': '172.16.0.1' }));
+    const b = clientIp(req({ 'cf-connecting-ip': '203.0.113.8', 'x-forwarded-for': '172.16.0.1' }));
+    assert.notEqual(a, b, 'behind a proxy every visitor would otherwise share a rate limit');
   });
 });
 

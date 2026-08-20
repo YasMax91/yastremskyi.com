@@ -164,10 +164,25 @@ function parseBody(raw, contentType = '') {
   return Object.fromEntries(new URLSearchParams(raw));
 }
 
-/** Caddy sets X-Forwarded-For; nothing else may reach this port. */
-function clientIp(req) {
+/**
+ * The visitor's address, for rate limiting.
+ *
+ * Behind Cloudflare's proxy the origin sees Cloudflare's edge addresses, not the
+ * visitor's — so `CF-Connecting-IP`, which Cloudflare documents as "the client IP
+ * address connecting to Cloudflare", comes first. Getting this wrong collapses
+ * every visitor onto a handful of edge IPs, and the first person to send two
+ * messages locks out everyone else.
+ *
+ * These headers are only trustworthy because nothing else can reach this
+ * process: it binds to 127.0.0.1, and Caddy is the only thing in front of it.
+ */
+export function clientIp(req) {
+  const cf = req.headers['cf-connecting-ip'];
+  if (typeof cf === 'string' && cf.trim()) return cf.trim();
+
   const fwd = req.headers['x-forwarded-for'];
-  if (typeof fwd === 'string' && fwd.length) return fwd.split(',')[0].trim();
+  if (typeof fwd === 'string' && fwd.trim()) return fwd.split(',')[0].trim();
+
   return req.socket.remoteAddress ?? 'unknown';
 }
 

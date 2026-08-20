@@ -47,6 +47,28 @@ npm run verify          # nothing ships that has not passed the gates
 DEPLOY_HOST=deploy@yastremskyi.com ./deploy/deploy.sh
 ```
 
+## Cloudflare settings that are not optional
+
+The proxy in front of the origin changes two things, and getting either wrong
+produces a site that looks broken in a way the logs do not explain.
+
+**SSL/TLS mode must be Full (strict).** Flexible means, in Cloudflare's own
+words, that "traffic from Cloudflare to the origin server is not" encrypted —
+and with Caddy redirecting 80 to 443 on the origin, that produces a redirect
+loop. Full (strict) validates the origin certificate, which Caddy provides from
+Let's Encrypt.
+
+**"Always Use HTTPS" must stay OFF.** It redirects `/.well-known/acme-challenge/`
+along with everything else, so Caddy can never complete the HTTP-01 challenge and
+the certificate is never issued or renewed. Cloudflare's documented alternative
+is a redirect rule that forces HTTPS for everything _except_ that path. Caddy
+already redirects 80 to 443 at the origin, so the site is HTTPS either way.
+
+**The TLS-ALPN challenge is disabled** in the Caddyfile for the same reason: it
+validates over port 443, which Cloudflare terminates, so it can never succeed
+behind the proxy. Caddy picks a challenge at random when several are enabled,
+which would mean about half of all issuance attempts failing.
+
 ## Resend
 
 Sending needs a verified domain — three DNS records, listed in

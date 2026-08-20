@@ -19,13 +19,33 @@ yastremskyi.com, www.yastremskyi.com {
 
 	encode zstd gzip
 
-	# The contact endpoint runs on the same box, bound to loopback only, so this
-	# proxy is the sole way in. Caddy adds X-Forwarded-For, which the endpoint
-	# uses to rate-limit.
-	handle /api/contact* {
-		reverse_proxy 127.0.0.1:8788 {
-			header_up X-Forwarded-For {remote_host}
+	# Behind Cloudflare's proxy, TLS is terminated at the edge, so the TLS-ALPN
+	# challenge can never reach this server. Caddy documents that with several
+	# challenges enabled it "chooses one at random" — which would mean roughly
+	# half of every issuance and renewal attempt failing and retrying. HTTP-01
+	# is the one that works through the proxy, so it is the only one left on.
+	#
+	# This requires "Always Use HTTPS" to stay OFF in Cloudflare, because it
+	# redirects /.well-known/acme-challenge/ along with everything else. Use a
+	# redirect rule that exempts that path instead — Cloudflare's own guidance.
+	tls {
+		issuer acme {
+			disable_tlsalpn_challenge
 		}
+	}
+
+	# The contact endpoint runs on the same box, bound to loopback only, so this
+	# proxy is the sole way in.
+	#
+	# Headers are passed through untouched on purpose. An earlier version set
+	# X-Forwarded-For to {remote_host}, which behind Cloudflare is the edge
+	# address — that would have collapsed every visitor onto a handful of IPs and
+	# let the first person to send two messages exhaust the rate limit for
+	# everyone. The endpoint reads CF-Connecting-IP, which Cloudflare documents
+	# as "the client IP address connecting to Cloudflare", and falls back to
+	# X-Forwarded-For when the proxy is not in front.
+	handle /api/contact* {
+		reverse_proxy 127.0.0.1:8788
 	}
 
 	# The CV carries a phone number and names the providers Max has integrated.
