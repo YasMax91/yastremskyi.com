@@ -35,16 +35,25 @@ config, a hardened systemd unit and a deploy script.
 
 ### What I could not verify, and would not claim
 
-- **The form has never delivered an email.** Every path around delivery is
-  tested, including failure, but Resend has never been called — there is no
-  verified domain to call it from. The first real send is your test, not mine.
-- **The Caddy config has never been loaded by Caddy.** It is written against the
-  documented directive syntax; `caddy validate` is the first line of
-  `deploy/README.md` for that reason.
-- **Nothing has been measured from a real network.** Every number here is
-  Lighthouse's simulated mobile connection against localhost. Field performance
-  from Tel Aviv or São Paulo is a different question, and the Cloudflare proxy in
-  front of the origin is the answer to it.
+- **The form delivers.** Verified on both paths through the public URL — the JSON
+  path a browser with JavaScript takes, and the plain form POST a browser without
+  it takes, which redirects to `/thanks`. Resend returned message ids
+  `61d72a1e…` and `8dbf04b0…`, both logged on the server. Whether they reached
+  your inbox rather than a spam folder is the one thing only you can confirm.
+- **The Caddy config has been loaded, validated and reloaded** several times, with
+  `warmap.duckdns.org` answering 200 before and after each change.
+- **Measured from a real network.** Lighthouse against the deployed site through
+  Cloudflare: see `docs/evidence/lighthouse-live.md`. TTFB 64–102 ms.
+- **The rate limiter works in production.** Six posts from one address were
+  refused after the fifth, counting the two real sends that preceded them.
+
+### Still not verified
+
+- **Deliverability over time.** One message arriving says the pipe works; it says
+  nothing about whether Gmail will keep trusting a two-hour-old sending domain.
+  Adding a DMARC record and sending a few real messages is how that improves.
+- **The form has never been used by a person**, only by curl. Open the site and
+  send yourself one from the actual form.
 
 ## 3. For you as a native Ukrainian speaker
 

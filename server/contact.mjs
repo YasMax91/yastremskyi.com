@@ -273,7 +273,11 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
     }
 
     try {
-      await send(buildEmail(body));
+      // The provider's id is logged on success. Without it, "I sent you a
+      // message and never heard back" is unanswerable: there is no way to tell
+      // a message that never arrived from one that arrived and was missed.
+      const result = await send(buildEmail(body));
+      console.log(`[contact] delivered id=${result?.id ?? 'unknown'} to=${MAIL_TO}`);
     } catch (err) {
       console.error('[contact] delivery failed:', err.message);
       // 200 with ok:false, not 502.
