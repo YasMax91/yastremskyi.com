@@ -17,13 +17,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "contrast": "node docs/design/contrast.mjs",
-    "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run contrast && npm run build && npm run audit",
+    "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run contrast && npm run facts && npm run build && npm run audit",
     "og": "node scripts/og.mjs",
     "audit": "node scripts/check-html.mjs",
     "test": "node --test server/*.test.mjs",
     "fonts": "node scripts/subset-fonts.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
-    "clean": "rm -rf dist .astro node_modules/.astro"
+    "clean": "rm -rf dist .astro node_modules/.astro",
+    "audit:external": "node scripts/check-html.mjs --external",
+    "facts": "node scripts/check-facts.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

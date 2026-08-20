@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pre-flight check, run ON THE SERVER before the first deploy.
 #
-#   scp deploy/preflight.sh deploy@[origin-ip]:/tmp/ && ssh deploy@[origin-ip] bash /tmp/preflight.sh
+#   scp deploy/preflight.sh "$DEPLOY_HOST":/tmp/ && ssh "$DEPLOY_HOST" bash /tmp/preflight.sh
 #
 # Reads only. It changes nothing — the point is to find out what is actually on
 # the box before anything is written to it, because this server already serves

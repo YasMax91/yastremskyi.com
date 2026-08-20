@@ -15,8 +15,14 @@ const year = 2026;
   <div class="wrap">
     <span>© {year} {site.name}</span>
     <span>
-      <a href={site.groundwork.repo}>Groundwork</a> ·
-      <a href={`${site.contact.github}/yastremskyi.com`}>{t('footer.source')}</a>
+      <a href={site.groundwork.repo}>Groundwork</a>
+      {
+        site.repo && (
+          <>
+            · <a href={site.repo}>{t('footer.source')}</a>
+          </>
+        )
+      }
     </span>
   </div>
 </footer>

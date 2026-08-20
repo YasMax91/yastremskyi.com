@@ -61,11 +61,19 @@ TLS-ALPN is disabled in the site block regardless: it validates over 443, which
 Cloudflare terminates, and Caddy picks a challenge at random when several are
 enabled — so leaving it on would mean roughly half of all renewals failing.
 
+## The origin address is not written down here
+
+Cloudflare proxies this domain, and one of the things that buys is that the
+origin's address is not public: traffic that cannot find the server cannot go
+around the CDN to reach it. Committing the IP to a public repository would hand
+that back. `DEPLOY_HOST` carries it instead — an environment variable on the
+machine doing the deploying.
+
 ## Deploying a change
 
 ```bash
 npm run verify                      # nothing ships that has not passed the gates
-DEPLOY_HOST=root@[origin-ip] ./deploy/deploy.sh
+DEPLOY_HOST=root@<origin-ip> ./deploy/deploy.sh
 ```
 
 ## Resend

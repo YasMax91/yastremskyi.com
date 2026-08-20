@@ -14,6 +14,9 @@ import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
 const DIST = 'dist';
+/** `--external` also fetches off-site links. Off by default: a check that hits
+ *  the network fails for reasons that have nothing to do with this site. */
+const CHECK_EXTERNAL = process.argv.includes('--external');
 /** Absolute links to our own origin are internal, and must resolve too. */
 const ORIGIN = 'https://yastremskyi.com';
 
@@ -129,9 +132,42 @@ if (missingLandmarks.length) {
   for (const m of missingLandmarks) console.log(`  ${m.page}  missing ${m.what}`);
 }
 
+// --- external links -----------------------------------------------------------
+// Extracted from href/src attributes rather than grepped out of the raw text.
+// A grep missed a dead footer link on every page of the live site, which is the
+// kind of blind spot a link checker exists not to have.
+if (CHECK_EXTERNAL && external.size) {
+  console.log(`\nfetching ${external.size} external link(s)…`);
+  const dead = [];
+  for (const url of [...external].sort()) {
+    let status = 'ERR';
+    try {
+      const res = await fetch(url, {
+        redirect: 'follow',
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; yastremskyi.com link check)' },
+        signal: AbortSignal.timeout(20_000),
+      });
+      status = String(res.status);
+    } catch (err) {
+      status = err.name === 'TimeoutError' ? 'timeout' : 'unreachable';
+    }
+    // LinkedIn answers 999 to anything that is not a browser. That is its
+    // anti-scraping response, not a dead page, and treating it as a failure
+    // would train everyone to ignore this check.
+    const ok = /^[23]\d\d$/.test(status) || (status === '999' && url.includes('linkedin.com'));
+    if (!ok) dead.push({ url, status });
+    console.log(`  ${ok ? 'ok  ' : 'DEAD'} ${status.padEnd(9)} ${url}`);
+  }
+  if (dead.length) {
+    failed += dead.length;
+    console.log('\nDEAD EXTERNAL LINKS:');
+    for (const d of dead) console.log(`  ${d.status}  ${d.url}`);
+  }
+}
+
 console.log(
   failed === 0
-    ? '\nLinks resolve, headings descend in order, landmarks present.'
+    ? `\nLinks resolve, headings descend in order, landmarks present${CHECK_EXTERNAL ? ', external links answer' : ''}.`
     : `\n${failed} problem(s).`,
 );
 process.exit(failed === 0 ? 0 : 1);

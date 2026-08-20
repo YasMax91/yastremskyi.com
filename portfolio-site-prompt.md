@@ -56,7 +56,11 @@ job titles, or technologies. If you want a fact that is not here, ask.
 - **Location:** Ukraine (UTC+3) · open to remote worldwide and to relocation
 - **Languages:** English B2 · Ukrainian native · Russian fluent
 - **Email:** m.yastremskyj@gmail.com
-- **Phone:** [redacted]
+- **Phone:** [redacted — see below]  
+  <!-- Redacted before this repository could be made public. The number is real and is in
+       the CV PDF, which is git-ignored for the same reason: /cv.pdf is served with
+       X-Robots-Tag: noindex so the number stays out of search results, and committing it
+       to a public repo would have made that header meaningless. -->
 - **LinkedIn:** https://www.linkedin.com/in/maksym-yastremskyi-49b344212
 - **Markets worked:** Israel and Ukraine (Hebrew/RTL products, Israeli fintech & accounting systems)
 
