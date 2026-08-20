@@ -14,31 +14,66 @@ somebody's dashboard.
 | TLS              | —                          | Caddy, provisioned and renewed automatically  |
 | CDN              | —                          | Cloudflare in front of the origin, free tier  |
 
-The endpoint listens on loopback only. The single route into it is Caddy's
-`reverse_proxy`, which also supplies the `X-Forwarded-For` the rate limiter uses.
+The endpoint listens on loopback only; Caddy's `reverse_proxy` is the single
+route into it. Headers pass through untouched so the endpoint can read
+`CF-Connecting-IP` — behind the Cloudflare proxy that is the only header
+carrying the visitor's real address, and the rate limiter is useless without it.
+
+## Before anything: find out what is on the box
+
+The server is **not empty**. Probed from outside on 2026-08-20 it answers
+`Server: Caddy` and already redirects 80 to 443, which means there is a working
+Caddy configuration serving something. Nothing here replaces it.
+
+```bash
+scp deploy/preflight.sh deploy@[origin-ip]:/tmp/
+ssh deploy@[origin-ip] bash /tmp/preflight.sh
+```
+
+It reads and changes nothing: Caddy version, which sites are already configured,
+whether `conf.d` is imported, Node version, users, free ports, and what DNS looks
+like from the box. Read it before running anything below.
+
+## DNS, in Cloudflare
+
+The zone is live on Cloudflare nameservers but has **no A record yet**, so the
+domain currently resolves to nothing.
+
+| Type  | Name              | Content           | Proxy   |
+| ----- | ----------------- | ----------------- | ------- |
+| A     | `yastremskyi.com` | `[origin-ip]`     | Proxied |
+| CNAME | `www`             | `yastremskyi.com` | Proxied |
+
+Then the three Resend records from `contact.env.example`, all **DNS only** — mail
+records must not be proxied.
 
 ## First-time setup
 
 ```bash
-# 1. Point DNS at the box, then let Cloudflare proxy it.
-# 2. Web root and app directory
-sudo mkdir -p /var/www/yastremskyi.com /srv/yastremskyi-contact /etc/yastremskyi
+# 1. Directories. The web root is created empty; the deploy fills it.
+sudo mkdir -p /var/www/yastremskyi.com /srv/yastremskyi-contact /etc/yastremskyi /etc/caddy/conf.d
 sudo chown -R www-data:www-data /var/www/yastremskyi.com /srv/yastremskyi-contact
 
-# 3. Secrets — never in the repository
+# 2. Secrets — never in the repository
 sudo cp deploy/contact.env.example /etc/yastremskyi/contact.env
 sudo $EDITOR /etc/yastremskyi/contact.env
 sudo chown root:root /etc/yastremskyi/contact.env && sudo chmod 600 /etc/yastremskyi/contact.env
 
-# 4. The service
+# 3. The contact service
 sudo cp deploy/contact.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now contact
+systemctl is-active contact
 
-# 5. Caddy
-sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
-sudo caddy validate --config /etc/caddy/Caddyfile
+# 4. The site block — ADDED, never over the existing Caddyfile
+sudo cp deploy/yastremskyi.com.caddy /etc/caddy/conf.d/
+#    Once only, as the FIRST line of /etc/caddy/Caddyfile:
+#      import /etc/caddy/conf.d/*.caddy
+sudo caddy validate --config /etc/caddy/Caddyfile   # must pass before reloading
 sudo systemctl reload caddy
 ```
+
+If `caddy validate` fails, nothing has been reloaded and the site that was
+already running is still running. That is the whole reason for the conf.d split.
 
 ## Every deploy after that
 

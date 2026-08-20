@@ -1,4 +1,15 @@
-# Caddy configuration for yastremskyi.com
+# Caddy site block for yastremskyi.com
+#
+# This is ONE SITE, not a whole Caddyfile. The box already runs Caddy and is
+# already serving something — replacing /etc/caddy/Caddyfile with this file would
+# take that down. It is installed alongside, never over:
+#
+#   sudo mkdir -p /etc/caddy/conf.d
+#   sudo cp deploy/yastremskyi.com.caddy /etc/caddy/conf.d/
+#   # once, at the very top of /etc/caddy/Caddyfile:
+#   #   import /etc/caddy/conf.d/*.caddy
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
 #
 # Caddy rather than nginx because it provisions and renews TLS on its own —
 # "Automatic HTTPS provisions TLS certificates for all your sites and keeps them
@@ -10,10 +21,6 @@
 # maintaining for a handful of kilobytes on an already small site. Stated rather
 # than quietly claimed.
 #
-#   sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
-#   sudo caddy validate --config /etc/caddy/Caddyfile
-#   sudo systemctl reload caddy
-
 yastremskyi.com, www.yastremskyi.com {
 	root * /var/www/yastremskyi.com
 
