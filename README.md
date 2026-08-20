@@ -64,15 +64,20 @@ From the runs in `docs/evidence/`, mobile profile, Lighthouse 13:
 | Separate `.js` files | **none** — it all inlines                                                | —        |
 | Internal links       | **152 checked, 0 broken**                                                | 0 broken |
 
-**One bar is not met, and it is not being quietly rounded.** The brief asks for
-LCP < 1200 ms; every route measures **1202–1208 ms**. The gap is not content: with
-the portrait removed LCP moved by 0 ms, with the gate simulator removed by 2.5 ms,
-and removing the font preloads made it _worse_ by 150 ms. FCP is 639 ms and LCP
-lands a fixed ~560 ms later whatever the page contains, which is the floor of
-Lighthouse's simulated 150 ms / 1.6 Mbps mobile connection for a document of this
-shape. The Lighthouse gate is therefore set at 1250 ms — tight enough to catch a
-real regression, honest about where the page sits. Getting under 1200 ms would
-mean removing the photograph _and_ the signature element and still needing luck.
+**One bar is missed, on one route, and the earlier claim about it was wrong.**
+The brief asks for LCP < 1200 ms. Measured against a local preview, every route
+sat at 1202–1208 ms and this file used to say the bar could not be met at all.
+Measured against the **deployed site** behind Cloudflare, four routes come in at
+1096–1116 ms — the bar is met — and only `/` misses, at a median of 1254 ms over
+three runs. It is the one page carrying a photograph, which an A/B on the built
+HTML had already identified as its largest contentful paint. Getting it under
+would mean taking the portrait out of the first mobile viewport: 54 ms against a
+face on the page a hiring manager opens first. Live figures and the full table are
+in [`docs/evidence/lighthouse-live.md`](docs/evidence/lighthouse-live.md).
+
+The `npm run lighthouse` gate runs against a local preview and is set at 1250 ms,
+which is where that environment sits. It is a regression guard, not the number to
+quote.
 
 ## How it is built
 
