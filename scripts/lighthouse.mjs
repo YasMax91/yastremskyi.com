@@ -28,19 +28,32 @@ const BASE = process.env.LH_BASE ?? 'http://localhost:4330';
 const OUT = 'docs/evidence';
 
 /**
- * A shared CI runner is not a measurement device for CPU-bound metrics. Total
- * blocking time on this site measures 0 ms locally and 0 ms against production,
- * and 151 ms on a GitHub Actions runner that is sharing a core with somebody
- * else's build. Asserting the strict number there produces red builds that mean
- * nothing, and a CI nobody believes is worse than no CI.
+ * Which metrics a shared CI runner can actually measure.
  *
- * So TBT keeps a bound on CI — loose enough to survive a noisy neighbour, tight
- * enough that a genuinely heavy script still trips it — and the strict one
- * applies where the measurement is worth something. Each run takes the median of
- * three on CI, for the same reason.
+ * This gate was loosened twice before the data was read properly, which was
+ * treating the symptom. The evidence across two CI runs of an unchanged site:
+ *
+ *   metric          run A   run B   local   production
+ *   accessibility     100     100     100          100
+ *   best practices    100     100     100          100
+ *   SEO               100     100     100          100
+ *   CLS             0.000   0.000   0.000        0.000
+ *   LCP              1209    1210    1205         1277   ms
+ *   performance        98      78     100           99
+ *   TBT               151     862       0            0   ms
+ *
+ * Everything above the line is stable to within noise. Performance and TBT swung
+ * wildly while the site did not change at all, because both are dominated by CPU
+ * time and the runner shares a core with whatever else is building. Raising the
+ * bound until they pass turns a gate into decoration; the honest move is to stop
+ * asserting on a machine that cannot measure them, keep reporting them so a human
+ * can look, and let the local and production runs be the gate for those two.
  */
 const ON_CI = process.env.CI === 'true';
 const RUNS = ON_CI ? 3 : 1;
+
+/** Metrics whose CI numbers are reported but not enforced. See the table above. */
+const UNENFORCED_ON_CI = new Set(['performance', 'total-blocking-time']);
 
 const ROUTES = ['/', '/groundwork', '/work', '/work/payments-and-clearing', '/about', '/cv'];
 
@@ -53,9 +66,9 @@ const THRESHOLDS = {
 
 /** Core Web Vitals, measured. See the note above on the LCP number. */
 const VITALS = {
-  'largest-contentful-paint': { max: ON_CI ? 1400 : 1250, label: 'LCP', unit: 'ms' },
+  'largest-contentful-paint': { max: 1300, label: 'LCP', unit: 'ms' },
   'cumulative-layout-shift': { max: 0.01, label: 'CLS', unit: '' },
-  'total-blocking-time': { max: ON_CI ? 300 : 100, label: 'TBT', unit: 'ms' },
+  'total-blocking-time': { max: 100, label: 'TBT', unit: 'ms' },
 };
 
 function run(url, out) {
@@ -83,11 +96,12 @@ function run(url, out) {
 mkdirSync(OUT, { recursive: true });
 
 const failures = [];
+const unenforced = [];
 const table = [];
 console.log(
   ON_CI
-    ? `CI runner: median of ${RUNS} runs, TBT bound ${VITALS['total-blocking-time'].max} ms (see the note in this file)`
-    : `local: single run, TBT bound ${VITALS['total-blocking-time'].max} ms`,
+    ? `CI runner: median of ${RUNS} runs. Performance and TBT are reported, not enforced — see the note in this file.`
+    : 'local: single run, everything enforced',
 );
 
 for (const route of ROUTES) {
@@ -101,7 +115,11 @@ for (const route of ROUTES) {
   for (const [key, min] of Object.entries(THRESHOLDS)) {
     const score = Math.round(report.categories[key].score * 100);
     row.scores[key] = score;
-    if (score < min) failures.push(`${route}: ${key} ${score} < ${min}`);
+    if (score < min) {
+      const line = `${route}: ${key} ${score} < ${min}`;
+      if (ON_CI && UNENFORCED_ON_CI.has(key)) unenforced.push(line);
+      else failures.push(line);
+    }
   }
 
   for (const [key, spec] of Object.entries(VITALS)) {
@@ -167,10 +185,17 @@ ${VITALS['largest-contentful-paint'].max} ms rather than at 1200.
 `;
 writeFileSync(join(OUT, 'lighthouse.md'), md);
 
+if (unenforced.length) {
+  console.log('\nReported, not enforced on this runner:');
+  for (const u of unenforced) console.log(`  ${u}`);
+  console.log('  These two are CPU-bound and a shared runner cannot measure them.');
+  console.log('  Check them locally with `npm run lighthouse`, or against production.');
+}
+
 if (failures.length) {
   console.log('\nBELOW THRESHOLD:');
   for (const f of failures) console.log(`  ${f}`);
   process.exit(1);
 }
 
-console.log('\nEvery route meets the thresholds. Raw reports in docs/evidence/.');
+console.log('\nEvery enforced threshold is met. Raw reports in docs/evidence/.');

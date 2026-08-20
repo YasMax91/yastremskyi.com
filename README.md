@@ -76,13 +76,16 @@ face on the page a hiring manager opens first. Live figures and the full table a
 in [`docs/evidence/lighthouse-live.md`](docs/evidence/lighthouse-live.md).
 
 The `npm run lighthouse` gate runs against a local preview and is a regression
-guard, not the number to quote. Its bounds are deliberately different on CI: a
-shared GitHub Actions runner measured total blocking time at 151 ms where this
-site measures 0 ms locally and 0 ms in production, because it was sharing a core
-with somebody else's build. A threshold that a noisy neighbour can turn red is a
-threshold people learn to ignore, so on CI the gate takes the median of three
-runs and allows more headroom — loose enough to survive the neighbour, tight
-enough that a genuinely heavy script still trips it.
+guard, not the number to quote. On CI it enforces accessibility, best practices,
+SEO, CLS and LCP — and **reports** performance and total blocking time without
+failing on them. That is not a threshold quietly relaxed until it passed: across
+two CI runs of an unchanged site, everything else held to within noise while TBT
+swung from 151 ms to 862 ms and the performance score from 98 to 78, because both
+are dominated by CPU time on a runner sharing a core with somebody else's build.
+The same commit measures 0 ms and 100 locally, and 0 ms and 99 in production. A
+gate that goes red for reasons unrelated to the change is a gate people learn to
+ignore, so the two metrics a shared runner cannot measure are checked where they
+can be. The evidence table is in `scripts/lighthouse.mjs`.
 
 ## How it is built
 
