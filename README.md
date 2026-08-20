@@ -75,9 +75,14 @@ would mean taking the portrait out of the first mobile viewport: 54 ms against a
 face on the page a hiring manager opens first. Live figures and the full table are
 in [`docs/evidence/lighthouse-live.md`](docs/evidence/lighthouse-live.md).
 
-The `npm run lighthouse` gate runs against a local preview and is set at 1250 ms,
-which is where that environment sits. It is a regression guard, not the number to
-quote.
+The `npm run lighthouse` gate runs against a local preview and is a regression
+guard, not the number to quote. Its bounds are deliberately different on CI: a
+shared GitHub Actions runner measured total blocking time at 151 ms where this
+site measures 0 ms locally and 0 ms in production, because it was sharing a core
+with somebody else's build. A threshold that a noisy neighbour can turn red is a
+threshold people learn to ignore, so on CI the gate takes the median of three
+runs and allows more headroom — loose enough to survive the neighbour, tight
+enough that a genuinely heavy script still trips it.
 
 ## How it is built
 
