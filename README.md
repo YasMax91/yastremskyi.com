@@ -164,6 +164,13 @@ One file in `src/content/notes/`. See
 [`src/content/notes/README.md`](src/content/notes/README.md), including the one
 gotcha: a _deleted_ post survives in Astro's content store until `npm run clean`.
 
+## The CV PDF
+
+`public/cv.pdf` is **git-ignored on purpose** — see `deploy/README.md`. Keep your
+copy at that path locally; the build picks it up, and the `/cv` page renders its
+download button only when the file is actually there, so a missing file degrades
+to a page without a dead link rather than to a 404.
+
 ## Editing copy without touching markup
 
 - Facts about Max → `src/data/site.ts`

@@ -35,3 +35,14 @@ pnpm-debug.log*
 # live in docs/evidence/lighthouse.md and lighthouse-summary.json; CI keeps the
 # raw reports as build artifacts.
 docs/evidence/lh-*.json
+
+# The CV is deliberately NOT in this repository.
+#
+# This repo is public, and the PDF carries a phone number that is kept off the
+# indexable web on purpose — /cv.pdf is served with X-Robots-Tag: noindex for
+# exactly that reason. Committing it would put the number on GitHub, indexed and
+# permanent, and would leave it in the history even after a later delete. The
+# noindex header would then be protecting nothing.
+#
+# It lives on the server only. See deploy/README.md.
+public/cv.pdf

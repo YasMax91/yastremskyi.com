@@ -81,6 +81,27 @@ sudo nano /etc/yastremskyi/contact.env   # replace PASTE_THE_KEY_HERE
 sudo systemctl restart contact
 ```
 
+## The CV is not in the repository
+
+`public/cv.pdf` is git-ignored and deployed out of band. This repository is
+public and the PDF carries a phone number that is deliberately kept off the
+indexable web — `/cv.pdf` is served with `X-Robots-Tag: noindex, noarchive` for
+that reason. Committing it would put the number on GitHub, indexed, permanent,
+and still in the history after any later delete, at which point the header would
+be protecting nothing.
+
+`rsync --delete` in `deploy.sh` would remove a file the local `dist/` does not
+have, so the build has to produce it. Keep the PDF at `public/cv.pdf` locally —
+it is ignored by git, not by the build — and `npm run build` copies it into
+`dist/` as it does any other static asset. If you deploy from a fresh clone,
+put the file back first or the download link disappears: the `/cv` page renders
+that button only when the file exists.
+
+**Cloudflare caches it for four hours.** The origin sends `max-age=0,
+must-revalidate`, and Cloudflare replaces that with `max-age=14400` for PDFs.
+After replacing the CV, purge it in the dashboard or visitors keep the old one
+for up to four hours.
+
 ## Rollback
 
 ```bash
