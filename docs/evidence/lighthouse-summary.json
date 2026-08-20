@@ -1,0 +1,110 @@
+{
+  "base": "http://localhost:4330",
+  "thresholds": {
+    "performance": 98,
+    "accessibility": 100,
+    "best-practices": 100,
+    "seo": 100,
+    "largest-contentful-paint": {
+      "max": 1250,
+      "label": "LCP",
+      "unit": "ms"
+    },
+    "cumulative-layout-shift": {
+      "max": 0.01,
+      "label": "CLS",
+      "unit": ""
+    },
+    "total-blocking-time": {
+      "max": 100,
+      "label": "TBT",
+      "unit": "ms"
+    }
+  },
+  "results": [
+    {
+      "route": "/",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1203.8192,
+        "CLS": 0,
+        "TBT": 0
+      }
+    },
+    {
+      "route": "/groundwork",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1202.1368,
+        "CLS": 0,
+        "TBT": 0
+      }
+    },
+    {
+      "route": "/work",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1202.6833,
+        "CLS": 0,
+        "TBT": 0
+      }
+    },
+    {
+      "route": "/work/payments-and-clearing",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1202.1343,
+        "CLS": 0,
+        "TBT": 0
+      }
+    },
+    {
+      "route": "/about",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1056.1736,
+        "CLS": 0,
+        "TBT": 0
+      }
+    },
+    {
+      "route": "/cv",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "vitals": {
+        "LCP": 1202.5743,
+        "CLS": 0,
+        "TBT": 0
+      }
+    }
+  ]
+}

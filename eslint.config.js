@@ -2,6 +2,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import astro from 'eslint-plugin-astro';
+import globals from 'globals';
 
 export default tseslint.config(
   { ignores: ['dist/**', '.astro/**', 'node_modules/**', 'docs/concepts/**'] },
@@ -15,11 +16,12 @@ export default tseslint.config(
     },
   },
   {
-    // Build-time scripts run in Node, not in the browser. Declared explicitly
-    // rather than pulling in a globals package for two names.
+    // Build scripts, the contact endpoint and its tests all run in Node, not in
+    // a browser. Taking the whole set rather than naming globals one at a time:
+    // the alternative is discovering each missing name through a failing lint.
     files: ['**/*.mjs', 'eslint.config.js', 'astro.config.mjs'],
     languageOptions: {
-      globals: { console: 'readonly', process: 'readonly', Buffer: 'readonly' },
+      globals: { ...globals.node },
     },
   },
 );

@@ -13,7 +13,7 @@ import { z } from 'astro:schema';
  * future edit can quietly drop.
  */
 const work = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/work' }),
+  loader: glob({ pattern: ['**/*.md', '!README.md'], base: './src/content/work' }),
   schema: z.object({
     /** Reading order on /work. Lower comes first. */
     order: z.number().int().positive(),
@@ -50,4 +50,30 @@ const work = defineCollection({
   }),
 });
 
-export const collections = { work };
+/**
+ * Notes. The structure exists; the section does not appear until there is
+ * something in it — an empty blog is worse than no blog, and a missing one is a
+ * missed opportunity, so this is the third option: built, and invisible until
+ * used.
+ *
+ * Adding a post is one file in src/content/notes/. Nothing else changes: the
+ * route, the index and the sitemap entry all follow from the collection.
+ */
+const notes = defineCollection({
+  // The how-to-add-a-post README lives beside the posts, where somebody
+  // adding one will actually see it — so it is excluded from the collection
+  // rather than exiled to another directory.
+  loader: glob({ pattern: ['**/*.md', '!README.md'], base: './src/content/notes' }),
+  schema: z.object({
+    title: z.string().min(3),
+    /** Written, not generated — a summary is what a reader decides on. */
+    summary: z.string().min(20).max(220),
+    published: z.date(),
+    updated: z.date().optional(),
+    tags: z.array(z.string()).max(6).default([]),
+    /** Set false to keep a post out of the build while it is still a draft. */
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { work, notes };

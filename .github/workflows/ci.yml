@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel a superseded run rather than paying for it to finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Formatting, lint, types, the contact-endpoint tests, colour contrast,
+      # the build, then links, heading order and landmarks over the output.
+      # Same command a developer runs locally — a CI that checks something
+      # different from the local gate is a CI nobody trusts.
+      - name: Verify
+        run: npm run verify
+
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Serve the built site
+        run: |
+          npx astro preview --port 4330 &
+          npx wait-on http://localhost:4330 --timeout 60000
+
+      - name: Audit every route
+        run: npm run lighthouse
+
+      # The reports are the evidence behind any performance claim in the README,
+      # so they are kept rather than described.
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: docs/evidence/
+          retention-days: 30

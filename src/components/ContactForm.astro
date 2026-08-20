@@ -1,0 +1,263 @@
+---
+import { site } from '../data/site';
+
+/**
+ * Contact form.
+ *
+ * Works with JavaScript disabled: it is a plain POST to /api/contact, and the
+ * endpoint answers with a redirect to /thanks. With JavaScript it submits in
+ * place and reports through an aria-live region, so a screen reader hears the
+ * result without the page moving under it.
+ *
+ * Spam is handled by a honeypot and a timing floor rather than a CAPTCHA. A
+ * CAPTCHA would put third-party JavaScript on a page that currently ships half a
+ * kilobyte of its own, and would make a visitor prove their humanity to send a
+ * message to one person.
+ */
+---
+
+<form class="contact" method="post" action="/api/contact" novalidate>
+  <div class="field">
+    <label for="cf-name">Your name</label>
+    <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+    <p class="error" id="cf-name-error" data-error-for="name"></p>
+  </div>
+
+  <div class="field">
+    <label for="cf-email">Email</label>
+    <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="254" />
+    <p class="error" id="cf-email-error" data-error-for="email"></p>
+  </div>
+
+  <div class="field">
+    <label for="cf-message">Message</label>
+    <textarea id="cf-message" name="message" rows="6" required maxlength="5000"></textarea>
+    <p class="error" id="cf-message-error" data-error-for="message"></p>
+  </div>
+
+  {
+    /* The honeypot. Off-screen rather than display:none, which some bots skip,
+      and removed from the tab order and the accessibility tree. */
+  }
+  <div class="hp" aria-hidden="true">
+    <label for="cf-company">Company — leave this empty</label>
+    <input id="cf-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <input type="hidden" name="started" value="" />
+
+  <div class="actions">
+    <button type="submit">Send</button>
+    <p class="alt">
+      Or write directly to
+      <a
+        href={`mailto:${site.contact.email}?subject=${encodeURIComponent(site.contact.emailSubject)}`}
+      >
+        {site.contact.email}
+      </a>
+    </p>
+  </div>
+
+  <p class="status" role="status" aria-live="polite"></p>
+
+  <p class="privacy">
+    The message goes to my own server and is sent on to my inbox. It is not stored, there is no
+    tracking on this page, and nobody else sees it.
+  </p>
+</form>
+
+<style>
+  .contact {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 34rem;
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  input,
+  textarea {
+    padding: var(--space-3);
+    border: var(--rule) solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* Only shown once there is something to say, so the layout does not carry
+     empty space waiting for an error that may never come. */
+  .error:empty {
+    display: none;
+  }
+
+  .error {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--accent-text);
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--accent);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  button {
+    padding: var(--space-3) var(--space-6);
+    border: var(--rule) solid var(--border);
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  button[disabled] {
+    opacity: 0.55;
+    cursor: progress;
+  }
+
+  .alt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+  }
+
+  .alt a {
+    color: var(--accent-text);
+  }
+
+  .status:empty {
+    display: none;
+  }
+
+  .status {
+    padding: var(--space-3) var(--space-4);
+    border: var(--rule) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .status[data-state='ok'] {
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+
+  .privacy {
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form.contact');
+  if (form) {
+    const status = form.querySelector<HTMLParagraphElement>('.status');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const started = form.querySelector<HTMLInputElement>('input[name="started"]');
+
+    // Only set with JavaScript running. The endpoint treats a missing value as
+    // "unknown" rather than as a failure, so the no-JS path is not punished.
+    if (started) started.value = String(Date.now());
+
+    const clearErrors = () => {
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => {
+        el.textContent = '';
+        const field = form.querySelector(`[name="${el.dataset.errorFor}"]`);
+        field?.removeAttribute('aria-invalid');
+        field?.removeAttribute('aria-describedby');
+      });
+    };
+
+    const showErrors = (errors: Record<string, string>) => {
+      for (const [name, message] of Object.entries(errors)) {
+        const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+        const field = form.querySelector(`[name="${name}"]`);
+        if (el) el.textContent = message;
+        if (field && el?.id) {
+          field.setAttribute('aria-invalid', 'true');
+          field.setAttribute('aria-describedby', el.id);
+        }
+      }
+      form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+      if (status) {
+        status.textContent = '';
+        status.removeAttribute('data-state');
+      }
+      if (button) button.disabled = true;
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        const body = await res.json();
+
+        if (body.ok) {
+          form.reset();
+          if (started) started.value = String(Date.now());
+          if (status) {
+            status.textContent = body.message;
+            status.dataset.state = 'ok';
+          }
+        } else {
+          if (body.errors) showErrors(body.errors);
+          if (status) status.textContent = body.message;
+        }
+      } catch {
+        if (status) {
+          status.textContent =
+            'The message could not be sent — the network refused. Email me directly and I will see it.';
+        }
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  }
+</script>

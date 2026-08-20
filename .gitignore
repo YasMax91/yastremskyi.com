@@ -30,3 +30,8 @@ pnpm-debug.log*
 
 # personal, machine-specific Claude Code settings (absolute plugin paths)
 .claude/settings.local.json
+
+# Raw Lighthouse reports embed screenshots and run to ~750 KB each. The numbers
+# live in docs/evidence/lighthouse.md and lighthouse-summary.json; CI keeps the
+# raw reports as build artifacts.
+docs/evidence/lh-*.json

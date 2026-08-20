@@ -193,7 +193,12 @@ const jsonLd = {
   >
     <Stats />
     <div class="callout">
-      <h4>The number worth arguing about</h4>
+      {
+        /* h3, not h4: the section above it is an h2, and skipping a level breaks
+          the document outline for anyone navigating by headings. It keeps the
+          mono micro-label look through a class rather than through its tag. */
+      }
+      <h3 class="callout-title">The number worth arguing about</h3>
       <p>
         Roughly one task in three never reaches code. Not because the tooling refused, but because
         writing the specification showed the request was mis-scoped, already solved elsewhere, or
@@ -424,8 +429,13 @@ const jsonLd = {
     border: var(--rule) solid var(--accent);
   }
 
-  .callout h4 {
+  .callout-title {
     margin-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
     color: var(--accent-text);
   }
 

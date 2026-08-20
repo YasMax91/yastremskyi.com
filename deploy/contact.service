@@ -1,0 +1,43 @@
+# systemd unit for the contact endpoint.
+#
+#   sudo cp deploy/contact.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now contact
+#
+# Secrets live in /etc/yastremskyi/contact.env, owned by root and mode 0600 —
+# not in this file, which is in a public repository.
+
+[Unit]
+Description=yastremskyi.com contact endpoint
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/yastremskyi-contact
+ExecStart=/usr/bin/node /srv/yastremskyi-contact/contact.mjs
+EnvironmentFile=/etc/yastremskyi/contact.env
+Restart=on-failure
+RestartSec=5
+
+# It reads one env file, listens on loopback and talks to one API. Nothing else
+# is needed, so nothing else is permitted.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,69 @@
+# Caddy configuration for yastremskyi.com
+#
+# Caddy rather than nginx because it provisions and renews TLS on its own —
+# "Automatic HTTPS provisions TLS certificates for all your sites and keeps them
+# renewed" — and redirects 80 to 443 without being asked. Nothing here has to
+# think about certificates.
+#
+# Compression is zstd and gzip: those are what the standard Caddy build ships.
+# Brotli needs a custom build with a third-party module, which is not worth
+# maintaining for a handful of kilobytes on an already small site. Stated rather
+# than quietly claimed.
+#
+#   sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+
+yastremskyi.com, www.yastremskyi.com {
+	root * /var/www/yastremskyi.com
+
+	encode zstd gzip
+
+	# The contact endpoint runs on the same box, bound to loopback only, so this
+	# proxy is the sole way in. Caddy adds X-Forwarded-For, which the endpoint
+	# uses to rate-limit.
+	handle /api/contact* {
+		reverse_proxy 127.0.0.1:8788 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# The CV carries a phone number and names the providers Max has integrated.
+	# It stays reachable by link and out of the index — a PDF is crawled and
+	# ranked exactly like a page, and search results are not something you can
+	# take back.
+	header /cv.pdf X-Robots-Tag "noindex, noarchive"
+
+	# Astro fingerprints everything under /_astro, so those URLs can never go
+	# stale: cache them for a year and never revalidate.
+	header /_astro/* Cache-Control "public, max-age=31536000, immutable"
+	header /fonts/* Cache-Control "public, max-age=31536000, immutable"
+	header /og/* Cache-Control "public, max-age=604800"
+
+	# HTML is not fingerprinted, so it must revalidate or a deploy takes a week
+	# to reach anyone.
+	header {
+		Cache-Control "public, max-age=0, must-revalidate"
+
+		# The site loads nothing from anywhere else — no analytics beacon
+		# except Cloudflare's, no fonts from a CDN, no embedded frames — so the
+		# policy can be strict enough to be worth having.
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; form-action 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()"
+		-Server
+	}
+
+	handle {
+		try_files {path} {path}/index.html {path}.html
+		file_server
+	}
+
+	handle_errors {
+		@404 expression {err.status_code} == 404
+		rewrite @404 /404.html
+		file_server
+	}
+}

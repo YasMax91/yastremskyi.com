@@ -26,9 +26,11 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Ukrainian pages are excluded until the copy has been reviewed by a
-      // native speaker. Announcing a locale that is not ready is worse than
-      // shipping one language well.
-      filter: (page) => !page.includes('/uk/'),
+      // native speaker: announcing a locale that is not ready is worse than
+      // shipping one language well. /thanks is excluded because it is a
+      // destination after a form submit, not something anyone should reach from
+      // a search result.
+      filter: (page) => !page.includes('/uk/') && !page.endsWith('/thanks'),
     }),
   ],
 
@@ -39,6 +41,10 @@ export default defineConfig({
   },
 
   build: {
-    inlineStylesheets: 'auto',
+    // The whole site's CSS is about 8 KB gzipped, split across a handful of
+    // component files. Inlining it trades three render-blocking round trips for
+    // a slightly larger document, which on a throttled mobile connection is the
+    // better half of the deal — measured, not assumed.
+    inlineStylesheets: 'always',
   },
 });
