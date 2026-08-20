@@ -33,13 +33,12 @@ export const site = {
   ],
 
   /**
-   * This site's own source, once it is public. Left null until the repository
-   * actually exists: the footer renders the link only when this is set, because
-   * a dead "source of this site" link is worse than no link — it is a claim
-   * about craft that fails on the first click. It shipped broken for a few
-   * hours before a link check caught it.
+   * This site's own source. The footer renders the link only when this is set,
+   * because a dead "source of this site" link is worse than no link — it is a
+   * claim about craft that fails on the first click, and it shipped broken for a
+   * few hours before a link check caught it.
    */
-  repo: null as string | null,
+  repo: 'https://github.com/YasMax91/yastremskyi.com' as string | null,
 
   contact: {
     email: 'm.yastremskyj@gmail.com',

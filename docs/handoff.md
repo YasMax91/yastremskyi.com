@@ -80,11 +80,10 @@ in Israel, western Europe and North America, and a single origin serves them at
 whatever distance it happens to be. The proxy is free, the DNS move is one step,
 and it converts a lab claim into a real one.
 
-**Two — make the Groundwork repository look like what the site says it is.** The
-site's strongest claim points at a repository showing one release and no tags.
-Pushing the versions you have already shipped costs you an hour and is the
-single highest-leverage change available — it makes the flagship's public face
-match the flagship.
+**Two — ~~make the Groundwork repository look like what the site says it is~~.**
+Done on 2026-08-20: the pending commit is pushed, all 29 versions in the history
+are tagged, and every public version from v0.20.0 to v0.27.1 has a GitHub release.
+The repository now shows what the site claims about it.
 
 **Three — write the first note.** The section is built and hidden, and one file
 brings it into existence. The subjects are already sitting in your case studies:
