@@ -1,5 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import portrait from '../assets/portrait.jpeg';
 import Base from '../layouts/Base.astro';
 import GateSimulator from '../components/GateSimulator.astro';
 import { site } from '../data/site';
@@ -61,14 +63,26 @@ const jsonLd = [
             <dd>{site.languages.map((l) => `${l.name} ${l.level}`).join(' · ')}</dd>
           </dl>
         </div>
-        <div>
+        <div class="portrait-cell">
           {
-            /* The portrait frame is reserved, not filled with stock imagery.
-              Replace with <Image> once the file lands. */
+            /*
+              Treated rather than pasted: grayscale in both themes so the one
+              vermilion on the page keeps meaning something, and dimmed in dark
+              mode because a near-white brick wall at full brightness punches a
+              hole in a black page. The frame crops a little tighter than the
+              source, which pulls the composition in.
+            */
           }
-          <div class="portrait" role="img" aria-label={`Portrait of ${site.name}, pending`}>
-            <span>PORTRAIT<br />3:4 RESERVED</span>
-          </div>
+          <Picture
+            class="portrait"
+            src={portrait}
+            alt={site.name}
+            formats={['avif', 'webp']}
+            fallbackFormat="jpeg"
+            widths={[320, 640, 960]}
+            sizes="(min-width: 56rem) 20rem, min(100vw - 2rem, 20rem)"
+            loading="eager"
+          />
         </div>
       </div>
     </div>
@@ -258,12 +272,18 @@ const jsonLd = [
 
   @media (min-width: 56rem) {
     .hero-meta {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 15rem);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 18rem);
     }
   }
 
   .hero-meta > div {
     padding: var(--space-5) var(--space-5) var(--space-5) 0;
+  }
+
+  @media (min-width: 56rem) {
+    .hero-meta {
+      align-items: stretch;
+    }
   }
 
   @media (min-width: 56rem) {
@@ -306,25 +326,39 @@ const jsonLd = [
     margin: 0;
   }
 
-  .portrait {
-    display: grid;
-    place-content: center;
-    width: 100%;
-    max-width: 20rem;
-    margin-inline: auto;
-    aspect-ratio: 3 / 4;
-    padding: var(--space-4);
-    border: var(--rule) solid var(--border);
-    background: var(--surface-sunk);
-    text-align: center;
+  /* The photo is a block in the grid, flush with the rules that bound it —
+     not a picture floating inside a padded cell. */
+  .portrait-cell {
+    padding: 0 !important;
   }
 
-  .portrait span {
-    font-family: var(--font-mono);
-    font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-label);
-    line-height: 1.9;
-    color: var(--ink-muted);
+  .portrait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 26rem;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 24%;
+    filter: grayscale(1) contrast(1.06);
+  }
+
+  @media (min-width: 56rem) {
+    .portrait {
+      aspect-ratio: auto;
+      max-height: none;
+    }
+  }
+
+  /* On a black page the white brick behind him would otherwise read as a lamp. */
+  :global(:root[data-theme='dark']) .portrait {
+    filter: grayscale(1) contrast(1.02) brightness(0.78);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .portrait {
+      filter: grayscale(1) contrast(1.02) brightness(0.78);
+    }
   }
 
   .cta {
