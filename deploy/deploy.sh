@@ -37,16 +37,27 @@ echo "→ restarting the endpoint"
 ssh "${HOST}" 'systemctl restart contact && sleep 2 && systemctl is-active contact'
 
 echo "→ checking the site answers"
-curl -fsS -o /dev/null -w '  https://%{host} %{http_code}\n' "https://${SITE}/"
+# %{host} is not a curl write-out variable — curl 8.7 prints "unknown --write-out
+# variable" and an empty host, so the line is built from ${SITE} instead.
+curl -fsS -o /dev/null -w "  https://${SITE} %{http_code}\n" "https://${SITE}/"
 
 echo "→ checking the endpoint validates"
-curl -fsS "https://${SITE}/api/contact" -X POST \
+# An empty submission is supposed to come back 422 with the field errors — that
+# IS the passing case. So this check cannot use curl -f: -f turns any 4xx into
+# exit 22 with no body, which made a healthy endpoint fail its own check.
+endpoint_response="$(curl -sS -w '\n%{http_code}' "https://${SITE}/api/contact" -X POST \
   -H 'Accept: application/json' -H 'Content-Type: application/json' \
-  -d '{"name":"","email":"","message":""}' \
-  | grep -q '"ok":false' && echo "  endpoint answers and validates" || {
-    echo "  endpoint did not answer as expected" >&2
-    exit 1
-  }
+  -d '{"name":"","email":"","message":""}')"
+endpoint_status="${endpoint_response##*$'\n'}"
+endpoint_body="${endpoint_response%$'\n'*}"
+
+if [[ "${endpoint_status}" == "422" && "${endpoint_body}" == *'"ok":false'* ]]; then
+  echo "  endpoint answers ${endpoint_status} and validates"
+else
+  echo "  endpoint did not answer as expected: status ${endpoint_status}" >&2
+  echo "  ${endpoint_body}" >&2
+  exit 1
+fi
 
 echo "→ checking the site that shares this Caddy is still up"
 curl -fsS -o /dev/null -w '  warmap %{http_code}\n' https://warmap.duckdns.org/ || {
