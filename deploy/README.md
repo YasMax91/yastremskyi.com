@@ -75,6 +75,47 @@ sudo systemctl reload caddy
 If `caddy validate` fails, nothing has been reloaded and the site that was
 already running is still running. That is the whole reason for the conf.d split.
 
+## The first certificate — the one order that matters
+
+There is a bootstrap trap here, and it is worth understanding before hitting it.
+
+With the proxy on and SSL/TLS set to Full (strict), Cloudflare reaches the origin
+**over HTTPS**. Until Caddy holds a certificate for `yastremskyi.com` it answers
+the handshake with `no peer certificate available`, so Cloudflare has nothing to
+talk to and returns **525**. That includes the ACME challenge — so the
+certificate that would fix it can never be issued while the proxy is in front.
+Observed on 2026-08-20: `525` through Cloudflare, and a TLS alert direct to the
+origin.
+
+Break the loop by taking Cloudflare out of the path for a few minutes:
+
+```bash
+# 1. Install the site block first, so Caddy has a site for this hostname at all
+sudo cp deploy/yastremskyi.com.caddy /etc/caddy/conf.d/
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+
+# 2. In Cloudflare, set BOTH records to "DNS only" (grey cloud):
+#      A     yastremskyi.com  [origin-ip]
+#      CNAME www              yastremskyi.com
+#    Let's Encrypt now reaches the origin directly on port 80.
+
+# 3. Caddy issues on its own within a minute or two. Watch it:
+sudo journalctl -u caddy -f | grep -i 'certificate\|acme\|obtain'
+
+# 4. Confirm the origin actually holds the certificate
+echo | openssl s_client -connect [origin-ip]:443 -servername yastremskyi.com 2>/dev/null \
+  | openssl x509 -noout -subject -issuer -dates
+
+# 5. Only then: proxy back on (orange cloud), SSL/TLS -> Full (strict),
+#    "Always Use HTTPS" -> off.
+```
+
+Renewals afterwards do **not** need this dance. Caddy renews about thirty days
+before expiry, and by then a valid certificate exists — so Cloudflare can reach
+the origin over HTTPS and the challenge, which Let's Encrypt follows through the
+redirect, arrives normally. Only the first issuance is chicken-and-egg.
+
 ## Every deploy after that
 
 ```bash
