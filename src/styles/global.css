@@ -187,7 +187,7 @@ samp {
 
 @page {
   size: A4;
-  margin: 12mm 12mm 14mm;
+  margin: 14mm 15mm 15mm;
 }
 
 @media print {
@@ -213,14 +213,9 @@ samp {
     text-decoration: none;
   }
 
-  /* A URL is unclickable on paper, so the ones worth typing are spelled out and
-     the rest stay quiet. */
-  a[href^='http']::after {
-    content: ' (' attr(href) ')';
-    font-size: 7pt;
-    color: #444;
-    word-break: break-all;
-  }
+  /* Deliberately no blanket URL suffix. Printing every href turns a document
+     into a wall of addresses; the two profiles worth typing spell themselves out
+     in the CV masthead, and nothing else needs to. */
 
   h1,
   h2,

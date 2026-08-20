@@ -67,13 +67,12 @@ const ACHIEVEMENTS = [
             <a href="/cv.pdf" download>
               Download as PDF
             </a>
-            — the printable version, which also carries a phone number this page deliberately does
-            not.
+            — two pages, printed from this one, so the two cannot say different things.
           </p>
         ) : (
           <p class="pdf pending">
-            The PDF version is not published yet. Everything it contains is on this page, except a
-            phone number, which is kept off the indexable web on purpose.
+            The PDF version is not built yet. Run `npm run cv` — it is printed from this page, so
+            the two can never disagree.
           </p>
         )
       }
@@ -344,129 +343,229 @@ const ACHIEVEMENTS = [
      trades the scale for density: two pages instead of six, and every heading
      doing work.
      --------------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------------
+     Print — designed as a document, not as the page with its interface hidden.
+
+     The first attempt was the second thing: shrink the type, drop the nav, keep
+     everything else. What came out read like a form, because the direction's 2px
+     rules that carry a hero at 90pt become a grid of cages at 8.5pt. A CV is a
+     dense, quiet document with one accent and a lot of air, so the boxes are
+     gone and the hierarchy is carried by weight, colour and space.
+     --------------------------------------------------------------------------- */
   @media print {
-    /* Paper has one theme. Recolouring the body alone is not enough — anything
-       taking its colour from a token would keep the dark value. */
+    /* Paper has one theme, and the accent survives it — a CV with a single warm
+       colour reads as designed; the same page in pure black reads as a fax. */
     :global(:root),
     :global(:root[data-theme='dark']),
     :global(:root[data-theme='light']) {
       --surface: #fff;
       --surface-sunk: #fff;
-      --ink: #000;
-      --ink-muted: #333;
-      --border: #000;
-      --accent: #000;
-      --accent-text: #000;
+      --ink: #14110f;
+      --ink-muted: #4a4642;
+      --border: #d9d4cf;
+      --accent: #c4520a;
+      --accent-text: #c4520a;
     }
 
-    /* A download link inside the download, and a row of buttons that are not
-       clickable on paper. The accent button is the worse of the two: print maps
-       the accent to black, so it rendered as a black rectangle with black text. */
-    .pdf {
-      display: none !important;
-    }
-
+    .pdf,
     :global(.cta) {
       display: none !important;
     }
 
+    /* The 62-character measure is right for reading prose on a screen at 16px.
+       At 8.5pt on A4 it leaves half the page empty and breaks the summary into a
+       narrow column, so print sets its own. */
+    :global(.prose) {
+      max-width: none !important;
+      font-size: 8.7pt;
+      line-height: 1.45;
+    }
+
+    /* --- masthead --- */
     .page-head {
-      padding: 0 0 0.6rem !important;
-      border-bottom: 1.5pt solid #000;
+      padding: 0 0 0.5rem !important;
+      border-bottom: 2pt solid var(--accent) !important;
+    }
+
+    .page-head :global(.label) {
+      font-size: 8.5pt;
+      letter-spacing: 0.18em;
+      color: var(--accent) !important;
     }
 
     .page-head h1 {
-      margin: 0.1rem 0 0.4rem;
-      font-size: 22pt;
-      letter-spacing: -0.03em;
+      margin: 0.05rem 0 0.35rem !important;
+      font-size: 25pt;
+      letter-spacing: -0.035em;
     }
 
     .meta {
-      display: grid !important;
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 0.15rem 1.5rem;
-      padding-top: 0.4rem;
-      border-top: 0.5pt solid #000;
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 0.1rem 1.1rem !important;
+      padding-top: 0 !important;
+      border-top: 0 !important;
       font-size: 8pt;
+    }
+
+    .meta > div {
+      display: flex;
+      gap: 0.3rem;
+      align-items: baseline;
+    }
+
+    .meta dt {
+      color: var(--ink-muted);
     }
 
     .meta dd {
       margin: 0;
+      color: var(--ink);
     }
 
-    .achievements > li,
-    .roles > li {
-      padding: 0.35rem 0;
-      break-inside: avoid;
+    /* On paper a profile is worth its URL; everything else is noise. */
+    .meta :global(a[href^='http'])::after {
+      content: ' ' attr(href);
+      font-size: 6.5pt;
+      color: var(--ink-muted);
+      word-break: break-all;
+    }
+
+    /* --- body --- */
+    .achievements,
+    .roles {
+      border-top: 0 !important;
     }
 
     .achievements > li {
+      position: relative;
       max-width: none;
+      padding: 0.12rem 0 0.12rem 0.7rem !important;
+      border: 0 !important;
       font-size: 8.5pt;
       line-height: 1.4;
+      color: var(--ink);
+      break-inside: avoid;
+    }
+
+    .achievements > li::before {
+      content: '';
+      position: absolute;
+      top: 0.42rem;
+      left: 0;
+      width: 3pt;
+      height: 3pt;
+      background: var(--accent);
     }
 
     .roles > li {
-      grid-template-columns: 5.5rem 1fr !important;
-      gap: 0.75rem !important;
-      padding: 0.35rem 0 !important;
+      display: grid !important;
+      grid-template-columns: 5.2rem 1fr !important;
+      gap: 0.7rem !important;
+      padding: 0.3rem 0 0.15rem !important;
+      border: 0 !important;
+      break-inside: avoid;
+    }
+
+    .when {
+      font-size: 7.5pt;
+      color: var(--ink-muted);
+      padding-top: 0.12rem;
     }
 
     .roles h3 {
-      margin-bottom: 0.1rem;
-      font-size: 10.5pt;
+      margin-bottom: 0 !important;
+      font-size: 11pt;
+      letter-spacing: -0.02em;
+      color: var(--ink);
     }
 
-    .roles ul li {
-      padding: 0.12rem 0;
-      border: 0;
-      font-size: 8.5pt;
-      line-height: 1.35;
+    .org {
+      margin-bottom: 0.18rem !important;
+      font-size: 8pt;
+      color: var(--accent) !important;
     }
 
     .roles ul {
       max-width: none;
     }
 
-    .org,
-    .when {
-      font-size: 8pt;
+    .roles ul li {
+      position: relative;
+      padding: 0.06rem 0 0.06rem 0.65rem !important;
+      border: 0 !important;
+      font-size: 8.3pt;
+      line-height: 1.38;
+      color: var(--ink-muted);
     }
 
+    .roles ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    /* --- skills: columns of plain lists, not a table of boxes --- */
     .skills {
+      display: grid !important;
       grid-template-columns: repeat(3, 1fr) !important;
+      gap: 0 1rem !important;
+      border: 0 !important;
     }
 
     .skills > div {
-      padding: 0.4rem 0.6rem;
+      padding: 0.2rem 0 0.3rem !important;
+      border: 0 !important;
       break-inside: avoid;
     }
 
     .skills h3 {
-      margin-bottom: 0.2rem;
-      font-size: 9pt;
+      margin-bottom: 0.1rem !important;
+      font-size: 8.5pt;
+      letter-spacing: 0.02em;
+      color: var(--accent) !important;
     }
 
     .skills ul {
-      font-size: 7.5pt;
-      line-height: 1.5;
+      font-family: var(--font-body);
+      font-size: 8pt;
+      line-height: 1.45;
+      color: var(--ink-muted);
     }
 
+    /* --- languages: one line, not four cells --- */
     .langs {
-      grid-template-columns: repeat(4, 1fr) !important;
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 0.15rem 1.4rem !important;
       margin-bottom: 0 !important;
+      border: 0 !important;
     }
 
     .langs > div {
-      padding: 0.4rem 0.6rem;
+      display: flex;
+      gap: 0.35rem;
+      align-items: baseline;
+      padding: 0 !important;
+      border: 0 !important;
     }
 
     .langs dt {
-      font-size: 10pt;
+      font-family: var(--font-body);
+      font-size: 8.5pt;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink);
     }
 
     .langs dd {
-      font-size: 7.5pt;
+      margin: 0 !important;
+      font-family: var(--font-body);
+      font-size: 8.5pt;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink-muted);
     }
   }
 </style>
