@@ -2,6 +2,9 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
+import { LOCALES, DEFAULT_LOCALE } from './src/i18n/dictionaries.ts';
+import { COMPLETE_LOCALES } from './src/i18n/reviewed.ts';
+
 // The canonical origin. Every absolute URL on the site — canonical tags,
 // hreflang alternates, Open Graph images, the sitemap — derives from this one
 // value, so moving the site is a one-line change.
@@ -24,12 +27,18 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      // Ukrainian pages are excluded until the copy has been reviewed by a
-      // native speaker: announcing a locale that is not ready is worse than
-      // shipping one language well. /thanks is excluded because it is a
-      // destination after a form submit, not something anyone should reach from
-      // a search result.
-      filter: (page) => !page.includes('/uk/') && !page.endsWith('/thanks'),
+      // A locale enters the sitemap when its review is finished, and not before:
+      // announcing a language nobody has read is worse than shipping one well.
+      // The list is derived from the review file rather than declared here, so
+      // there is no flag anyone has to remember to flip — see scripts/i18n.mjs.
+      //
+      // /thanks is excluded in every language because it is a destination after
+      // a form submit, not something anyone should reach from a search result.
+      filter: (page) => {
+        const draft = LOCALES.filter((l) => l !== DEFAULT_LOCALE && !COMPLETE_LOCALES.includes(l));
+        if (draft.some((l) => page.includes(`/${l}/`))) return false;
+        return !page.endsWith('/thanks');
+      },
     }),
   ],
 

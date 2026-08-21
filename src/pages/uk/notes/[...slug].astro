@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Notes from '../../views/Notes.astro';
+import Notes from '../../../views/Notes.astro';
 
 export async function getStaticPaths() {
   const posts = (await getCollection('notes', ({ data }) => !data.draft)).sort(
@@ -18,4 +18,4 @@ export async function getStaticPaths() {
 const { posts, post } = Astro.props;
 ---
 
-<Notes posts={posts} post={post} locale="en" />
+<Notes posts={posts} post={post} locale="uk" />

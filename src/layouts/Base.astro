@@ -1,7 +1,8 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { useTranslations, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
+import { useTranslations, DEFAULT_LOCALE, LOCALES, localePath, type Locale } from '../i18n/ui';
+import { COMPLETE_LOCALES } from '../i18n/reviewed';
 import { site } from '../data/site';
 import '../styles/global.css';
 
@@ -31,25 +32,69 @@ const {
 } = Astro.props;
 const t = useTranslations(locale);
 
+/**
+ * The same page in the other languages, so search engines treat them as one
+ * document in two languages rather than as two competing pages.
+ *
+ * Only locales whose review is finished appear here. A half-reviewed Ukrainian
+ * page is built and readable by anyone holding the link, but it is not offered
+ * to a search engine as an alternative to the English one, and it carries
+ * `noindex` besides. Publishing a translation nobody has read is the failure
+ * this whole gate exists to prevent, and hreflang is one of the doors.
+ */
+const published: readonly Locale[] = [
+  DEFAULT_LOCALE,
+  ...LOCALES.filter((l) => l !== DEFAULT_LOCALE && COMPLETE_LOCALES.includes(l)),
+];
+
+/** The path with any locale prefix stripped — the shape both locales share. */
+const basePath =
+  locale === DEFAULT_LOCALE
+    ? Astro.url.pathname
+    : Astro.url.pathname.replace(new RegExp(`^/${locale}`), '') || '/';
+
+const alternates = published.map((l) => ({
+  locale: l,
+  href: new URL(localePath(basePath, l), Astro.site ?? site.origin).href,
+}));
+
+/** A locale that is still being reviewed must not be indexed. */
+const indexable = published.includes(locale);
+
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.origin).href;
 const ogImage = new URL(`/og/${ogCard}.png`, Astro.site ?? site.origin).href;
 const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
 
 /**
- * Which font files this page should preload. Latin always; Cyrillic only where
- * it will actually be drawn.
+ * Which font files this page should preload.
+ *
+ * Preload is the one place that has to decide, because a preload is
+ * unconditional by definition: the `unicode-range` rules in fonts.css stop a
+ * browser *fetching* a face it has no characters for, but a preload hint fetches
+ * it regardless.
+ *
+ * So preload one script's three faces — the one this page will actually render
+ * in — and let the other arrive on demand for the handful of words that need it.
+ * A Ukrainian page still says "Groundwork" and "backend" in Latin, and an
+ * English page never says anything in Cyrillic.
+ *
+ * Preloading all six cost 308 ms of LCP, measured: /uk went from 1203 ms to
+ * 1511 ms and came straight back when the extra three were removed. Fifteen
+ * kilobytes in front of the first paint is a whole round trip on the throttled
+ * connection.
+ *
+ * The choice keys off whether the locale is *published*, not merely requested:
+ * until its review is finished a Ukrainian page renders English, so preloading
+ * Cyrillic for it would buy the wrong glyphs. The rule corrects itself the day
+ * the last line is signed.
  */
+const rendersCyrillic = locale !== DEFAULT_LOCALE && COMPLETE_LOCALES.includes(locale);
+const script = rendersCyrillic ? 'cyrillic' : 'latin';
+
 const FONT_PRELOADS = [
-  '/fonts/onest-800-latin.woff2',
-  '/fonts/onest-400-latin.woff2',
-  '/fonts/jetbrains-mono-400-latin.woff2',
-  ...(locale === 'uk'
-    ? [
-        '/fonts/onest-800-cyrillic.woff2',
-        '/fonts/onest-400-cyrillic.woff2',
-        '/fonts/jetbrains-mono-400-cyrillic.woff2',
-      ]
-    : []),
+  `/fonts/onest-800-${script}.woff2`,
+  `/fonts/onest-400-${script}.woff2`,
+  `/fonts/jetbrains-mono-400-${script}.woff2`,
 ];
 ---
 
@@ -74,6 +119,20 @@ const FONT_PRELOADS = [
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {!indexable && <meta name="robots" content="noindex, nofollow" />}
+    {
+      alternates.length > 1 &&
+        alternates.map((a) => <link rel="alternate" hreflang={a.locale} href={a.href} />)
+    }
+    {
+      alternates.length > 1 && (
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={alternates.find((a) => a.locale === DEFAULT_LOCALE)?.href}
+        />
+      )
+    }
 
     {
       /*

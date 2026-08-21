@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import ButtonRow from '../components/ButtonRow.astro';
+import Button from '../components/Button.astro';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
+
+/**
+ * Where the endpoint sends a visitor whose browser has JavaScript disabled.
+ * Not in the navigation and not in the sitemap — it is a destination, not a page
+ * anybody should arrive at from a search result.
+ *
+ * The body lives here rather than in the route file because there are two
+ * routes: `/thanks` and `/uk/thanks`. One body, two thin routes — the
+ * alternative is the same markup twice, and the second copy is the one that
+ * stops being updated.
+ */
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<Base title={t('thanks.title')} description={t('thanks.meta')} locale={locale} current="">
+  <div class="wrap panel">
+    <p class="label">{t('thanks.label')}</p>
+    <h1>{t('thanks.heading')}</h1>
+    <p class="lede">{t('thanks.lede')}</p>
+    <ButtonRow>
+      <Button href={localePath('/', locale)}>{t('thanks.home')}</Button>
+      <Button href={localePath('/work', locale)} variant="outline">{t('thanks.work')}</Button>
+    </ButtonRow>
+  </div>
+</Base>
+
+<style>
+  .panel {
+    padding: var(--space-16) 0;
+  }
+
+  h1 {
+    margin: var(--space-3) 0 var(--space-5);
+    font-size: var(--display-l);
+  }
+
+  .lede {
+    max-width: 36ch;
+    margin-bottom: var(--space-8);
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+</style>

@@ -1,0 +1,183 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ButtonRow from '../components/ButtonRow.astro';
+import Button from '../components/Button.astro';
+import { site } from '../data/site';
+import { localePath, type Locale } from '../i18n/ui';
+import UntranslatedNotice from '../components/UntranslatedNotice.astro';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  locale: Locale;
+}
+
+const { entry, locale } = Astro.props;
+const c = entry.data;
+
+/**
+ * The spine from brief §5, rendered in one fixed order. The schema already
+ * refuses to build a case study missing a section, so this list is total by
+ * construction rather than by convention.
+ */
+const spine = [
+  { label: 'Context', body: c.context },
+  { label: 'The constraint', body: c.constraint },
+] as const;
+---
+
+<Base title={c.title} description={c.summary} current="/work" ogCard={`work-${entry.id}`}>
+  <div class="page-head">
+    <div class="wrap">
+      <UntranslatedNotice locale={locale} />
+      <p class="label">Case study · under NDA, described generically</p>
+      <h1>{c.title}</h1>
+      <p class="lede">{c.summary}</p>
+      <ul class="tags">
+        {c.stack.map((chip) => <li>{chip}</li>)}
+      </ul>
+    </div>
+  </div>
+
+  <article>
+    {
+      spine.map((part) => (
+        <section>
+          <div class="wrap grid m-reveal">
+            <h2>{part.label}</h2>
+            <div class="prose">
+              {part.body.split('\n\n').map((para) => (
+                <p>{para}</p>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+
+    <section>
+      <div class="wrap grid m-reveal">
+        <h2>The decision</h2>
+        <div class="prose">
+          <h3>What was chosen</h3>
+          {c.decision.chosen.split('\n\n').map((para) => <p>{para}</p>)}
+          <h3>What was rejected</h3>
+          {c.decision.rejected.split('\n\n').map((para) => <p>{para}</p>)}
+          <h3>The trade-off</h3>
+          {c.decision.tradeoff.split('\n\n').map((para) => <p>{para}</p>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="highlight">
+      <div class="wrap grid m-reveal">
+        <h2>The subtle part</h2>
+        <div class="prose">
+          {c.subtle.split('\n\n').map((para) => <p>{para}</p>)}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap grid m-reveal">
+        <h2>Outcome</h2>
+        <div class="prose">
+          {c.outcome.split('\n\n').map((para) => <p>{para}</p>)}
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <div class="wrap">
+    <ButtonRow>
+      <Button href={localePath('/work', locale)} variant="outline">All four decisions</Button>
+      <Button href={`mailto:${site.contact.email}?subject=${encodeURIComponent(c.title)}`}>
+        Ask me about this one
+      </Button>
+    </ButtonRow>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding: var(--space-10) 0 var(--space-8);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .page-head h1 {
+    margin: var(--space-3) 0 var(--space-5);
+    font-size: var(--display-l);
+  }
+
+  .lede {
+    max-width: 38ch;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: 0.16rem 0.45rem;
+    border: var(--rule-thin) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  section {
+    padding: var(--space-8) 0;
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 56rem) {
+    .grid {
+      grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  h2 {
+    font-size: var(--display-s);
+  }
+
+  h3 {
+    margin: var(--space-5) 0 var(--space-2);
+    font-family: var(--font-mono);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  .prose p + p {
+    margin-top: var(--space-4);
+  }
+
+  /* The section that wins the interview gets the accent, once. */
+  .highlight {
+    background: var(--surface-sunk);
+  }
+
+  .highlight h2 {
+    color: var(--accent-text);
+  }
+</style>

@@ -28,6 +28,23 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { createApp as createStatusApp, createStore } from '../server/status.mjs';
+import { LOCALES, DEFAULT_LOCALE } from '../src/i18n/dictionaries.ts';
+import { COMPLETE_LOCALES } from '../src/i18n/reviewed.ts';
+
+/**
+ * Routes in a locale whose review is unfinished carry `noindex` on purpose, and
+ * Lighthouse scores SEO at 66 for exactly that reason. Enforcing the SEO bar on
+ * them would make the build red for doing the right thing, and loosening the bar
+ * for everyone would hide a real regression on the pages that are indexed. So
+ * the score is measured and printed for these routes, and not enforced — the
+ * same treatment, for the same reason, that CPU-bound metrics get on a shared
+ * runner.
+ *
+ * The exemption disappears by itself when the locale is signed off.
+ */
+const DRAFT_LOCALES = LOCALES.filter((l) => l !== DEFAULT_LOCALE && !COMPLETE_LOCALES.includes(l));
+const isDraft = (route) =>
+  DRAFT_LOCALES.some((l) => route === `/${l}` || route.startsWith(`/${l}/`));
 
 const BASE = process.env.LH_BASE ?? 'http://localhost:4330';
 const OUT = 'docs/evidence';
@@ -77,6 +94,11 @@ const ROUTES = [
   '/about',
   '/cv',
   '/status',
+  // The Ukrainian home page is gated like any other route. While the review is
+  // unfinished it renders English, so what this measures today is the routing
+  // and the second font set arriving — which is exactly the part that could
+  // quietly cost something.
+  '/uk',
 ];
 
 const THRESHOLDS = {
@@ -226,7 +248,9 @@ for (const route of ROUTES) {
     if (score < min) {
       const line = `${route}: ${key} ${score} < ${min}`;
       if (ON_CI && UNENFORCED_ON_CI.has(key)) unenforced.push(line);
-      else failures.push(line);
+      else if (key === 'seo' && isDraft(route)) {
+        unenforced.push(`${line}  (noindex while the translation is unreviewed)`);
+      } else failures.push(line);
     }
   }
 
@@ -298,10 +322,16 @@ ${VITALS['largest-contentful-paint'].max} ms rather than at 1200.
 writeFileSync(join(OUT, 'lighthouse.md'), md);
 
 if (unenforced.length) {
-  console.log('\nReported, not enforced on this runner:');
+  console.log('\nReported, not enforced:');
   for (const u of unenforced) console.log(`  ${u}`);
-  console.log('  These two are CPU-bound and a shared runner cannot measure them.');
-  console.log('  Check them locally with `npm run lighthouse`, or against production.');
+  // Only say the CPU-bound thing when a CPU-bound metric is what was skipped.
+  // The other exemption — a deliberately noindexed draft locale — carries its
+  // own reason on the line, and a blanket explanation that does not apply is
+  // how a report starts being ignored.
+  if (unenforced.some((u) => !u.includes('noindex'))) {
+    console.log('  Performance and TBT are CPU-bound and a shared runner cannot measure them.');
+    console.log('  Check them locally with `npm run lighthouse`, or against production.');
+  }
 }
 
 if (failures.length) {

@@ -1,0 +1,46 @@
+---
+import { useTranslations, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
+
+/**
+ * Says, in the reader's language, that what follows is not in it.
+ *
+ * The brief forbids leaving a machine-rough or untranslated string unflagged,
+ * and content parity is deliberately not enforced — a case study or a note may
+ * exist in one language only. Those two rules together require exactly this: a
+ * page that is honest about the language of its own body rather than one that
+ * quietly serves English under a Ukrainian heading.
+ */
+interface Props {
+  locale: Locale;
+  /** Whether a translation of this particular piece exists. */
+  translated?: boolean;
+}
+
+const { locale, translated = false } = Astro.props;
+const t = useTranslations(locale);
+const show = locale !== DEFAULT_LOCALE && !translated;
+---
+
+{
+  show && (
+    <p class="notice" lang={locale}>
+      {t('content.englishOnly')}
+    </p>
+  )
+}
+
+<style>
+  .notice {
+    max-width: var(--measure);
+    margin-bottom: var(--space-6);
+    padding: var(--space-3) var(--space-4);
+    border-left: var(--rule) solid var(--accent);
+    background: var(--surface-sunk);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    line-height: 1.6;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+</style>

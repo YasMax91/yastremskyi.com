@@ -1,6 +1,7 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import { useTranslations, localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, LOCALES, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
+import { COMPLETE_LOCALES } from '../i18n/reviewed';
 import { site } from '../data/site';
 
 interface Props {
@@ -16,8 +17,33 @@ const links = [
   { href: '/groundwork', label: t('nav.groundwork') },
   { href: '/work', label: t('nav.work') },
   { href: '/about', label: t('nav.about') },
-  { href: '/cv', label: t('nav.cv') },
+  // The CV is English in every locale — it is written for international
+  // employers and a translated one would be a second document to keep true.
+  // Marked rather than hidden: hiding it from a Ukrainian recruiter hides the
+  // one thing they came for, and an unmarked link that changes language under
+  // you is worse than a marked one that does not.
+  { href: '/cv', label: t('nav.cv'), foreign: DEFAULT_LOCALE },
 ];
+
+/**
+ * The same page in the other language.
+ *
+ * Only locales whose review is finished are offered — an unreviewed translation
+ * is not something to send a reader to. The CV has no counterpart, so from there
+ * the switch lands on the home page of the other language rather than on a 404.
+ */
+const path = Astro.url.pathname;
+const basePath =
+  locale === DEFAULT_LOCALE ? path : path.replace(new RegExp(`^/${locale}`), '') || '/';
+const hasCounterpart = !basePath.startsWith('/cv');
+
+const others = LOCALES.filter(
+  (l) => l !== locale && (l === DEFAULT_LOCALE || COMPLETE_LOCALES.includes(l)),
+).map((l) => ({
+  locale: l,
+  label: l === 'uk' ? 'UA' : l.toUpperCase(),
+  href: localePath(hasCounterpart ? basePath : '/', l),
+}));
 ---
 
 <header>
@@ -30,22 +56,74 @@ const links = [
             links.map((link) => (
               <li>
                 <a
-                  href={localePath(link.href, locale)}
+                  href={localePath(link.href, link.foreign ?? locale)}
                   aria-current={current === link.href ? 'page' : undefined}
                 >
                   {link.label}
+                  {link.foreign && link.foreign !== locale && (
+                    <abbr class="foreign" title={t('nav.inEnglish')}>
+                      EN
+                    </abbr>
+                  )}
                 </a>
               </li>
             ))
           }
         </ul>
       </nav>
+      {
+        others.length > 0 && (
+          <ul class="langs" aria-label={t('nav.language')}>
+            {others.map((o) => (
+              <li>
+                <a href={o.href} hreflang={o.locale} lang={o.locale}>
+                  {o.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
       <ThemeToggle locale={locale} />
     </div>
   </div>
 </header>
 
 <style>
+  .langs {
+    display: flex;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .langs a {
+    padding: var(--space-1) var(--space-2);
+    border: var(--rule) solid var(--border);
+    text-decoration: none;
+    color: var(--ink-muted);
+  }
+
+  .langs a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* A quiet mark, not a badge: it tells you the destination's language without
+     competing with the item it belongs to. */
+  .foreign {
+    margin-left: 0.35em;
+    font-size: 0.72em;
+    letter-spacing: var(--tracking-label);
+    text-decoration: none;
+    color: var(--ink-muted);
+    border: 0;
+  }
+
   header {
     border-bottom: var(--rule) solid var(--border);
   }

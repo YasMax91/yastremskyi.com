@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import CaseStudy from '../../views/CaseStudy.astro';
+import CaseStudy from '../../../views/CaseStudy.astro';
 
 export async function getStaticPaths() {
   const cases = await getCollection('work');
@@ -10,4 +10,4 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 ---
 
-<CaseStudy entry={entry} locale="en" />
+<CaseStudy entry={entry} locale="uk" />

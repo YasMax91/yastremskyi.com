@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "contrast": "node docs/design/contrast.mjs",
-    "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run contrast && npm run facts && npm run build && npm run audit && npm run motion",
+    "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run contrast && npm run facts && npm run build && npm run audit && npm run motion && npm run i18n:check",
     "og": "node scripts/og.mjs",
     "audit": "node scripts/check-html.mjs",
     "test": "node --test server/*.test.mjs",
@@ -27,7 +27,9 @@
     "audit:external": "node scripts/check-html.mjs --external",
     "facts": "node scripts/check-facts.mjs",
     "cv": "node scripts/cv-pdf.mjs",
-    "motion": "node scripts/check-motion.mjs"
+    "motion": "node scripts/check-motion.mjs",
+    "i18n": "node scripts/i18n.mjs",
+    "i18n:check": "node scripts/i18n.mjs --check"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

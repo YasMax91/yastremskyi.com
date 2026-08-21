@@ -11,3 +11,9 @@ docs/concepts
 AGENTS.md
 CLAUDE.md
 portfolio-site-prompt.md
+
+# Machine-owned: written by scripts/i18n.mjs, never by hand. The review file
+# itself is not here — it is meant to be read and edited, so it should be
+# formatted like anything else a person opens.
+src/i18n/reviewed.ts
+docs/i18n-review.lock.json

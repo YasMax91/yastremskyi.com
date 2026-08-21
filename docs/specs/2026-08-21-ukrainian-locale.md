@@ -2,7 +2,7 @@
 
 - **Date:** 2026-08-21
 - **Level:** L4
-- **State:** step 0 (fonts) DELIVERED and measured; steps 1–2 in progress
+- **State:** steps 0 (fonts) and 1 (machinery) DELIVERED and measured; step 2 (trial batch) next
 - **Closes:** the last unticked line of CRD §10 — "Both locales complete"
 
 ---

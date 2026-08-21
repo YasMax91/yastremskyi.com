@@ -1,82 +1,30 @@
 /**
- * UI dictionaries. Every user-facing string that is not page content lives
- * here, so adding a locale is a matter of adding a key set — not of hunting
- * through markup.
- *
- * English ships at launch. Ukrainian is written but not published until Max has
- * reviewed it as a native speaker; the entries below are drafts and are marked
- * as such in docs/i18n-review.md.
+ * Translation behaviour. The dictionaries themselves live in dictionaries.ts.
  */
-export const LOCALES = ['en', 'uk'] as const;
-export type Locale = (typeof LOCALES)[number];
+import { REVIEWED } from './reviewed';
+import { ui, LOCALES, DEFAULT_LOCALE, type Locale, type UIKey } from './dictionaries';
 
-export const DEFAULT_LOCALE: Locale = 'en';
+export { ui, LOCALES, DEFAULT_LOCALE };
+export type { Locale, UIKey };
 
-/** Locales whose pages are actually generated. See the brief §10 deviation. */
-export const PUBLISHED_LOCALES: readonly Locale[] = ['en'];
-
-export const ui = {
-  en: {
-    'nav.groundwork': 'Groundwork',
-    'nav.work': 'Work',
-    'nav.about': 'About',
-    'nav.cv': 'CV',
-    'nav.primary': 'Primary',
-    'skip.content': 'Skip to content',
-    'theme.toggle': 'Theme',
-    'theme.toLight': 'Light',
-    'theme.toDark': 'Dark',
-    'home.selectedWork': 'Selected work',
-    'home.capabilities': 'Capability map',
-    'home.howIWork': 'How I work',
-    'home.contact': 'Contact',
-    'case.context': 'Context',
-    'case.constraint': 'The constraint',
-    'case.decision': 'The decision',
-    'case.chosen': 'What was chosen',
-    'case.rejected': 'What was rejected',
-    'case.tradeoff': 'The trade-off',
-    'case.subtle': 'The subtle part',
-    'case.outcome': 'Outcome',
-    'case.stack': 'Stack',
-    'meta.asOf': 'Approximate, as of August 2026',
-    'footer.source': 'Source of this site',
-    'footer.status': 'Status',
-  },
-  uk: {
-    'nav.groundwork': 'Groundwork',
-    'nav.work': 'Роботи',
-    'nav.about': 'Про мене',
-    'nav.cv': 'Резюме',
-    'nav.primary': 'Основна',
-    'skip.content': 'Перейти до вмісту',
-    'theme.toggle': 'Тема',
-    'theme.toLight': 'Світла',
-    'theme.toDark': 'Темна',
-    'home.selectedWork': 'Вибрані роботи',
-    'home.capabilities': 'Карта компетенцій',
-    'home.howIWork': 'Як я працюю',
-    'home.contact': 'Контакти',
-    'case.context': 'Контекст',
-    'case.constraint': 'Обмеження',
-    'case.decision': 'Рішення',
-    'case.chosen': 'Що обрано',
-    'case.rejected': 'Що відхилено',
-    'case.tradeoff': 'Компроміс',
-    'case.subtle': 'Неочевидна частина',
-    'case.outcome': 'Результат',
-    'case.stack': 'Стек',
-    'meta.asOf': 'Приблизно, станом на серпень 2026',
-    'footer.source': 'Вихідний код цього сайту',
-    'footer.status': 'Стан',
-  },
-} as const satisfies Record<Locale, Record<string, string>>;
-
-export type UIKey = keyof (typeof ui)['en'];
-
-/** Translate for a locale, falling back to English rather than to a blank. */
+/**
+ * Translate for a locale.
+ *
+ * Two fallbacks, and the second one is the point. A missing key falls back to
+ * English rather than to a blank, as always. But a key that exists and has *not
+ * been signed off* in docs/i18n-review.md also falls back to English: the
+ * project's rule is that no Ukrainian reaches a visitor before Max has read it
+ * as a native speaker, and a rule enforced by remembering is not enforced.
+ *
+ * So an unreviewed translation cannot render even if every check is skipped.
+ * `npm run i18n:check` reports the same fact out loud; this is what makes it
+ * true.
+ */
 export function useTranslations(locale: Locale) {
   return function t(key: UIKey): string {
+    if (locale !== DEFAULT_LOCALE && !REVIEWED.has(`${locale}:${key}`)) {
+      return ui[DEFAULT_LOCALE][key];
+    }
     return ui[locale][key] ?? ui[DEFAULT_LOCALE][key];
   };
 }
