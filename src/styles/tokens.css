@@ -2,7 +2,7 @@
    Design tokens — derived from Concept C, "Structural"
    ---------------------------------------------------------------------------
    Authored in the form Phase 3 will actually ship: semantic runtime custom
-   properties that a Tailwind v4 `@theme inline` block re-exports as utilities.
+   properties, consumed directly by the component stylesheets.
    Nothing here is decorative — every token exists because a component needs it.
 
    Colour pairs are MEASURED, not asserted:  node docs/design/contrast.mjs
@@ -153,24 +153,3 @@
     --stagger: 0ms;
   }
 }
-
-/* ---------------------------------------------------------------------------
-   Phase 3 hook. With Tailwind v4 installed, uncomment to re-export the
-   semantic tokens as utilities (`bg-surface`, `text-ink-muted`, `border-border`).
-   `@theme inline` keeps the var() reference live, so the theme toggle keeps
-   working through the generated classes.
-
-   @import "tailwindcss";
-   @theme inline {
-     --color-surface:      var(--surface);
-     --color-surface-sunk: var(--surface-sunk);
-     --color-ink:          var(--ink);
-     --color-ink-muted:    var(--ink-muted);
-     --color-border:       var(--border);
-     --color-accent:       var(--accent);
-     --color-accent-text:  var(--accent-text);
-     --color-on-accent:    var(--on-accent);
-     --font-display:       var(--font-display);
-     --font-mono:          var(--font-mono);
-   }
-   --------------------------------------------------------------------------- */

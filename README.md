@@ -89,7 +89,7 @@ can be. The evidence table is in `scripts/lighthouse.mjs`.
 
 ## How it is built
 
-**Astro 7 · Tailwind 4 · TypeScript strict · static output.** No framework runtime
+**Astro 7 · TypeScript strict · static output. No CSS framework.** No framework runtime
 reaches the browser. The only JavaScript on the site is a theme toggle and the
 contact form's progressive enhancement; both work when disabled.
 

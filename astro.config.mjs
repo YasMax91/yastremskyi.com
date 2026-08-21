@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import tailwindcss from '@tailwindcss/vite';
 
 // The canonical origin. Every absolute URL on the site — canonical tags,
 // hreflang alternates, Open Graph images, the sitemap — derives from this one
@@ -34,17 +33,13 @@ export default defineConfig({
     }),
   ],
 
-  // Tailwind 4 ships as a Vite plugin. The former @astrojs/tailwind integration
-  // is deprecated — see the Astro styling guide.
-  vite: {
-    plugins: [tailwindcss()],
-  },
-
   build: {
-    // The whole site's CSS is about 8 KB gzipped, split across a handful of
-    // component files. Inlining it trades three render-blocking round trips for
-    // a slightly larger document, which on a throttled mobile connection is the
-    // better half of the deal — measured, not assumed.
+    // Inlining trades render-blocking round trips for a larger document, which
+    // on a throttled mobile connection is the better half of the deal. It also
+    // means the document is the stylesheet, so its size sits directly on the
+    // critical path: the home page has to stay inside the initial congestion
+    // window (~14.6 KB) or it pays a whole extra round trip. Measured, with the
+    // numbers, in docs/evidence/motion.md.
     inlineStylesheets: 'always',
   },
 });

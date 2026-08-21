@@ -9,31 +9,93 @@
 
 @import './fonts.css';
 @import './tokens.css';
-@import 'tailwindcss';
 
-/* Re-export the semantic tokens as Tailwind utilities. `inline` keeps the
-   var() reference live, so the theme toggle still works through the generated
-   classes rather than baking in whichever value was current at build time. */
-@theme inline {
-  --color-surface: var(--surface);
-  --color-surface-sunk: var(--surface-sunk);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-border: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-text: var(--accent-text);
-  --color-on-accent: var(--on-accent);
-  --color-focus: var(--focus);
-  --font-display: var(--font-display);
-  --font-mono: var(--font-mono);
-}
-
-/* --- reset ---------------------------------------------------------------- */
+/* --- reset ----------------------------------------------------------------
+   This site used to inherit a framework preflight. It no longer does: the
+   framework shipped ~2.4 KB per page and the markup used not one of its
+   utilities, which on a page whose CSS is inlined into the document is 2.4 KB
+   spent on the critical path for nothing. What the preflight genuinely did for
+   us is written out below, and nothing else is. Every line here is a line the
+   built pages were measured to need — see docs/evidence/motion.md.
+   ------------------------------------------------------------------------- */
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Lists here are structure, never bullets: the nav, the tag chips, the gate
+   chips, the capability groups. The indent and the marker are both removed, and
+   the few places wanting a marker ask for one. */
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+/* A description list's default indent is 40px of user-agent whitespace that no
+   layout on this site accounts for. */
+dd,
+dl,
+menu {
+  margin: 0;
+}
+
+/* Form controls do not inherit typography on their own, and this site puts them
+   inside a typographic system. */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+fieldset,
+legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top: var(--rule) solid var(--border);
+}
+
+table {
+  border-collapse: collapse;
+  text-indent: 0;
+}
+
+pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+[hidden] {
+  display: none;
 }
 
 html {
