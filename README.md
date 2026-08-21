@@ -102,10 +102,10 @@ src/
   i18n/ui.ts            UI strings per locale
   layouts/Base.astro    Head, SEO, JSON-LD, landmarks
   components/           Section, Button, Stats, GateSimulator, ContactForm…
-  pages/                Ten routes
+  pages/                Eleven routes
   styles/               tokens.css · fonts.css (generated) · global.css · motion.css
 scripts/                og · fonts · html audit · lighthouse · motion barrier
-server/                 The contact endpoint and its tests
+server/                 The contact and status endpoints, and their tests
 deploy/                 Caddyfile, systemd unit, deploy script
 docs/                   Concepts, design system, evidence
 ```
@@ -135,6 +135,22 @@ nothing.
 
 The measurements, including two bugs that passed every static check and still did
 nothing, are in `docs/evidence/motion.md`.
+
+### The backend is visible, and it admits what it cannot know
+
+`/status` shows availability, response time and the gates the deployed commit had
+to pass. Two sources feed it, because one would be dishonest: a service cannot
+report its own downtime, so availability is measured from outside by a scheduled
+job that requests the public URL and posts what it saw, while the box reports
+only what it can actually see — the contact endpoint's health, the certificate,
+the Node version. The page says which is which.
+
+`server/status.mjs` is the second dependency-free service on the box, with its
+own systemd unit and its own port, so a fault in a nice-to-have cannot take down
+the contact form. The store is a JSON file written temp-then-rename; there is no
+database, because thirty rows rewritten every ten minutes do not need one.
+Nothing about visitors is recorded — the site has no analytics, and a status page
+is not a side door for adding some.
 
 ### Facts have exactly two sources
 

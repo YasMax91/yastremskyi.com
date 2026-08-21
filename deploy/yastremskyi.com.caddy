@@ -51,6 +51,13 @@ yastremskyi.com {
 		reverse_proxy host.docker.internal:8788
 	}
 
+	# The status endpoint, on its own port and its own systemd unit. Same
+	# reasoning as above: headers pass through so the ingest rate limiter can see
+	# who is calling.
+	handle /api/status* {
+		reverse_proxy host.docker.internal:8789
+	}
+
 	# The CV carries a phone number and names the providers Max integrated. It
 	# stays reachable by link and out of the index: a PDF is crawled and ranked
 	# exactly like a page, and a search result is not something you can take back.

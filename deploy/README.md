@@ -98,6 +98,50 @@ sudo nano /etc/yastremskyi/contact.env   # replace PASTE_THE_KEY_HERE
 sudo systemctl restart contact
 ```
 
+## The status service
+
+A second endpoint, a second unit, a second port. It is separate from the contact
+endpoint on purpose: the contact form is the only channel a recruiter has, and a
+status page must not be able to take it down.
+
+First time, on the box:
+
+```bash
+# The ingest token. Generated on the server so it is never in a shell history
+# on a laptop, and never in this repository.
+sudo mkdir -p /etc/yastremskyi
+printf 'STATUS_TOKEN=%s\n' "$(openssl rand -hex 32)" | sudo tee /etc/yastremskyi/status.env >/dev/null
+sudo chmod 600 /etc/yastremskyi/status.env
+sudo chown root:root /etc/yastremskyi/status.env
+
+sudo mkdir -p /srv/yastremskyi-status
+sudo cp deploy/status.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now status
+systemctl is-active status
+```
+
+Then the same token goes into the repository's Actions secrets as
+`STATUS_INGEST_TOKEN` — the scheduled probe and the CI gate report both use it.
+It is the one secret this feature has, and it only grants the right to write a
+measurement; reading the snapshot needs nothing, because the page is public.
+
+The Caddy block already routes `/api/status*` to `host.docker.internal:8789`;
+adding it needs the same validate-then-reload as any other change to that file.
+
+The store lives at `/var/lib/yastremskyi-status/status.json`, created by systemd
+through `StateDirectory`. It holds thirty days of daily counts and a capped set
+of latency samples — a few kilobytes, no personal data of any kind, and safe to
+delete: the page will simply say it has no data until the next probe lands.
+
+Two things worth knowing before the first deploy:
+
+- Uptime only starts existing once the scheduled workflow has run. Before that
+  the page says so rather than showing an empty bar as if it meant "up".
+- The gate table fills in after the first green CI run on `main`, not at deploy
+  time. A page built before either has happened is correct and honest; it is
+  simply early.
+
 ## The CV is not in the repository
 
 `public/cv.pdf` is git-ignored and deployed out of band. This repository is

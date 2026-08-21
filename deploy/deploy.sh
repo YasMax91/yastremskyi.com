@@ -17,6 +17,7 @@ set -euo pipefail
 HOST="${DEPLOY_HOST:?set DEPLOY_HOST, e.g. deploy@yastremskyi.com}"
 WEB_ROOT="${DEPLOY_WEB_ROOT:-/var/www/yastremskyi.com}"
 APP_ROOT="${DEPLOY_APP_ROOT:-/srv/yastremskyi-contact}"
+STATUS_ROOT="${DEPLOY_STATUS_ROOT:-/srv/yastremskyi-status}"
 SITE="${DEPLOY_SITE:-yastremskyi.com}"
 
 if [[ ! -d dist ]]; then
@@ -33,8 +34,15 @@ echo "→ contact endpoint to ${HOST}:${APP_ROOT}"
 rsync -az --human-readable server/contact.mjs "${HOST}:${APP_ROOT}/"
 ssh "${HOST}" "chown www-data:www-data ${APP_ROOT}/contact.mjs"
 
-echo "→ restarting the endpoint"
+echo "→ status endpoint to ${HOST}:${STATUS_ROOT}"
+rsync -az --human-readable server/status.mjs "${HOST}:${STATUS_ROOT}/"
+ssh "${HOST}" "chown www-data:www-data ${STATUS_ROOT}/status.mjs"
+
+echo "→ restarting the endpoints"
+# Restarted one at a time and checked one at a time. Restarting both in a single
+# command means a failure names neither.
 ssh "${HOST}" 'systemctl restart contact && sleep 2 && systemctl is-active contact'
+ssh "${HOST}" 'systemctl restart status && sleep 2 && systemctl is-active status'
 
 echo "→ checking the site answers"
 # %{host} is not a curl write-out variable — curl 8.7 prints "unknown --write-out
@@ -56,6 +64,21 @@ if [[ "${endpoint_status}" == "422" && "${endpoint_body}" == *'"ok":false'* ]]; 
 else
   echo "  endpoint did not answer as expected: status ${endpoint_status}" >&2
   echo "  ${endpoint_body}" >&2
+  exit 1
+fi
+
+echo "→ checking the status endpoint serves a snapshot"
+# GET is public by design — the page fetches it. Ingest is the half that needs a
+# token, and it is not exercised here: a deploy check must not need the secret.
+status_response="$(curl -sS -w '\n%{http_code}' "https://${SITE}/api/status")"
+status_code="${status_response##*$'\n'}"
+status_body="${status_response%$'\n'*}"
+
+if [[ "${status_code}" == "200" && "${status_body}" == *'"uptime"'* ]]; then
+  echo "  status endpoint answers ${status_code} with a snapshot"
+else
+  echo "  status endpoint did not answer as expected: status ${status_code}" >&2
+  echo "  ${status_body}" >&2
   exit 1
 fi
 

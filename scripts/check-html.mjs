@@ -61,10 +61,21 @@ for (const page of pages) {
   const html = readFileSync(page, 'utf8');
   const label = page.replace(`${DIST}/`, '');
 
+  /**
+   * Script bodies are not markup.
+   *
+   * A page that builds a link in JavaScript contains the string `href="` inside
+   * its own source, and scanning that reported a template literal as a broken
+   * link — a checker crying wolf about a URL that never existed. Stripped rather
+   * than special-cased: everything this file audits is markup, and none of it
+   * lives inside a script.
+   */
+  const markup = html.replace(/<script[\s\S]*?<\/script>/g, '');
+
   // --- links ---------------------------------------------------------------
   const HREF = /\b(href|src)="([^"]+)"/g;
   const META = /<meta[^>]+(?:property|name)="(?:og:image|twitter:image)"[^>]+(content)="([^"]+)"/g;
-  for (const [, attr, value] of [...html.matchAll(HREF), ...html.matchAll(META)]) {
+  for (const [, attr, value] of [...markup.matchAll(HREF), ...markup.matchAll(META)]) {
     if (value.startsWith('#') || value.startsWith('mailto:') || value.startsWith('data:')) continue;
     if (/^https?:\/\//.test(value)) {
       if (value.startsWith(ORIGIN)) {
@@ -84,7 +95,7 @@ for (const page of pages) {
   // headings, and it is invisible on screen — which is exactly why it needs a
   // machine to notice.
   let previous = 0;
-  for (const m of html.matchAll(/<(h[1-6])[^>]*>([\s\S]*?)<\/\1>/g)) {
+  for (const m of markup.matchAll(/<(h[1-6])[^>]*>([\s\S]*?)<\/\1>/g)) {
     const level = Number(m[1][1]);
     if (previous && level > previous + 1) {
       headingJumps.push({

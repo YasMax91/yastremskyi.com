@@ -45,6 +45,7 @@ const CARDS = [
   { file: 'work', kicker: 'Selected work', title: 'Four decisions' },
   { file: 'about', kicker: 'About', title: 'The person' },
   { file: 'cv', kicker: 'Curriculum vitae', title: 'Max Yastremskyi' },
+  { file: 'status', kicker: 'Status · measured, not asserted', title: 'Is it up' },
   {
     file: 'work-voice-to-structured-data',
     kicker: 'Case study · applied AI',

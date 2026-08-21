@@ -41,6 +41,7 @@ export const ui = {
     'case.stack': 'Stack',
     'meta.asOf': 'Approximate, as of August 2026',
     'footer.source': 'Source of this site',
+    'footer.status': 'Status',
   },
   uk: {
     'nav.groundwork': 'Groundwork',
@@ -67,6 +68,7 @@ export const ui = {
     'case.stack': 'Стек',
     'meta.asOf': 'Приблизно, станом на серпень 2026',
     'footer.source': 'Вихідний код цього сайту',
+    'footer.status': 'Стан',
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 

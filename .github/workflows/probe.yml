@@ -1,0 +1,97 @@
+name: Probe
+
+# The external half of the status page.
+#
+# It runs here rather than on the server on purpose: a service cannot report its
+# own downtime, so the thing that measures availability has to be somewhere the
+# outage is not. This job requests the public URL exactly as a visitor would,
+# through Cloudflare, and posts what it saw to the ingest endpoint.
+#
+# GitHub's scheduler is best-effort and drifts, sometimes by many minutes, which
+# is why the page states the interval and marks the data stale rather than
+# pretending each run lands on the ten-minute mark.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+# Never two probes at once, and never a queue of them after an outage of the
+# scheduler: a late run is worth less than a current one.
+concurrency:
+  group: probe
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Measure from outside
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Request the site and post what happened
+        env:
+          SITE: https://yastremskyi.com
+          TOKEN: ${{ secrets.STATUS_INGEST_TOKEN }}
+        run: |
+          set -uo pipefail
+
+          if [[ -z "${TOKEN}" ]]; then
+            echo "STATUS_INGEST_TOKEN is not set — nothing to post to." >&2
+            exit 1
+          fi
+
+          # curl's own timing, not the shell's: this is time to last byte for the
+          # document, which is what a visitor waits for, and it excludes the
+          # runner's own startup.
+          read -r code seconds < <(
+            curl -sS -o /dev/null --max-time 30 \
+              -w '%{http_code} %{time_total}' "${SITE}/" || echo "0 30"
+          )
+
+          ms=$(awk -v s="${seconds}" 'BEGIN { printf "%d", s * 1000 }')
+          ok=false
+          [[ "${code}" == "200" ]] && ok=true
+
+          # Days until the certificate the public actually gets expires. Measured
+          # at the edge, because that is the certificate a visitor is served.
+          end="$(echo | openssl s_client -connect yastremskyi.com:443 \
+            -servername yastremskyi.com 2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)"
+
+          tls_field=""
+          if [[ -n "${end}" ]]; then
+            end_epoch="$(date -u -d "${end}" +%s 2>/dev/null || echo '')"
+            if [[ -n "${end_epoch}" ]]; then
+              days=$(( (end_epoch - $(date -u +%s)) / 86400 ))
+              [[ "${days}" -ge 0 ]] && tls_field=",\"tlsDaysRemaining\":${days}"
+            fi
+          fi
+
+          body="{\"kind\":\"uptime\",\"ok\":${ok},\"ms\":${ms},\"status\":${code}${tls_field}}"
+          echo "probe: ${body}"
+
+          # The probe result is the point of the run, so a failure to deliver it
+          # fails the job — a silent ingest failure would show as a gap in the
+          # bar and be read as an outage that never happened.
+          ingest_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            -X POST "${SITE}/api/status/probe" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H 'Content-Type: application/json' \
+            -d "${body}")"
+
+          if [[ "${ingest_code}" != "202" ]]; then
+            echo "ingest refused the probe: HTTP ${ingest_code}" >&2
+            exit 1
+          fi
+
+          echo "ingest accepted the probe"
+
+          # The site being down is not a broken workflow. It is the measurement,
+          # it has been recorded, and failing here would page nobody and turn the
+          # Actions tab red for a fact the status page already shows.
+          if [[ "${ok}" != "true" ]]; then
+            echo "::warning::site answered ${code} — recorded as a failed check"
+          fi

@@ -21,9 +21,13 @@
  */
 
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { createServer, request as httpRequest } from 'node:http';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+import { createApp as createStatusApp, createStore } from '../server/status.mjs';
 
 const BASE = process.env.LH_BASE ?? 'http://localhost:4330';
 const OUT = 'docs/evidence';
@@ -65,7 +69,15 @@ const RUNS = ON_CI ? 3 : 1;
 /** Reported but not enforced on CI — category ids and vitals audit ids alike. See the table above. */
 const UNENFORCED_ON_CI = new Set(['performance', 'total-blocking-time']);
 
-const ROUTES = ['/', '/groundwork', '/work', '/work/payments-and-clearing', '/about', '/cv'];
+const ROUTES = [
+  '/',
+  '/groundwork',
+  '/work',
+  '/work/payments-and-clearing',
+  '/about',
+  '/cv',
+  '/status',
+];
 
 const THRESHOLDS = {
   performance: 98,
@@ -105,6 +117,69 @@ function run(url, out) {
 
 mkdirSync(OUT, { recursive: true });
 
+/**
+ * A front door for the audit, so /status is measured with its service attached.
+ *
+ * `astro preview` serves the built files and nothing else, which means
+ * /api/status 404s and the page's own refresh logs a console error — costing it
+ * Best Practices for a fault that does not exist in production, where Caddy
+ * routes /api/* to the status service. The honest fix is not to stop measuring
+ * the page or to silence the page: it is to audit it in an environment shaped
+ * like the deployed one.
+ *
+ * So everything static still comes from the preview, byte for byte and with its
+ * own compression, and only /api/* is answered here by the real service running
+ * in this process against an empty temporary store. Empty is the right state to
+ * measure: it is what a visitor sees on the day of a deploy, and it renders the
+ * most markup.
+ */
+async function startFrontDoor(upstream) {
+  const dir = mkdtempSync(join(tmpdir(), 'lh-status-'));
+  const status = createStatusApp({
+    store: createStore(join(dir, 'status.json')),
+    token: 'audit-only-token-never-leaves-this-process',
+  });
+  const target = new URL(upstream);
+
+  const server = createServer((req, res) => {
+    if (req.url?.startsWith('/api/')) {
+      status(req, res);
+      return;
+    }
+    const proxied = httpRequest(
+      {
+        hostname: target.hostname,
+        port: target.port,
+        path: req.url,
+        method: req.method,
+        headers: req.headers,
+      },
+      (upstreamRes) => {
+        res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers);
+        upstreamRes.pipe(res);
+      },
+    );
+    proxied.on('error', () => {
+      res.writeHead(502, { 'Content-Type': 'text/plain' });
+      res.end('preview unreachable');
+    });
+    req.pipe(proxied);
+  });
+
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address();
+  return {
+    base: `http://127.0.0.1:${port}`,
+    async stop() {
+      await new Promise((resolve) => server.close(resolve));
+      rmSync(dir, { recursive: true, force: true });
+    },
+  };
+}
+
+const frontDoor = await startFrontDoor(BASE);
+const AUDIT_BASE = frontDoor.base;
+
 const failures = [];
 const unenforced = [];
 const table = [];
@@ -135,7 +210,7 @@ for (const route of ROUTES) {
       OUT,
       RUNS === 1 ? `lh-${slug}-mobile.json` : `lh-${slug}-mobile-run${i}.json`,
     );
-    await run(`${BASE}${route}`, file);
+    await run(`${AUDIT_BASE}${route}`, file);
     reports.push(JSON.parse(await readFile(file, 'utf8')));
   }
 
@@ -167,6 +242,8 @@ for (const route of ROUTES) {
 
   table.push(row);
 }
+
+await frontDoor.stop();
 
 const header = `${'route'.padEnd(30)} ${'perf'.padStart(5)} ${'a11y'.padStart(5)} ${'bp'.padStart(4)} ${'seo'.padStart(4)} ${'LCP ms'.padStart(8)} ${'CLS'.padStart(6)} ${'TBT'.padStart(5)}`;
 console.log(header);

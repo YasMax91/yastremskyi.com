@@ -2,7 +2,8 @@
 
 - **Date:** 2026-08-21
 - **Level:** L3
-- **State:** motion DELIVERED and measured (docs/evidence/motion.md); /status not started
+- **State:** motion DELIVERED and deployed; /status BUILT and verified locally, awaiting the
+  server-side install (unit, env file, Caddy route) and the `STATUS_INGEST_TOKEN` secret
 - **Delivery order:** (1) motion, (2) /status. Motion ships first because it touches no server.
 
 ---

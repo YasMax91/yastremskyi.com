@@ -1,0 +1,61 @@
+# systemd unit for the status endpoint.
+#
+#   sudo cp deploy/status.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now status
+#
+# A second unit rather than a second route inside the contact service. The
+# contact endpoint is the only way a recruiter can reach Max; a status page is a
+# nice-to-have. They must not be able to take each other down, and two units mean
+# the kernel enforces that rather than a code review.
+#
+# The ingest token lives in /etc/yastremskyi/status.env, owned by root and mode
+# 0600 — not in this file, which is in a public repository.
+
+[Unit]
+Description=yastremskyi.com status endpoint
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/yastremskyi-status
+ExecStart=/usr/bin/node /srv/yastremskyi-status/status.mjs
+EnvironmentFile=/etc/yastremskyi/status.env
+Restart=on-failure
+RestartSec=5
+
+# ProtectSystem=strict makes the whole filesystem read-only, and this service has
+# exactly one file to write. StateDirectory creates /var/lib/yastremskyi-status,
+# owned by this user, and makes that one path writable — narrower and more
+# self-documenting than a hand-written ReadWritePaths, and it survives a reinstall
+# because systemd recreates it.
+StateDirectory=yastremskyi-status
+StateDirectoryMode=0750
+Environment=STATUS_STORE=/var/lib/yastremskyi-status/status.json
+
+# Same hardening as the contact unit, for the same reason: it reads one env file,
+# listens on loopback, and makes one local request to the contact endpoint's
+# health route. Nothing else is needed, so nothing else is permitted.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# MemoryDenyWriteExecute stays off here too — see the note in contact.service.
+# V8 needs writable-executable memory and dies at startup without it, with an
+# error message that blames memory rather than the sandbox.
+
+[Install]
+WantedBy=multi-user.target

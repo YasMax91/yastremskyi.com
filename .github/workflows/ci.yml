@@ -66,3 +66,39 @@ jobs:
           name: lighthouse-reports
           path: docs/evidence/
           retention-days: 30
+
+      # What the gates measured on the commit that is about to be in production,
+      # published to the status page. Only from main, and only from a green run:
+      # the page's whole claim is that these numbers belong to the deployed
+      # commit, so posting a pull request's numbers would make it a lie.
+      #
+      # `continue-on-error` because this is reporting, not a gate. A status page
+      # that cannot be updated is a worse day than a build that goes red over it.
+      - name: Publish the gate results to the status page
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        env:
+          TOKEN: ${{ secrets.STATUS_INGEST_TOKEN }}
+        run: |
+          set -uo pipefail
+          if [[ -z "${TOKEN}" ]]; then
+            echo "no ingest token configured — skipping"
+            exit 0
+          fi
+
+          routes="$(jq -c '[.results[] | {
+            route: .route,
+            performance: .scores.performance,
+            lcp: (.vitals.LCP | round)
+          }]' docs/evidence/lighthouse-summary.json)"
+
+          body="$(jq -nc --arg commit "${GITHUB_SHA:0:7}" --argjson routes "${routes}" \
+            '{kind:"gates", commit:$commit, ci:"passing", routes:$routes}')"
+          echo "gates: ${body}"
+
+          code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            -X POST https://yastremskyi.com/api/status/probe \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H 'Content-Type: application/json' \
+            -d "${body}")"
+          echo "ingest answered ${code}"
