@@ -7,8 +7,6 @@
  * COMPLETE_LOCALES — the locales with nothing left to review. A locale outside
  * this list is built but not published: no index, no sitemap entry, no switcher.
  */
-export const REVIEWED: ReadonlySet<string> = new Set([
-  "uk:thanks.heading"
-]);
+export const REVIEWED: ReadonlySet<string> = new Set([]);
 
 export const COMPLETE_LOCALES: readonly string[] = [];

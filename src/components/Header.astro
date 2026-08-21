@@ -2,7 +2,6 @@
 import ThemeToggle from './ThemeToggle.astro';
 import { useTranslations, localePath, LOCALES, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
 import { COMPLETE_LOCALES } from '../i18n/reviewed';
-import { site } from '../data/site';
 
 interface Props {
   locale: Locale;
@@ -48,7 +47,7 @@ const others = LOCALES.filter(
 
 <header>
   <div class="wrap">
-    <a class="brand" href={localePath('/', locale)}>{site.name.split(' ')[1]}</a>
+    <a class="brand" href={localePath('/', locale)}>{t('site.nameLast')}</a>
     <div class="right">
       <nav aria-label={t('nav.primary')}>
         <ul>

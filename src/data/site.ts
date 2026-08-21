@@ -138,6 +138,7 @@ export const site = {
   capabilities: [
     {
       group: 'Backend & platform',
+      key: 'caps.backend',
       items: [
         'PHP 8.4, Laravel 12',
         'Node, NestJS',
@@ -149,6 +150,7 @@ export const site = {
     },
     {
       group: 'Money & correctness',
+      key: 'caps.money',
       items: [
         'PCI card tokenization',
         'Idempotency keys',
@@ -160,6 +162,7 @@ export const site = {
     },
     {
       group: 'Applied AI in production',
+      key: 'caps.ai',
       items: [
         'Schema-constrained extraction',
         'Tool calling without auto-execution',
@@ -171,6 +174,7 @@ export const site = {
     },
     {
       group: 'Integration & reliability',
+      key: 'caps.integration',
       items: [
         'Driver fallback chains',
         'Delivery-status webhooks',
@@ -181,6 +185,7 @@ export const site = {
     },
     {
       group: 'Hard rendering & data',
+      key: 'caps.rendering',
       items: [
         'Hebrew RTL and bidi PDF',
         'OCR by morphological grid extraction',
@@ -191,6 +196,7 @@ export const site = {
     },
     {
       group: 'How I lead',
+      key: 'caps.lead',
       items: [
         'Spec-driven development',
         'Blast-radius discovery before planning',
@@ -204,14 +210,20 @@ export const site = {
 
   principles: [
     {
+      titleKey: 'principle.ground.title',
+      bodyKey: 'principle.ground.body',
       title: 'Ground it, don’t guess it.',
       body: 'What an external provider does is confirmed against its official documentation with a citation, or marked unknown and proven in a sandbox. A plausible answer about someone else’s API is the most expensive kind of wrong.',
     },
     {
+      titleKey: 'principle.spec.title',
+      bodyKey: 'principle.spec.body',
       title: 'The spec is the cheap place to be wrong.',
       body: 'Discovery is wide; the change is narrow. One task in three never reaches code because the discussion showed it was mis-scoped, already solved, or cheaper without development.',
     },
     {
+      titleKey: 'principle.claim.title',
+      bodyKey: 'principle.claim.body',
       title: 'A claim is not evidence.',
       body: 'Tests, static analysis and contract checks run as gates rather than as good intentions. “It works” gets challenged by a reviewer whose only job is to try to refute it.',
     },

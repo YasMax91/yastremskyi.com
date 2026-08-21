@@ -21,11 +21,19 @@ export type { Locale, UIKey };
  * true.
  */
 export function useTranslations(locale: Locale) {
-  return function t(key: UIKey): string {
-    if (locale !== DEFAULT_LOCALE && !REVIEWED.has(`${locale}:${key}`)) {
-      return ui[DEFAULT_LOCALE][key];
-    }
-    return ui[locale][key] ?? ui[DEFAULT_LOCALE][key];
+  return function t(key: UIKey, vars?: Record<string, string | number>): string {
+    const source =
+      locale !== DEFAULT_LOCALE && !REVIEWED.has(`${locale}:${key}`)
+        ? ui[DEFAULT_LOCALE][key]
+        : (ui[locale][key] ?? ui[DEFAULT_LOCALE][key]);
+
+    // `{name}` placeholders rather than split sentences. A sentence cut into
+    // three keys so a number can sit between them is a sentence that cannot be
+    // reordered, and Ukrainian word order is not English word order.
+    if (!vars) return source;
+    return source.replace(/\{(\w+)\}/g, (whole, name) =>
+      name in vars ? String(vars[name]) : whole,
+    );
   };
 }
 

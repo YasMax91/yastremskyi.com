@@ -63,7 +63,10 @@ const indexable = published.includes(locale);
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.origin).href;
 const ogImage = new URL(`/og/${ogCard}.png`, Astro.site ?? site.origin).href;
-const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
+// The suffix is the name in THIS page's language, or the home page of the
+// Ukrainian site would read "Макс Ястремський — Max Yastremskyi".
+const siteName = t('site.name');
+const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
 
 /**
  * Which font files this page should preload.

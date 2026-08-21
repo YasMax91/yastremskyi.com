@@ -6,13 +6,14 @@ import portrait from '../assets/portrait.jpeg';
 import Base from '../layouts/Base.astro';
 import GateSimulator from '../components/GateSimulator.astro';
 import { site } from '../data/site';
-import { localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
+const t = useTranslations(locale);
 
 const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 
@@ -20,7 +21,12 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: site.name,
+    // Both spellings, always. The Cyrillic one is what a Ukrainian page shows
+    // and the Latin one is what the domain, GitHub, LinkedIn and the CV carry —
+    // and a search engine has no way to know they are the same person unless the
+    // page says so.
+    name: t('site.name'),
+    alternateName: locale === 'uk' ? site.name : 'Макс Ястремський',
     jobTitle: 'Senior Backend Engineer, Tech Lead',
     email: `mailto:${site.contact.email}`,
     url: site.origin,
@@ -31,44 +37,41 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: site.name,
+    name: t('site.name'),
     url: site.origin,
-    inLanguage: 'en',
+    inLanguage: locale,
   },
 ];
 ---
 
 <Base
   locale={locale}
-  title={site.name}
-  description="Senior backend engineer and tech lead. Payments, order lifecycles and production workflows — plus Groundwork, an open-source platform that makes AI-assisted engineering verifiable."
+  title={t('site.name')}
+  description={t('home.meta')}
   current="/"
   jsonLd={jsonLd}
 >
   <div class="hero">
     <div class="wrap">
-      <p class="label">{site.title} · {site.experience}</p>
-      <h1>Max<br />Yastremskyi</h1>
+      <p class="label">{site.title} · {t('site.experience')}</p>
+      <h1>{t('site.nameFirst')}<br />{t('site.nameLast')}</h1>
     </div>
 
     <div class="wrap">
       <div class="hero-meta">
         <div>
-          <p class="label">Positioning</p>
-          <p class="lede">
-            I own the parts of a system that <b>must not be approximately right</b> — money, orders, production
-            workflows — and I build the tooling that proves the work was actually done.
-          </p>
+          <p class="label">{t('home.positioning')}</p>
+          <p class="lede" set:html={t('home.lede')} />
         </div>
         <div>
-          <p class="label">Facts</p>
+          <p class="label">{t('home.facts')}</p>
           <dl class="facts">
-            <dt>Stack</dt><dd>PHP 8.4 · Laravel 12 · Node / NestJS</dd>
-            <dt>Data</dt><dd>MySQL 8 · Redis · Docker</dd>
-            <dt>Based</dt><dd>{site.location}, {site.timezone}</dd>
-            <dt>Open to</dt><dd>{site.availability}</dd>
-            <dt>Markets</dt><dd>{site.markets.join(' · ')}</dd>
-            <dt>Languages</dt>
+            <dt>{t('home.facts.stack')}</dt><dd>PHP 8.4 · Laravel 12 · Node / NestJS</dd>
+            <dt>{t('home.facts.data')}</dt><dd>MySQL 8 · Redis · Docker</dd>
+            <dt>{t('home.facts.based')}</dt><dd>{t('site.location')}, {site.timezone}</dd>
+            <dt>{t('home.facts.openTo')}</dt><dd>{t('site.availability')}</dd>
+            <dt>{t('home.facts.markets')}</dt><dd>{t('site.markets')}</dd>
+            <dt>{t('home.facts.languages')}</dt>
             <dd>{site.languages.map((l) => `${l.name} ${l.level}`).join(' · ')}</dd>
           </dl>
         </div>
@@ -103,9 +106,9 @@ const jsonLd = [
           class="btn"
           href={`mailto:${site.contact.email}?subject=${encodeURIComponent(site.contact.emailSubject)}`}
         >
-          Email me
+          {t('home.cta.email')}
         </a>
-        <a class="btn btn-2" href={site.groundwork.repo}>Groundwork on GitHub</a>
+        <a class="btn btn-2" href={site.groundwork.repo}>{t('home.cta.repo')}</a>
       </div>
     </div>
   </div>
@@ -114,28 +117,26 @@ const jsonLd = [
     <div class="wrap">
       <div class="sec-head m-reveal">
         <div>
-          <p class="label">Open source · {site.groundwork.licence} · the flagship</p>
+          <p class="label">{t('home.gw.label', { licence: site.groundwork.licence })}</p>
           <h2>Groundwork</h2>
         </div>
-        <p class="prose">
-          A Claude Code plugin that makes verification part of the development process instead of
-          leaving it to the human.
-        </p>
+        <p class="prose">{t('home.gw.prose')}</p>
       </div>
 
-      <blockquote class="pull m-reveal">
-        “An agent will happily write plausible code and just as happily report that it is done.
-        Groundwork makes the checking part of the process.”
-      </blockquote>
+      <blockquote class="pull m-reveal">{t('home.gw.quote')}</blockquote>
 
       <dl class="stats m-stagger">
-        <div><dt class="num">{site.stats.codebases}</dt><dd>production codebases</dd></div>
-        <div><dt class="num">{site.stats.procedureRuns}</dt><dd>procedure runs</dd></div>
-        <div><dt class="num">{site.stats.specsWritten}</dt><dd>written specs</dd></div>
-        <div><dt class="num">{site.stats.frontendHandoffs}</dt><dd>frontend hand-offs</dd></div>
-        <div><dt class="num">{site.stats.stoppedBeforeCode}</dt><dd>stopped before code</dd></div>
+        <div><dt class="num">{site.stats.codebases}</dt><dd>{t('home.stats.codebases')}</dd></div>
+        <div><dt class="num">{site.stats.procedureRuns}</dt><dd>{t('home.stats.runs')}</dd></div>
+        <div><dt class="num">{site.stats.specsWritten}</dt><dd>{t('home.stats.specs')}</dd></div>
+        <div>
+          <dt class="num">{site.stats.frontendHandoffs}</dt><dd>{t('home.stats.handoffs')}</dd>
+        </div>
+        <div>
+          <dt class="num">{site.stats.stoppedBeforeCode}</dt><dd>{t('home.stats.stopped')}</dd>
+        </div>
       </dl>
-      <p class="asof">Approximate, as of {site.stats.asOf}</p>
+      <p class="asof">{t('meta.asOf')}</p>
 
       <GateSimulator id="home-sim" />
     </div>
@@ -144,11 +145,11 @@ const jsonLd = [
   <section id="work" class="m-rule">
     <div class="wrap">
       <div class="sec-head m-reveal">
-        <div><p class="label">Selected work</p><h2>Four decisions</h2></div>
-        <p class="prose">
-          Not feature lists. Each records the constraint, what was chosen over what, and the detail
-          a mid-level engineer would have got wrong.
-        </p>
+        <div>
+          <p class="label">{t('home.selectedWork')}</p>
+          <h2>{t('home.work.title')}</h2>
+        </div>
+        <p class="prose">{t('home.work.prose')}</p>
       </div>
 
       <ol class="cases m-stagger">
@@ -157,17 +158,19 @@ const jsonLd = [
           <div>
             <h3><a href={localePath('/groundwork', locale)}>Groundwork</a></h3>
             <p>
-              Risk-based task classification L0–L4, {site.groundwork.agents} specialised review agents,
-              {site.groundwork.gates} automated gates and {site.groundwork.procedures} workflow procedures,
-              shipped under {site.groundwork.licence}.
+              {
+                t('home.work.gwSummary', {
+                  agents: site.groundwork.agents,
+                  gates: site.groundwork.gates,
+                  procedures: site.groundwork.procedures,
+                  licence: site.groundwork.licence,
+                })
+              }
             </p>
           </div>
           <div class="subtle">
-            <b>The subtle part</b>
-            <span>
-              Roughly one task in three is stopped before any code is written — mis-scoped,
-              conflicting with existing behaviour, or cheaper to solve without development.
-            </span>
+            <b>{t('home.subtle')}</b>
+            <span>{t('home.work.gwSubtle')}</span>
           </div>
         </li>
         {
@@ -199,7 +202,10 @@ const jsonLd = [
   <section id="capabilities" class="m-rule">
     <div class="wrap">
       <div class="sec-head m-reveal">
-        <div><p class="label">Capability map</p><h2>What I do</h2></div>
+        <div>
+          <p class="label">{t('home.capabilities')}</p>
+          <h2>{t('home.caps.title')}</h2>
+        </div>
         <p class="prose">
           Grouped honestly. No percentages — a bar chart of skills tells a reader nothing they can
           verify.
@@ -209,7 +215,7 @@ const jsonLd = [
         {
           site.capabilities.map((group) => (
             <div>
-              <h3>{group.group}</h3>
+              <h3>{t(group.key)}</h3>
               <ul>
                 {group.items.map((item) => (
                   <li>{item}</li>
@@ -225,15 +231,18 @@ const jsonLd = [
   <section id="how" class="m-rule">
     <div class="wrap">
       <div class="sec-head m-reveal">
-        <div><p class="label">How I work</p><h2>Three rules</h2></div>
+        <div>
+          <p class="label">{t('home.howIWork')}</p>
+          <h2>{t('home.how.title')}</h2>
+        </div>
         <p class="prose">They are not aspirations. They are what the tooling enforces.</p>
       </div>
       <div class="prin m-stagger">
         {
           site.principles.map((p) => (
             <div>
-              <h3>{p.title}</h3>
-              <p>{p.body}</p>
+              <h3>{t(p.titleKey)}</h3>
+              <p>{t(p.bodyKey)}</p>
             </div>
           ))
         }
@@ -244,16 +253,18 @@ const jsonLd = [
   <section id="contact" class="last">
     <div class="wrap">
       <div class="sec-head m-reveal">
-        <div><p class="label">Contact</p><h2>Available</h2></div>
+        <div>
+          <p class="label">{t('home.contact')}</p>
+          <h2>{t('home.contact.title')}</h2>
+        </div>
         <p class="prose">
-          Open to Senior Backend and Tech Lead roles — {site.availability.toLowerCase()}. I have
-          worked the Israeli and Ukrainian markets, including Hebrew and right-to-left products.
+          {t('home.contact.prose', { availability: t('site.availability').toLowerCase() })}
         </p>
       </div>
       <div class="contact-grid m-reveal">
         <ContactForm />
         <div class="elsewhere">
-          <h3>Elsewhere</h3>
+          <h3>{t('home.elsewhere')}</h3>
           <ul>
             <li><a href={site.contact.linkedin}>LinkedIn</a></li>
             <li><a href={site.contact.github}>GitHub</a></li>
