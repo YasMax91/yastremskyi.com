@@ -1,7 +1,7 @@
 /**
  * Translation behaviour. The dictionaries themselves live in dictionaries.ts.
  */
-import { REVIEWED } from './reviewed';
+import { REVIEWED, COMPLETE_LOCALES } from './reviewed';
 import { ui, LOCALES, DEFAULT_LOCALE, type Locale, type UIKey } from './dictionaries';
 
 export { ui, LOCALES, DEFAULT_LOCALE };
@@ -35,6 +35,20 @@ export function useTranslations(locale: Locale) {
       name in vars ? String(vars[name]) : whole,
     );
   };
+}
+
+/**
+ * The locale a page is actually rendered in, which is not always the one it was
+ * asked for.
+ *
+ * Until a locale's review is finished its pages render English, so anything the
+ * platform formats for us — dates, numbers — has to follow the language on the
+ * page rather than the language in the URL. Otherwise a draft page reads as
+ * English prose with Ukrainian dates in it, which is a seam a reader notices
+ * without being able to name.
+ */
+export function renderedLocale(locale: Locale): Locale {
+  return locale === DEFAULT_LOCALE || COMPLETE_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE;
 }
 
 /** Build a path in the given locale. English lives at the root. */

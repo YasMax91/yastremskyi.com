@@ -1,7 +1,7 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { useTranslations, localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, renderedLocale, type Locale } from '../i18n/ui';
 import UntranslatedNotice from '../components/UntranslatedNotice.astro';
 
 /**
@@ -27,7 +27,7 @@ const Content = post ? (await render(post)).Content : null;
 
 // The date reads in the page's language: "20 серпня 2026", not "20 August 2026"
 // under a Ukrainian heading.
-const dateFormat = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', {
+const dateFormat = new Intl.DateTimeFormat(renderedLocale(locale) === 'uk' ? 'uk-UA' : 'en-GB', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',

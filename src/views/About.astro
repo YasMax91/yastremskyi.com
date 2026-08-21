@@ -4,7 +4,7 @@ import Section from '../components/Section.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
-import { useTranslations, type Locale } from '../i18n/ui';
+import { useTranslations, renderedLocale, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
@@ -18,7 +18,7 @@ const t = useTranslations(locale);
  * itself. "Apr 2024" under a Ukrainian heading is the kind of seam a reader
  * notices without being able to say why.
  */
-const monthYear = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', {
+const monthYear = new Intl.DateTimeFormat(renderedLocale(locale) === 'uk' ? 'uk-UA' : 'en-GB', {
   month: 'short',
   year: 'numeric',
 });
