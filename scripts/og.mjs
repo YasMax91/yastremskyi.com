@@ -17,19 +17,42 @@
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import satori from 'satori';
+import subsetFont from 'subset-font';
 import sharp from 'sharp';
 
-const FONTS = 'scripts/og-fonts';
+const FONTS = 'scripts/font-sources';
 const OUT = 'public/og';
+
+/** Latin, Cyrillic and the punctuation a title might reach for. */
+const ALL_GLYPHS =
+  Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join('') +
+  '“”‘’«»—–…·•±×÷≥≤≈°§¶©®™€£₴¥№ ' +
+  'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ' +
+  'абвгґдеєжзиіїйклмнопрстуфхцчшщьюя';
 
 const ACCENT = '#ff3b00';
 const INK = '#ffffff';
 const MUTED = '#a6a6a6';
 const SURFACE = '#000000';
 
+/**
+ * Satori needs static instances, and Onest ships as one variable file. Rather
+ * than committing the same typeface twice — once for the browser, once for this
+ * script, with only one of them ever getting updated — the weights are instanced
+ * here from the single source the web subsets also use.
+ *
+ * Not subset to a character set: a card's text is whatever a route's title
+ * happens to be, in either language, and a missing glyph on an Open Graph image
+ * is a black box in a link preview that nobody sees until it is public.
+ */
+const onest = readFileSync(join(FONTS, 'onest-variable.ttf'));
+
+const instance = (buffer, wght) =>
+  subsetFont(buffer, ALL_GLYPHS, { targetFormat: 'sfnt', variationAxes: { wght } });
+
 const fonts = [
-  { name: 'Onest', data: readFileSync(join(FONTS, 'onest-400.ttf')), weight: 400, style: 'normal' },
-  { name: 'Onest', data: readFileSync(join(FONTS, 'onest-800.ttf')), weight: 800, style: 'normal' },
+  { name: 'Onest', data: await instance(onest, 400), weight: 400, style: 'normal' },
+  { name: 'Onest', data: await instance(onest, 800), weight: 800, style: 'normal' },
   {
     name: 'JetBrains Mono',
     data: readFileSync(join(FONTS, 'jetbrains-mono-400.ttf')),

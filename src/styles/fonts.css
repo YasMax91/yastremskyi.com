@@ -6,9 +6,14 @@
    These files are preloaded, so their size sits directly in front of the first
    paint — which is why they are cut to content rather than to script.
 
-   Static instances rather than one variable file: the design uses exactly two
-   weights, and two subset instances came out smaller than one variable font
-   carrying an axis nobody moves.
+   Each face is declared twice, Latin and Cyrillic, with a `unicode-range`. The
+   browser fetches a face only when the page contains a character inside its
+   range, so an English page never downloads a Cyrillic glyph and a Ukrainian one
+   downloads both because it renders both. That selection is the platform's job,
+   not ours, which is why it cannot drift.
+
+   Onest is instanced from one variable source at 400 and 800 rather than
+   committed twice.
 
    Both families are under the SIL Open Font License 1.1 — see OFL-*.txt here.
    =========================================================================== */
@@ -18,7 +23,17 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/onest-400-subset.woff2') format('woff2');
+  src: url('/fonts/onest-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-03FF, U+0500-FFFF;
+}
+
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/onest-400-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-04FF;
 }
 
 @font-face {
@@ -26,7 +41,17 @@
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url('/fonts/onest-800-subset.woff2') format('woff2');
+  src: url('/fonts/onest-800-latin.woff2') format('woff2');
+  unicode-range: U+0000-03FF, U+0500-FFFF;
+}
+
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/onest-800-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-04FF;
 }
 
 @font-face {
@@ -34,5 +59,15 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/jetbrains-mono-400-subset.woff2') format('woff2');
+  src: url('/fonts/jetbrains-mono-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-03FF, U+0500-FFFF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-400-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-04FF;
 }

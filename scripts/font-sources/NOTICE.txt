@@ -1,7 +1,19 @@
 Onest and JetBrains Mono, SIL Open Font License 1.1.
 Full licence text: public/fonts/OFL-onest.txt and public/fonts/OFL-jetbrainsmono.txt.
 
-These static TrueType instances exist only to render Open Graph images at build
-time. They are never served to a browser — the site itself uses the woff2
-subsets in public/fonts/. They are committed rather than fetched so a build does
-not depend on a third party being reachable.
+  onest-variable.ttf      Onest, variable weight axis, from the Google Fonts
+                          repository (google/fonts, ofl/onest). Instanced at 400
+                          and 800 by scripts/subset-fonts.mjs rather than
+                          committed twice.
+  jetbrains-mono-400.ttf  JetBrains Mono Regular, from the JetBrains repository.
+
+These are the upstream originals, complete with Cyrillic. The previous sources
+were Latin-only cuts, which is why Ukrainian pages could not have been rendered
+at all: verified by parsing their cmap — zero Cyrillic codepoints in any of them.
+
+They are the source for both pipelines: the woff2 subsets the site serves, and
+the static instances the Open Graph generator draws with. One source set rather
+than two, because two sets diverge and only one of them gets updated.
+
+They are committed rather than fetched so a build does not depend on a third
+party being reachable.

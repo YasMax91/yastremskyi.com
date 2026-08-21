@@ -34,6 +34,23 @@ const t = useTranslations(locale);
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.origin).href;
 const ogImage = new URL(`/og/${ogCard}.png`, Astro.site ?? site.origin).href;
 const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
+
+/**
+ * Which font files this page should preload. Latin always; Cyrillic only where
+ * it will actually be drawn.
+ */
+const FONT_PRELOADS = [
+  '/fonts/onest-800-latin.woff2',
+  '/fonts/onest-400-latin.woff2',
+  '/fonts/jetbrains-mono-400-latin.woff2',
+  ...(locale === 'uk'
+    ? [
+        '/fonts/onest-800-cyrillic.woff2',
+        '/fonts/onest-400-cyrillic.woff2',
+        '/fonts/jetbrains-mono-400-cyrillic.woff2',
+      ]
+    : []),
+];
 ---
 
 <!doctype html>
@@ -60,34 +77,25 @@ const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
 
     {
       /*
-      All three faces are preloaded, and all three are subsets of what this site
-      actually renders — 36 KB together, where the script-level subsets were 53 KB
-      for two of them. They sit in front of the first paint, so their size is not
-      a detail: dropping the mono preload to save bytes made LCP worse by 150 ms,
-      and adding it back made it better. Measured both ways.
+      Preload is the one place that has to know the page's language, because a
+      preload is unconditional by definition — the `unicode-range` rules in
+      fonts.css keep a browser from *fetching* a face it has no characters for,
+      but a preload hint would fetch it anyway and waste the request.
+
+      So: every page preloads the Latin cut, and a Ukrainian page also preloads
+      the Cyrillic one, because it genuinely renders both scripts — its own prose
+      in Cyrillic, and "Groundwork", "backend" and every stack name in Latin.
+
+      These sit in front of the first paint, so their size is not a detail:
+      dropping the mono preload to save bytes made LCP worse by 150 ms, and
+      adding it back made it better. Measured both ways.
     */
     }
-    <link
-      rel="preload"
-      href="/fonts/onest-800-subset.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="/fonts/onest-400-subset.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="/fonts/jetbrains-mono-400-subset.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {
+      FONT_PRELOADS.map((href) => (
+        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+      ))
+    }
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />

@@ -1,7 +1,0 @@
-Onest and JetBrains Mono, SIL Open Font License 1.1.
-Full licence text: public/fonts/OFL-onest.txt and public/fonts/OFL-jetbrainsmono.txt.
-
-These static TrueType instances exist only to render Open Graph images at build
-time. They are never served to a browser — the site itself uses the woff2
-subsets in public/fonts/. They are committed rather than fetched so a build does
-not depend on a third party being reachable.
