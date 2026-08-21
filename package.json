@@ -31,7 +31,8 @@
     "i18n": "node scripts/i18n.mjs",
     "i18n:check": "node scripts/i18n.mjs --check",
     "i18n:preview": "node scripts/i18n.mjs --preview",
-    "i18n:coverage": "node scripts/i18n-coverage.mjs"
+    "i18n:coverage": "node scripts/i18n-coverage.mjs",
+    "structure": "node scripts/check-structure.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
