@@ -103,8 +103,8 @@ src/
   layouts/Base.astro    Head, SEO, JSON-LD, landmarks
   components/           Section, Button, Stats, GateSimulator, ContactForm…
   pages/                Ten routes
-  styles/               tokens.css · fonts.css (generated) · global.css
-scripts/                og · fonts · html audit · lighthouse
+  styles/               tokens.css · fonts.css (generated) · global.css · motion.css
+scripts/                og · fonts · html audit · lighthouse · motion barrier
 server/                 The contact endpoint and its tests
 deploy/                 Caddyfile, systemd unit, deploy script
 docs/                   Concepts, design system, evidence
@@ -115,6 +115,26 @@ docs/                   Concepts, design system, evidence
 The gate simulator on `/` and `/groundwork` is radio inputs and `:checked`
 sibling selectors. It is keyboard-operable natively, it works with scripting
 disabled, and it costs nothing. The brief budgeted under 5 KB for it.
+
+### The motion costs nothing, and something checks that
+
+Sections rise into view, the hairline that closes a section is drawn from the
+left, page changes cross-fade, and the gate simulator eases between levels — all
+of it CSS, none of it JavaScript, none of it on the main thread. The base state
+of every animated element is its finished state, so where the browser has no
+`animation-timeline` the page is simply the page.
+
+The home page's CSS is inlined, which makes the stylesheet part of the document,
+which puts it inside the initial congestion window — a budget of roughly 14.6 KB
+before the connection pays a second round trip. That is what makes the barrier in
+`scripts/check-motion.mjs` worth running on every build: it fails on an emitted
+script, an animation `prefers-reduced-motion` cannot switch off, a scroll-driven
+rule outside `@supports`, or any animation touching the LCP element. The barrier
+was tested by breaking each rule in turn — a gate only ever seen green proves
+nothing.
+
+The measurements, including two bugs that passed every static check and still did
+nothing, are in `docs/evidence/motion.md`.
 
 ### Facts have exactly two sources
 

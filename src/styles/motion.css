@@ -1,0 +1,162 @@
+/* ===========================================================================
+   Motion layer.
+   ---------------------------------------------------------------------------
+   Three rules govern everything in this file, and `scripts/check-motion.mjs`
+   enforces all three on every build:
+
+   1. ZERO JavaScript. Every animation here is driven by the scroll position or
+      by a state change the browser already knows about. Nothing observes,
+      nothing measures, nothing runs on the main thread.
+
+   2. THE BASE STATE IS THE FINISHED STATE. Verified 2026-08-21 against MDN
+      browser-compat-data: `animation-timeline` is Chrome/Edge 115+, Safari 26+,
+      and Firefox preview only; `@view-transition` is Chrome/Edge 126+, Safari
+      18.2+, and not implemented in Firefox at all. So for a large share of
+      visitors none of this runs — which is fine, because every animated element
+      is already in its final state before the animation touches it. An element
+      that could get stuck invisible is a bug, not a trade-off.
+
+   3. THE HERO HEADING IS NEVER ANIMATED. Chromium excludes elements at
+      `opacity: 0` from Largest Contentful Paint candidacy, so an entrance fade
+      on the largest above-the-fold element delays LCP by exactly the length of
+      the animation. Measured headroom on this site is 97 ms (LCP 1203 ms
+      against a 1300 ms bar), which an entrance reveal would spend twice over.
+      Motion below the fold is free; motion on the hero is not.
+
+   Applies to screens only: print gets the document, not the choreography.
+   =========================================================================== */
+
+@keyframes m-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The drafting move: a hairline that is drawn rather than switched on. Used on
+   the closing rule of a section, so the page assembles itself the way a
+   technical drawing is assembled — left to right, one line at a time. */
+@keyframes m-draw {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The gate simulator's panel change. Transform only — deliberately no opacity,
+   because this element sits high on the home page and an opacity keyframe would
+   make it ineligible as an LCP candidate on the frame it is painted. */
+@keyframes m-swap {
+  from {
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* `cover` rather than `entry`: the entry phase collapses for elements taller
+       than the viewport, and several blocks here are. Cover is well defined at
+       every size. An element already on screen at load is past the end of its
+       range, so it is simply shown — no flash, no delayed content. */
+    /* Longhands, not the `animation` shorthand. The shorthand resets
+       `animation-duration` to its 0s default, and a scroll-driven animation with
+       a zero duration finishes on the frame it starts: the element sits at its
+       end state at every scroll position and nothing ever moves. It looks
+       correct, which is what makes it worth a comment — the bug is invisible
+       except by measuring a computed style mid-range. A scroll timeline wants
+       `auto`, which maps the animation onto the range instead of onto a clock. */
+    .m-reveal,
+    .m-stagger > * {
+      animation-name: m-rise;
+      animation-duration: auto;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-out);
+      animation-timeline: view();
+      animation-range: cover 2% cover 28%;
+    }
+
+    /* A row shares one scroll position, so without an offset the items arrive
+       together and the row reads as a single block. Three steps, not one per
+       child: the document is 370 gzipped bytes from the initial congestion
+       window on this connection, and every rule here is spent against that
+       budget. Measured, not guessed — see docs/evidence/motion.md. */
+    .m-stagger > :nth-child(2) {
+      animation-range: cover 6% cover 32%;
+    }
+
+    .m-stagger > :nth-child(3) {
+      animation-range: cover 10% cover 36%;
+    }
+
+    .m-stagger > :nth-child(n + 4) {
+      animation-range: cover 14% cover 40%;
+    }
+
+    /* The host owns the hairline as an ::after; this only sets it in motion, so
+       there is no property here that a component's own styles also declare and
+       no specificity contest to lose. */
+    .m-rule::after {
+      transform-origin: left;
+      animation-name: m-draw;
+      animation-duration: auto;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-out);
+      animation-timeline: view();
+      animation-range: cover 0% cover 16%;
+    }
+  }
+}
+
+/* The gate simulator swaps panels with `display`, which restarts a CSS
+   animation on its own — no state to track, no script to run. It stays outside
+   the `@supports` block above because it needs no scroll timeline: this is the
+   one piece of motion here that answers a person rather than a scrollbar. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .m-swap {
+    animation: m-swap var(--dur-base) var(--ease-out) both;
+  }
+}
+
+/* --- cross-document view transitions --------------------------------------
+   One at-rule, no JavaScript, same-origin only by definition. Where it is not
+   supported the navigation is an ordinary navigation, which is what it is
+   today. The header and footer are named so they are treated as the same
+   element across documents and hold still instead of crossfading with the
+   content — a chrome that flickers on every click is worse than no transition.
+   -------------------------------------------------------------------------- */
+
+@view-transition {
+  navigation: auto;
+}
+
+body > header {
+  view-transition-name: site-header;
+}
+
+body > footer {
+  view-transition-name: site-footer;
+}
+
+/* Reduced motion removes the animation rather than the transition: the snapshot
+   still swaps, it just swaps instantly. `--dur-*` are already zeroed at the
+   token level for this preference, and this covers the pseudo-elements those
+   tokens cannot reach. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

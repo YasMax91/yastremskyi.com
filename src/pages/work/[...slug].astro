@@ -44,7 +44,7 @@ const spine = [
     {
       spine.map((part) => (
         <section>
-          <div class="wrap grid">
+          <div class="wrap grid m-reveal">
             <h2>{part.label}</h2>
             <div class="prose">
               {part.body.split('\n\n').map((para) => (
@@ -57,7 +57,7 @@ const spine = [
     }
 
     <section>
-      <div class="wrap grid">
+      <div class="wrap grid m-reveal">
         <h2>The decision</h2>
         <div class="prose">
           <h3>What was chosen</h3>
@@ -71,7 +71,7 @@ const spine = [
     </section>
 
     <section class="highlight">
-      <div class="wrap grid">
+      <div class="wrap grid m-reveal">
         <h2>The subtle part</h2>
         <div class="prose">
           {c.subtle.split('\n\n').map((para) => <p>{para}</p>)}
@@ -80,7 +80,7 @@ const spine = [
     </section>
 
     <section>
-      <div class="wrap grid">
+      <div class="wrap grid m-reveal">
         <h2>Outcome</h2>
         <div class="prose">
           {c.outcome.split('\n\n').map((para) => <p>{para}</p>)}

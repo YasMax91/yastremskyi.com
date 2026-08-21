@@ -46,3 +46,7 @@ docs/evidence/lh-*.json
 #
 # It lives on the server only. See deploy/README.md.
 public/cv.pdf
+
+# Editor and tool scratch — not part of the work sample.
+.idea/
+.playwright-mcp/

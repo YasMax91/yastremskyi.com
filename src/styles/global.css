@@ -9,6 +9,7 @@
 
 @import './fonts.css';
 @import './tokens.css';
+@import './motion.css';
 
 /* --- reset ----------------------------------------------------------------
    This site used to inherit a framework preflight. It no longer does: the

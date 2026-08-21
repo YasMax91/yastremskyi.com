@@ -140,6 +140,9 @@
   --dur-fast: 120ms;
   --dur-base: 200ms;
   --dur-enter: 380ms;
+  /* Cross-document view transitions. Short on purpose: a page change is
+     feedback, not a scene, and anything longer reads as latency. */
+  --dur-transition: 180ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --stagger: 60ms;
@@ -150,6 +153,7 @@
     --dur-fast: 0ms;
     --dur-base: 0ms;
     --dur-enter: 0ms;
+    --dur-transition: 0ms;
     --stagger: 0ms;
   }
 }

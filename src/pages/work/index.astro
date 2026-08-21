@@ -31,7 +31,7 @@ const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data
 
   <ol class="cases">
     <li>
-      <div class="wrap inner">
+      <div class="wrap inner m-reveal">
         <span class="n num">01</span>
         <div>
           <h2><a href="/groundwork">Groundwork</a></h2>
@@ -56,7 +56,7 @@ const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data
     {
       cases.map((entry, i) => (
         <li>
-          <div class="wrap inner">
+          <div class="wrap inner m-reveal">
             <span class="n num">0{i + 2}</span>
             <div>
               <h2>
@@ -110,6 +110,7 @@ const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data
   }
 
   .cases li {
+    position: relative;
     border-bottom: var(--rule) solid var(--border);
   }
 

@@ -102,9 +102,9 @@ const jsonLd = [
     </div>
   </div>
 
-  <section id="groundwork">
+  <section id="groundwork" class="m-rule">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head m-reveal">
         <div>
           <p class="label">Open source · {site.groundwork.licence} · the flagship</p>
           <h2>Groundwork</h2>
@@ -115,12 +115,12 @@ const jsonLd = [
         </p>
       </div>
 
-      <blockquote class="pull">
+      <blockquote class="pull m-reveal">
         “An agent will happily write plausible code and just as happily report that it is done.
         Groundwork makes the checking part of the process.”
       </blockquote>
 
-      <dl class="stats">
+      <dl class="stats m-stagger">
         <div><dt class="num">{site.stats.codebases}</dt><dd>production codebases</dd></div>
         <div><dt class="num">{site.stats.procedureRuns}</dt><dd>procedure runs</dd></div>
         <div><dt class="num">{site.stats.specsWritten}</dt><dd>written specs</dd></div>
@@ -133,9 +133,9 @@ const jsonLd = [
     </div>
   </section>
 
-  <section id="work">
+  <section id="work" class="m-rule">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head m-reveal">
         <div><p class="label">Selected work</p><h2>Four decisions</h2></div>
         <p class="prose">
           Not feature lists. Each records the constraint, what was chosen over what, and the detail
@@ -143,7 +143,7 @@ const jsonLd = [
         </p>
       </div>
 
-      <ol class="cases">
+      <ol class="cases m-stagger">
         <li>
           <span class="n num">01</span>
           <div>
@@ -188,16 +188,16 @@ const jsonLd = [
     </div>
   </section>
 
-  <section id="capabilities">
+  <section id="capabilities" class="m-rule">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head m-reveal">
         <div><p class="label">Capability map</p><h2>What I do</h2></div>
         <p class="prose">
           Grouped honestly. No percentages — a bar chart of skills tells a reader nothing they can
           verify.
         </p>
       </div>
-      <div class="caps">
+      <div class="caps m-stagger">
         {
           site.capabilities.map((group) => (
             <div>
@@ -214,13 +214,13 @@ const jsonLd = [
     </div>
   </section>
 
-  <section id="how">
+  <section id="how" class="m-rule">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head m-reveal">
         <div><p class="label">How I work</p><h2>Three rules</h2></div>
         <p class="prose">They are not aspirations. They are what the tooling enforces.</p>
       </div>
-      <div class="prin">
+      <div class="prin m-stagger">
         {
           site.principles.map((p) => (
             <div>
@@ -233,16 +233,16 @@ const jsonLd = [
     </div>
   </section>
 
-  <section id="contact">
+  <section id="contact" class="last">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head m-reveal">
         <div><p class="label">Contact</p><h2>Available</h2></div>
         <p class="prose">
           Open to Senior Backend and Tech Lead roles — {site.availability.toLowerCase()}. I have
           worked the Israeli and Ukrainian markets, including Hebrew and right-to-left products.
         </p>
       </div>
-      <div class="contact-grid">
+      <div class="contact-grid m-reveal">
         <ContactForm />
         <div class="elsewhere">
           <h3>Elsewhere</h3>
@@ -418,8 +418,27 @@ const jsonLd = [
   }
 
   section {
-    border-bottom: var(--rule) solid var(--border);
+    position: relative;
     padding: var(--space-10) 0;
+  }
+
+  /* Was `border-bottom`. A border cannot be drawn from the left; a positioned
+     hairline can, and it lands on the same pixel row. `.m-rule` in motion.css
+     sets it in motion and touches no property declared here. */
+  section::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--rule);
+    background: var(--border);
+  }
+
+  /* The last section closes against the footer, which draws its own top rule.
+     Two hairlines on one pixel row is a 4px line nobody designed, and a rule
+     that sits at the very bottom of the document is also the one rule a
+     scroll-driven draw can never finish. Dropping it settles both. */
+  section.last::after {
+    display: none;
   }
 
   @media (min-width: 48rem) {

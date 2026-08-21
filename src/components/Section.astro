@@ -20,9 +20,9 @@ interface Props {
 const { label, title, lead, id, last = false } = Astro.props;
 ---
 
-<section id={id} class={last ? 'last' : undefined}>
+<section id={id} class={`m-rule${last ? ' last' : ''}`}>
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head m-reveal">
       <div>
         {label && <p class="label">{label}</p>}
         <h2>{title}</h2>
@@ -35,12 +35,23 @@ const { label, title, lead, id, last = false } = Astro.props;
 
 <style>
   section {
+    position: relative;
     padding: var(--space-10) 0;
-    border-bottom: var(--rule) solid var(--border);
   }
 
-  section.last {
-    border-bottom: 0;
+  /* Was `border-bottom`. A border cannot be drawn from the left; a positioned
+     hairline can, and it lands on the same pixel row. `.m-rule` in motion.css
+     sets it in motion and touches no property declared here. */
+  section::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--rule);
+    background: var(--border);
+  }
+
+  section.last::after {
+    display: none;
   }
 
   @media (min-width: 48rem) {
