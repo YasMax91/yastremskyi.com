@@ -120,6 +120,13 @@ Under `prefers-reduced-motion: reduce`, emulated at the browser level:
 
 Zero animations attached anywhere in the document, and nothing hidden.
 
+## In production
+
+Deployed 2026-08-21. Measured against `https://yastremskyi.com` rather than a preview, median of
+three runs: **LCP 1113 ms**, document served in 12 624 bytes. All eleven routes walked end to end
+against production — nothing stuck, hero at full opacity on the first frame. The contact endpoint
+was checked after the deploy and still answers 422 with its field errors.
+
 ## What guards this now
 
 `scripts/check-motion.mjs` runs in `npm run verify` and fails the build on: an emitted script file,

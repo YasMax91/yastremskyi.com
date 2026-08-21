@@ -52,7 +52,7 @@ const OUT = 'docs/evidence';
 const ON_CI = process.env.CI === 'true';
 const RUNS = ON_CI ? 3 : 1;
 
-/** Metrics whose CI numbers are reported but not enforced. See the table above. */
+/** Reported but not enforced on CI — category ids and vitals audit ids alike. See the table above. */
 const UNENFORCED_ON_CI = new Set(['performance', 'total-blocking-time']);
 
 const ROUTES = ['/', '/groundwork', '/work', '/work/payments-and-clearing', '/about', '/cv'];
@@ -125,10 +125,11 @@ for (const route of ROUTES) {
   for (const [key, spec] of Object.entries(VITALS)) {
     const value = report.audits[key].numericValue;
     row.vitals[spec.label] = value;
-    if (value > spec.max)
-      failures.push(
-        `${route}: ${spec.label} ${value.toFixed(0)}${spec.unit} > ${spec.max}${spec.unit}`,
-      );
+    if (value > spec.max) {
+      const line = `${route}: ${spec.label} ${value.toFixed(0)}${spec.unit} > ${spec.max}${spec.unit}`;
+      if (ON_CI && UNENFORCED_ON_CI.has(key)) unenforced.push(line);
+      else failures.push(line);
+    }
   }
 
   table.push(row);

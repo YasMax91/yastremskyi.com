@@ -82,6 +82,15 @@ yastremskyi.com {
 		-Server
 	}
 
+	# /srv/yastremskyi is the path INSIDE the container. On the host the same
+	# directory is /var/www/yastremskyi.com, which is what deploy.sh writes to,
+	# bind-mounted read-only:
+	#
+	#   /var/www/yastremskyi.com -> /srv/yastremskyi (ro)
+	#
+	# The two paths disagreeing looks like drift and is not. Written down because
+	# reading this file next to deploy.sh and concluding one of them is wrong
+	# costs more time than the note does.
 	handle {
 		root * /srv/yastremskyi
 		try_files {path} {path}/index.html {path}.html

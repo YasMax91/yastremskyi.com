@@ -76,6 +76,15 @@ npm run verify                      # nothing ships that has not passed the gate
 DEPLOY_HOST=root@<origin-ip> ./deploy/deploy.sh
 ```
 
+The web root is `/var/www/yastremskyi.com` on the host and `/srv/yastremskyi`
+inside the Caddy container — one directory, bind-mounted read-only, so the two
+paths in this repository are both correct rather than one of them being stale.
+Confirmed on the box with `docker inspect tiles-web-1`.
+
+```
+
+```
+
 ## Resend
 
 The three DNS records are in place and verified. The API key is **not** in this
