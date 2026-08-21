@@ -49,29 +49,92 @@ export const MIN_FILL_MS = 2500;
 export const RATE = { max: 5, windowMs: 60 * 60 * 1000 };
 
 /**
+ * The languages this endpoint can answer in.
+ *
+ * A fixed set, and the redirect is chosen from it rather than built from the
+ * submitted value. The field arrives on a form anyone can forge, so treating it
+ * as a path fragment would be an open redirect wearing this site's domain — and
+ * a header-injection vector besides. Anything unrecognised is English.
+ */
+const LOCALES = new Set(['en', 'uk']);
+const DEFAULT_LOCALE = 'en';
+
+export function localeOf(body) {
+  const value = body?.lang;
+  return typeof value === 'string' && LOCALES.has(value) ? value : DEFAULT_LOCALE;
+}
+
+/** Where a visitor without JavaScript lands after a successful send. */
+export function thanksPath(locale) {
+  return locale === DEFAULT_LOCALE ? '/thanks' : `/${locale}/thanks`;
+}
+
+/**
+ * What the endpoint says, per language.
+ *
+ * The strings live here rather than being imported from the site: this service
+ * has no build step and no dependencies by design, and reaching into the Astro
+ * source for a dictionary would give it both. The cost is that these seven
+ * sentences exist in two places, which is why they are the only prose in the
+ * file — everything else a visitor reads comes from the page.
+ */
+const MESSAGES = {
+  en: {
+    name: 'Please tell me your name.',
+    nameLong: 'That name is longer than this field allows.',
+    email: 'I need an address to reply to.',
+    emailInvalid: 'That does not look like an email address.',
+    messageEmpty: 'The message is empty.',
+    messageShort: 'A little more detail would help.',
+    messageLong: 'That is longer than this form accepts — email me directly instead.',
+    check: 'Please check the fields above.',
+    unreadable: 'That message could not be read.',
+    sent: 'Thank you — your message is on its way.',
+    failed: 'The message did not go through. Email me directly and I will see it.',
+    rateLimited: 'That is more messages than this form accepts in an hour. Email me directly.',
+  },
+  uk: {
+    name: 'Будь ласка, вкажіть своє ім’я.',
+    nameLong: 'Це ім’я довше, ніж дозволяє поле.',
+    email: 'Потрібна адреса, щоб відповісти.',
+    emailInvalid: 'Це не схоже на адресу пошти.',
+    messageEmpty: 'Повідомлення порожнє.',
+    messageShort: 'Трохи більше деталей допомогло б.',
+    messageLong: 'Це довше, ніж приймає форма — напишіть мені поштою напряму.',
+    check: 'Перевірте, будь ласка, поля вище.',
+    unreadable: 'Не вдалося прочитати це повідомлення.',
+    sent: 'Дякую — ваше повідомлення в дорозі.',
+    failed: 'Повідомлення не пройшло. Напишіть мені поштою, і я побачу.',
+    rateLimited: 'Це більше повідомлень, ніж форма приймає за годину. Напишіть мені поштою.',
+  },
+};
+
+export const say = (locale, key) => MESSAGES[locale]?.[key] ?? MESSAGES[DEFAULT_LOCALE][key];
+
+/**
  * Validation. Returns a map of field -> message; an empty map means valid.
  *
  * Deliberately not a schema library: the rules are four lines, and the error
  * strings have to be readable by the person who typed the form, not by a
- * developer reading a stack trace.
+ * developer reading a stack trace — and in the language they were typing in.
  */
-export function validate(body) {
+export function validate(body, locale = DEFAULT_LOCALE) {
   const errors = {};
+  const m = (key) => say(locale, key);
   const name = (body.name ?? '').trim();
   const email = (body.email ?? '').trim();
   const message = (body.message ?? '').trim();
 
-  if (!name) errors.name = 'Please tell me your name.';
-  else if (name.length > LIMITS.name) errors.name = 'That name is longer than this field allows.';
+  if (!name) errors.name = m('name');
+  else if (name.length > LIMITS.name) errors.name = m('nameLong');
 
-  if (!email) errors.email = 'I need an address to reply to.';
+  if (!email) errors.email = m('email');
   else if (email.length > LIMITS.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
-    errors.email = 'That does not look like an email address.';
+    errors.email = m('emailInvalid');
 
-  if (!message) errors.message = 'The message is empty.';
-  else if (message.length < 10) errors.message = 'A little more detail would help.';
-  else if (message.length > LIMITS.message)
-    errors.message = 'That is longer than this form accepts — email me directly instead.';
+  if (!message) errors.message = m('messageEmpty');
+  else if (message.length < 10) errors.message = m('messageShort');
+  else if (message.length > LIMITS.message) errors.message = m('messageLong');
 
   return errors;
 }
@@ -196,7 +259,7 @@ export function clientIp(req) {
   return req.socket.remoteAddress ?? 'unknown';
 }
 
-function respond(req, res, { status, ok, errors = {}, message = '' }) {
+function respond(req, res, { status, ok, errors = {}, message = '', locale = DEFAULT_LOCALE }) {
   const wantsJson = (req.headers.accept ?? '').includes('application/json');
   if (wantsJson) {
     res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -205,9 +268,12 @@ function respond(req, res, { status, ok, errors = {}, message = '' }) {
   }
   // No JavaScript: answer with a redirect to a real page rather than a blob of
   // JSON in the address bar.
+  // The locale picks from a fixed set (see localeOf), so this cannot be aimed
+  // anywhere but at this site.
+  const home = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
   const target = ok
-    ? `${ORIGIN}/thanks`
-    : `${ORIGIN}/#contact?error=${encodeURIComponent(message || 'invalid')}`;
+    ? `${ORIGIN}${thanksPath(locale)}`
+    : `${ORIGIN}${home}/#contact?error=${encodeURIComponent(message || 'invalid')}`;
   res.writeHead(303, { Location: target });
   res.end();
 }
@@ -232,21 +298,27 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
       return;
     }
 
+    // Read the body before the rate limiter so a refusal can be phrased in the
+    // sender's language. A 429 in the wrong language is the least helpful
+    // message on the site: it arrives exactly when someone is already stuck.
+    let body;
+    try {
+      body = parseBody(await readBody(req), req.headers['content-type'] ?? '');
+    } catch {
+      respond(req, res, { status: 400, ok: false, message: say(DEFAULT_LOCALE, 'unreadable') });
+      return;
+    }
+
+    const locale = localeOf(body);
+
     const { allowed } = limiter.check(clientIp(req));
     if (!allowed) {
       respond(req, res, {
         status: 429,
         ok: false,
-        message: 'That is more messages than this form accepts in an hour. Email me directly.',
+        locale,
+        message: say(locale, 'rateLimited'),
       });
-      return;
-    }
-
-    let body;
-    try {
-      body = parseBody(await readBody(req), req.headers['content-type'] ?? '');
-    } catch {
-      respond(req, res, { status: 400, ok: false, message: 'That message could not be read.' });
       return;
     }
 
@@ -256,18 +328,20 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
       respond(req, res, {
         status: 200,
         ok: true,
-        message: 'Thank you — your message is on its way.',
+        locale,
+        message: say(locale, 'sent'),
       });
       return;
     }
 
-    const errors = validate(body);
+    const errors = validate(body, locale);
     if (Object.keys(errors).length) {
       respond(req, res, {
         status: 422,
         ok: false,
+        locale,
         errors,
-        message: 'Please check the fields above.',
+        message: say(locale, 'check'),
       });
       return;
     }
@@ -291,7 +365,8 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
       respond(req, res, {
         status: 200,
         ok: false,
-        message: 'The message did not go through. Email me directly and I will see it.',
+        locale,
+        message: say(locale, 'failed'),
       });
       return;
     }
@@ -299,7 +374,8 @@ export function createApp({ send = sendViaResend, limiter = createLimiter() } = 
     respond(req, res, {
       status: 200,
       ok: true,
-      message: 'Thank you — your message is on its way.',
+      locale,
+      message: say(locale, 'sent'),
     });
   };
 }

@@ -4,53 +4,64 @@ import Section from '../components/Section.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
-import type { Locale } from '../i18n/ui';
+import { useTranslations, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+/**
+ * Employment dates are stored as `YYYY-MM` so each language can render them
+ * itself. "Apr 2024" under a Ukrainian heading is the kind of seam a reader
+ * notices without being able to say why.
+ */
+const monthYear = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', {
+  month: 'short',
+  year: 'numeric',
+});
+const when = (value: string) =>
+  value === 'present' ? t('tl.present') : monthYear.format(new Date(`${value}-01T00:00:00Z`));
 ---
 
 <Base
-  title="About"
-  description="Six years of backend work across the Israeli and Ukrainian markets — payments, order lifecycles, production workflows — and the tooling built to keep AI-assisted engineering honest."
+  title={t('about.label')}
+  description={t('about.meta')}
   current="/about"
   locale={locale}
-  ogCard="about"
+  ogCard={locale === 'en' ? 'about' : `${locale}-about`}
 >
   <div class="page-head">
     <div class="wrap">
-      <p class="label">About</p>
-      <h1>The person</h1>
-      <p class="lede">
-        Six years of backend work, most of it on systems where a wrong answer costs somebody money.
-      </p>
+      <p class="label">{t('about.label')}</p>
+      <h1>{t('about.title')}</h1>
+      <p class="lede">{t('about.lede')}</p>
     </div>
   </div>
 
   <Section
-    label="Career"
-    title="Where the work happened"
-    lead="Employers are named. Clients are not — three of the four case studies sit under NDA, and none of them is tied to a period or a company here."
+    label={t('about.career.label')}
+    title={t('about.career.title')}
+    lead={t('about.career.lead')}
   >
     <ol class="timeline">
       {
         site.timeline.map((job) => (
           <li>
             <div class="when">
-              <span class="num">{job.from}</span>
-              <span class="num">{job.to}</span>
+              <span class="num">{when(job.from)}</span>
+              <span class="num">{when(job.to)}</span>
             </div>
             <div>
               <h3>{job.role}</h3>
               <p class="org">
-                {job.org} — {job.note}
+                {job.org} — {t(job.noteKey)}
               </p>
               <ul>
                 {job.highlights.map((h) => (
-                  <li>{h}</li>
+                  <li>{t(h)}</li>
                 ))}
               </ul>
             </div>
@@ -61,75 +72,50 @@ const { locale } = Astro.props;
   </Section>
 
   <Section
-    label="Markets"
-    title="Israel and Ukraine"
-    lead="Two markets with very different assumptions, which is most of why the work got interesting."
+    label={t('about.markets.label')}
+    title={t('about.markets.title')}
+    lead={t('about.markets.lead')}
   >
     <div class="prose">
-      <p>
-        The Israeli work meant Hebrew and right-to-left products, Israeli fintech and accounting
-        systems, and telephony that has to speak to people rather than at them. Right-to-left is
-        where most implementations quietly break: text has to be passed in logical order, because
-        reordering happens per display line <em>after</em> wrapping — a paragraph reversed in advance
-        reads bottom-up the moment it wraps.
-      </p>
-      <p>
-        The Ukrainian work was commerce and integration at volume: catalogue sync with an ERP, local
-        payment and delivery providers, and platforms cloned per market without forking the
-        codebase.
-      </p>
+      <p set:html={t('about.markets.il')} />
+      <p set:html={t('about.markets.ua')} />
     </div>
   </Section>
 
-  <Section label="Languages" title="How I communicate">
+  <Section label={t('about.lang.label')} title={t('about.lang.title')}>
     <dl class="langs">
       {
         site.languages.map((l) => (
           <div>
-            <dt>{l.name}</dt>
-            <dd>{l.level}</dd>
+            <dt>{t(l.nameKey)}</dt>
+            <dd>{t(l.levelKey)}</dd>
           </div>
         ))
       }
     </dl>
-    <p class="prose note">
-      Working language on a team is English. Documentation, specs, commit messages and API contracts
-      are written in English regardless of who is reading them, because the next person to open the
-      repository may not share a first language with anyone currently on it.
-    </p>
+    <p class="prose note">{t('about.lang.note')}</p>
   </Section>
 
-  <Section
-    label="Leading"
-    title="How I run a team"
-    lead="Mostly by making the standard checkable, so it survives the week I am not looking."
-  >
+  <Section label={t('about.lead.label')} title={t('about.lead.title')} lead={t('about.lead.lead')}>
     <div class="prose">
-      <p>
-        I set the engineering standards and the Definition of Done, and then I put them in tooling
-        rather than in a wiki page. Groundwork exists because a review checklist that lives in
-        somebody’s head is a checklist that gets skipped under deadline — and because an AI agent
-        will report success with exactly the same confidence whether or not it succeeded.
-      </p>
-      <p>
-        The part that took longest to learn is that the process has to scale down. A typo and a
-        change to how VAT is calculated do not deserve the same ceremony, and applying the heavy
-        version to everything is how a process stops being used at all.
-      </p>
+      <p>{t('about.lead.p1')}</p>
+      <p>{t('about.lead.p2')}</p>
     </div>
   </Section>
 
   <Section
-    label="Next"
-    title="What I want next"
-    lead="A Senior Backend or Tech Lead role on a product with real domain weight."
+    label={t('about.next.label')}
+    title={t('about.next.title')}
+    lead={t('about.next.lead')}
     last
   >
     <div class="prose">
       <p>
-        Payments, order lifecycles, production workflows, applied AI that has to survive contact
-        with production — those are the problems I am good at and the ones I want more of. Remote
-        worldwide, or relocation. {site.availability.split('·').slice(-1)[0]?.trim()}.
+        {
+          t('about.next.body', {
+            notice: site.availability.split('·').slice(-1)[0]?.trim() ?? '',
+          })
+        }
       </p>
     </div>
     <ButtonRow>
@@ -139,7 +125,7 @@ const { locale } = Astro.props;
         {site.contact.email}
       </Button>
       {/* The CV stays English in every locale — see the note in Header.astro. */}
-      <Button href="/cv" variant="outline">Read the CV</Button>
+      <Button href="/cv" variant="outline">{t('about.readCv')}</Button>
     </ButtonRow>
   </Section>
 </Base>

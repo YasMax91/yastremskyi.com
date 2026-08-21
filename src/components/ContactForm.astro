@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import { useTranslations, type Locale } from '../i18n/ui';
 
 /**
  * Contact form.
@@ -14,23 +15,34 @@ import { site } from '../data/site';
  * kilobyte of its own, and would make a visitor prove their humanity to send a
  * message to one person.
  */
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
+{
+  /* `lang` travels with the submission so the endpoint can answer in the
+    reader's language and send a no-JavaScript visitor to the right /thanks. */
+}
 <form class="contact" method="post" action="/api/contact" novalidate>
+  <input type="hidden" name="lang" value={locale} />
   <div class="field">
-    <label for="cf-name">Your name</label>
+    <label for="cf-name">{t('form.name')}</label>
     <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" />
     <p class="error" id="cf-name-error" data-error-for="name"></p>
   </div>
 
   <div class="field">
-    <label for="cf-email">Email</label>
+    <label for="cf-email">{t('form.email')}</label>
     <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="254" />
     <p class="error" id="cf-email-error" data-error-for="email"></p>
   </div>
 
   <div class="field">
-    <label for="cf-message">Message</label>
+    <label for="cf-message">{t('form.message')}</label>
     <textarea id="cf-message" name="message" rows="6" required maxlength="5000"></textarea>
     <p class="error" id="cf-message-error" data-error-for="message"></p>
   </div>
@@ -40,16 +52,16 @@ import { site } from '../data/site';
       and removed from the tab order and the accessibility tree. */
   }
   <div class="hp" aria-hidden="true">
-    <label for="cf-company">Company — leave this empty</label>
+    <label for="cf-company">{t('form.honeypot')}</label>
     <input id="cf-company" name="company" type="text" tabindex="-1" autocomplete="off" />
   </div>
 
   <input type="hidden" name="started" value="" />
 
   <div class="actions">
-    <button type="submit">Send</button>
+    <button type="submit">{t('form.send')}</button>
     <p class="alt">
-      Or write directly to
+      {t('form.orWrite')}
       <a
         href={`mailto:${site.contact.email}?subject=${encodeURIComponent(site.contact.emailSubject)}`}
       >
@@ -58,12 +70,10 @@ import { site } from '../data/site';
     </p>
   </div>
 
-  <p class="status" role="status" aria-live="polite"></p>
-
-  <p class="privacy">
-    The message goes to my own server and is sent on to my inbox. It is not stored, there is no
-    tracking on this page, and nobody else sees it.
+  <p class="status" role="status" aria-live="polite" data-network-error={t('form.networkError')}>
   </p>
+
+  <p class="privacy">{t('form.privacy')}</p>
 </form>
 
 <style>
@@ -252,8 +262,9 @@ import { site } from '../data/site';
         }
       } catch {
         if (status) {
-          status.textContent =
-            'The message could not be sent — the network refused. Email me directly and I will see it.';
+          // Written into the element by the server-rendered markup, so this
+          // script never has to know which language the page is in.
+          status.textContent = status.dataset.networkError ?? '';
         }
       } finally {
         if (button) button.disabled = false;

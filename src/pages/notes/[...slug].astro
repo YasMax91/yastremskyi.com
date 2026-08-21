@@ -1,21 +1,26 @@
 ---
 import { getCollection } from 'astro:content';
 import Notes from '../../views/Notes.astro';
+import { forLocale } from '../../i18n/content';
 
 export async function getStaticPaths() {
-  const posts = (await getCollection('notes', ({ data }) => !data.draft)).sort(
-    (a, b) => b.data.published.valueOf() - a.data.published.valueOf(),
+  const posts = await getCollection('notes', ({ data }) => !data.draft);
+  const items = forLocale(posts, 'en').sort(
+    (a, b) => b.entry.data.published.valueOf() - a.entry.data.published.valueOf(),
   );
 
-  if (posts.length === 0) return [];
+  if (items.length === 0) return [];
 
   return [
-    { params: { slug: undefined }, props: { posts } },
-    ...posts.map((post) => ({ params: { slug: post.id }, props: { post, posts } })),
+    { params: { slug: undefined }, props: { items } },
+    ...items.map((item) => ({
+      params: { slug: item.slug },
+      props: { items, post: item.entry, translated: item.translated },
+    })),
   ];
 }
 
-const { posts, post } = Astro.props;
+const { items, post, translated } = Astro.props;
 ---
 
-<Notes posts={posts} post={post} locale="en" />
+<Notes items={items} post={post} translated={translated} locale="en" />

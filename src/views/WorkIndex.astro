@@ -2,38 +2,36 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
-import { localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
+import { forLocale } from '../i18n/content';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
+const t = useTranslations(locale);
 
-const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+// Per language, falling back to the English original where a translation does
+// not exist yet — and carrying that fact so the card can say so.
+const cases = forLocale(await getCollection('work'), locale).sort(
+  (a, b) => a.entry.data.order - b.entry.data.order,
+);
 ---
 
 <Base
-  title="Work"
-  description="Four engineering decision records: Groundwork, a voice-to-structured-data pipeline, payments and clearing, and a multi-market commerce platform."
+  title={t('nav.work')}
+  description={t('work.meta')}
   current="/work"
   locale={locale}
-  ogCard="work"
+  ogCard={locale === 'en' ? 'work' : `${locale}-work`}
 >
   <div class="page-head">
     <div class="wrap">
-      <p class="label">Selected work</p>
-      <h1>Four decisions</h1>
-      <p class="lede">
-        Not feature lists. Each one records the constraint, what was chosen over what, and the
-        detail a mid-level engineer would have got wrong — because that is what a senior reader
-        actually evaluates.
-      </p>
-      <p class="nda">
-        Three of the four are under NDA. The domains are described concretely and the clients are
-        not named, which is the whole of the compromise: no logos, no product names, no screenshots.
-        Groundwork is the exception — it is public, and it is linked.
-      </p>
+      <p class="label">{t('home.selectedWork')}</p>
+      <h1>{t('home.work.title')}</h1>
+      <p class="lede">{t('work.lede')}</p>
+      <p class="nda">{t('work.nda')}</p>
     </div>
   </div>
 
@@ -44,31 +42,33 @@ const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data
         <div>
           <h2><a href={localePath('/groundwork', locale)}>Groundwork</a></h2>
           <p>
-            Risk-based task classification L0–L4, {site.groundwork.agents} specialised review agents,
-            {site.groundwork.gates} automated gates and {site.groundwork.procedures} workflow procedures,
-            shipped under {site.groundwork.licence} with semantic versioning.
+            {
+              t('work.gwSummary', {
+                agents: site.groundwork.agents,
+                gates: site.groundwork.gates,
+                procedures: site.groundwork.procedures,
+                licence: site.groundwork.licence,
+              })
+            }
           </p>
           <ul class="tags">
             <li>Claude Code</li><li>Bash</li><li>Static analysis</li><li>OpenAPI</li>
           </ul>
         </div>
         <div class="subtle">
-          <b>The subtle part</b>
-          <span>
-            Roughly one task in three is stopped before any code is written — mis-scoped,
-            conflicting with existing behaviour, or cheaper to solve without development.
-          </span>
+          <b>{t('home.subtle')}</b>
+          <span>{t('home.work.gwSubtle')}</span>
         </div>
       </div>
     </li>
     {
-      cases.map((entry, i) => (
+      cases.map(({ entry, slug }, i) => (
         <li>
           <div class="wrap inner m-reveal">
             <span class="n num">0{i + 2}</span>
             <div>
               <h2>
-                <a href={localePath(`/work/${entry.id}`, locale)}>{entry.data.title}</a>
+                <a href={localePath(`/work/${slug}`, locale)}>{entry.data.title}</a>
               </h2>
               <p>{entry.data.summary}</p>
               <ul class="tags">
@@ -78,7 +78,7 @@ const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data
               </ul>
             </div>
             <div class="subtle">
-              <b>The subtle part</b>
+              {t('home.subtle')}
               <span>{entry.data.subtle}</span>
             </div>
           </div>

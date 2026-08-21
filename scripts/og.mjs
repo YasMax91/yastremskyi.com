@@ -84,6 +84,30 @@ const CARDS = [
     kicker: 'Case study · platform',
     title: 'Multi-market commerce platform',
   },
+
+  // Ukrainian. A link shared from /uk should preview in the language of the page
+  // it points at — an English card under a Ukrainian headline is the seam a
+  // reader notices first, because it is the part that travels.
+  { file: 'uk-default', kicker: 'Senior Backend Engineer · Tech Lead', title: 'Макс Ястремський' },
+  { file: 'uk-groundwork', kicker: 'Відкритий код · MIT · флагман', title: 'Groundwork' },
+  { file: 'uk-work', kicker: 'Вибрані роботи', title: 'Чотири рішення' },
+  { file: 'uk-about', kicker: 'Про мене', title: 'Людина' },
+  { file: 'uk-status', kicker: 'Стан · виміряно, не заявлено', title: 'Чи працює' },
+  {
+    file: 'uk-work-voice-to-structured-data',
+    kicker: 'Кейс · прикладний AI',
+    title: 'Голос у структуровані дані',
+  },
+  {
+    file: 'uk-work-payments-and-clearing',
+    kicker: 'Кейс · гроші',
+    title: 'Платежі, кліринг і податкові документи',
+  },
+  {
+    file: 'uk-work-multi-market-commerce',
+    kicker: 'Кейс · платформа',
+    title: 'Мультиринкова e-commerce платформа',
+  },
 ];
 
 /** Long titles must not overflow the card, so the size steps down with length. */

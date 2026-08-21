@@ -1,7 +1,7 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
 import UntranslatedNotice from '../components/UntranslatedNotice.astro';
 
 /**
@@ -13,17 +13,21 @@ import UntranslatedNotice from '../components/UntranslatedNotice.astro';
  * the post both appear.
  */
 interface Props {
-  posts: CollectionEntry<'notes'>[];
+  items: { entry: CollectionEntry<'notes'>; slug: string; translated: boolean }[];
   post?: CollectionEntry<'notes'>;
+  translated?: boolean;
   locale: Locale;
 }
 
-const { posts, post, locale } = Astro.props;
+const { items, post, translated = false, locale } = Astro.props;
+const t = useTranslations(locale);
 // Null on the index, a component on a post. Narrowed at the call site rather
 // than asserted, so the index cannot accidentally try to render a body.
 const Content = post ? (await render(post)).Content : null;
 
-const dateFormat = new Intl.DateTimeFormat('en-GB', {
+// The date reads in the page's language: "20 серпня 2026", not "20 August 2026"
+// under a Ukrainian heading.
+const dateFormat = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
@@ -32,10 +36,10 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
 
 {
   post ? (
-    <Base title={post.data.title} description={post.data.summary} current="/notes">
+    <Base locale={locale} title={post.data.title} description={post.data.summary} current="/notes">
       <div class="page-head">
         <div class="wrap">
-          <UntranslatedNotice locale={locale} />
+          <UntranslatedNotice locale={locale} translated={translated} />
           <p class="label">
             <time datetime={post.data.published.toISOString()}>
               {dateFormat.format(post.data.published)}
@@ -48,20 +52,15 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
       <div class="wrap body">{Content && <Content />}</div>
     </Base>
   ) : (
-    <Base
-      locale={locale}
-      title="Notes"
-      description="Occasional writing on backend engineering, verification and applied AI."
-      current="/notes"
-    >
+    <Base locale={locale} title={t('notes.label')} description={t('notes.meta')} current="/notes">
       <div class="page-head">
         <div class="wrap">
-          <p class="label">Notes</p>
-          <h1>Writing</h1>
+          <p class="label">{t('notes.label')}</p>
+          <h1>{t('notes.title')}</h1>
         </div>
       </div>
       <ol class="list">
-        {posts.map((entry) => (
+        {items.map(({ entry, slug }) => (
           <li>
             <div class="wrap row">
               <time class="when" datetime={entry.data.published.toISOString()}>
@@ -69,7 +68,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
               </time>
               <div>
                 <h2>
-                  <a href={localePath(`/notes/${entry.id}`, locale)}>{entry.data.title}</a>
+                  <a href={localePath(`/notes/${slug}`, locale)}>{entry.data.title}</a>
                 </h2>
                 <p>{entry.data.summary}</p>
               </div>

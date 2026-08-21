@@ -1,4 +1,6 @@
 ---
+import { useTranslations, type Locale, type UIKey } from '../i18n/ui';
+
 /**
  * The signature element (brief §6). Exactly one, executed properly.
  *
@@ -9,100 +11,79 @@
  *
  * The levels, agent names and gate names are read from the installed plugin at
  * v0.27.1, not from the brief's older figures.
+ *
+ * Agent names — `impact-mapper`, `adversarial-verifier` — and the ids below are
+ * identifiers rather than prose, so they are the same in every language. What a
+ * reader has to understand is translated; what they would have to type is not.
  */
 
-const LEVELS = [
+/**
+ * A reviewer is either a real agent, named by its identifier, or a description
+ * of a whole tier — "everything L3 engages" — which is prose and therefore a
+ * key. Typed explicitly because `as const` narrows each entry to its own shape
+ * and then no single access is valid across the union.
+ */
+type Reviewer =
+  { name: string; nameKey?: never; role?: UIKey } | { nameKey: UIKey; name?: never; role?: UIKey };
+
+type Level = {
+  id: 'typo' | 'bug' | 'feature' | 'access' | 'money';
+  reviewers: Reviewer[];
+  requires: UIKey[];
+};
+
+const LEVELS: Level[] = [
   {
     id: 'typo',
-    kind: 'Typo',
-    task: 'Fix a typo in a code comment',
-    level: 'L0 — Tiny',
-    gist: 'No spec. No plan. No review agents. No approval. The automatic gates are the entire Definition of Done.',
     reviewers: [],
-    reviewersEmpty: 'Nobody — and that is deliberate.',
-    requires: ['The gates that fire on their own'],
+    requires: ['gs.typo.req1'],
   },
   {
     id: 'bug',
-    kind: 'Bug',
-    task: 'Wrong subject line on a notification email',
-    level: 'L1 — Small fix',
-    gist: 'A regression test that fails first, then one live exercise of the single thing fixed — not a sweep of every consumer.',
     reviewers: [],
-    reviewersEmpty: 'No agents — a targeted self-trace instead.',
-    requires: [
-      'Short inline spec',
-      'Fail-first regression test',
-      'Live check of the one thing fixed',
-    ],
+    requires: ['gs.bug.req1', 'gs.bug.req2', 'gs.bug.req3'],
   },
   {
     id: 'feature',
-    kind: 'Feature',
-    task: 'Add an orders export endpoint',
-    level: 'L2 — Feature',
-    gist: 'Discovery fans out before anything is planned. The blast radius is mapped, not assumed, and nothing is written before the plan is agreed.',
     reviewers: [
-      { name: 'impact-mapper', role: 'what will this break' },
-      { name: 'conformance-reviewer', role: 'does the diff satisfy the criteria' },
+      { name: 'impact-mapper', role: 'gs.role.break' },
+      { name: 'conformance-reviewer', role: 'gs.role.conformance' },
     ],
-    reviewersEmpty: '',
-    requires: [
-      'Spec, plan, approval',
-      'Up to 2 rounds of questions',
-      'Tests written before the code',
-    ],
+    requires: ['gs.feature.req1', 'gs.feature.req2', 'gs.feature.req3'],
   },
   {
     id: 'access',
-    kind: 'Access',
-    task: 'Change who can see supplier prices',
-    level: 'L3 — High risk',
-    gist: 'Permissions, migrations, public contracts, financial visibility. Here the intent gets challenged, not only the code.',
     reviewers: [
-      { name: 'impact-mapper', role: '' },
-      { name: 'blind-spot-map', role: 'what nobody thought to ask' },
-      { name: 'grounded-researcher', role: 'what the provider actually does, cited' },
-      { name: 'conformance-reviewer', role: '' },
-      { name: 'adversarial-verifier', role: 'is “it works” true' },
+      { name: 'impact-mapper' },
+      { name: 'blind-spot-map', role: 'gs.role.blindspot' },
+      { name: 'grounded-researcher', role: 'gs.role.grounded' },
+      { name: 'conformance-reviewer' },
+      { name: 'adversarial-verifier', role: 'gs.role.verify' },
     ],
-    reviewersEmpty: '',
-    requires: [
-      'Spec, plan, requirements check, deployment notes',
-      'Up to 4 rounds of questions',
-      'An ADR when the decision is cross-cutting',
-    ],
+    requires: ['gs.access.req1', 'gs.access.req2', 'gs.access.req3'],
   },
   {
     id: 'money',
-    kind: 'Money',
-    task: 'Change how VAT is calculated on refunds',
-    level: 'L4 — Critical',
-    gist: 'Financial calculation, order lifecycle, the permission model, destructive migrations. Being approximately right here is being wrong.',
     reviewers: [
-      { name: 'Everything L3 engages', role: '' },
-      {
-        name: 'An adversarial panel',
-        role: 'at least two independent skeptics on the riskiest claims',
-      },
+      { nameKey: 'gs.role.everythingL3' },
+      { nameKey: 'gs.role.panel', role: 'gs.role.panelRole' },
     ],
-    reviewersEmpty: '',
-    requires: ['Everything L3 requires', 'Rollback notes', 'Human approval, always'],
+    requires: ['gs.money.req1', 'gs.money.req2', 'gs.money.req3'],
   },
-] as const;
+];
 
-const GATES = [
-  'format on edit',
-  'static analysis',
-  'test suite',
-  'OpenAPI contract',
-  'enforced runner',
-  'migrations locked',
-  'edits locked in discovery',
-  'unpushed work',
-  'coverage claim',
-  'task intent',
-  'agent contract',
+const GATES: UIKey[] = [
+  'gs.gate.format',
+  'gs.gate.analysis',
+  'gs.gate.tests',
+  'gs.gate.openapi',
+  'gs.gate.runner',
+  'gs.gate.migrations',
+  'gs.gate.edits',
+  'gs.gate.unpushed',
+  'gs.gate.coverage',
+  'gs.gate.intent',
+  'gs.gate.contract',
 ];
 
 interface Props {
@@ -112,19 +93,18 @@ interface Props {
    * changes every run turns a no-op rebuild into a diff.
    */
   id?: string;
+  locale: Locale;
 }
 
-const { id = 'gs' } = Astro.props;
+const { id = 'gs', locale } = Astro.props;
+const t = useTranslations(locale);
 const DEFAULT_INDEX = 2;
 ---
 
 <div class="sim">
   <div class="sim-head">
-    <h3>Pick a task. Watch the process resize.</h3>
-    <p>
-      Zero JavaScript — radio inputs and CSS. Keyboard: Tab into the group, then arrow keys. Works
-      with scripting disabled.
-    </p>
+    <h3>{t('gs.title')}</h3>
+    <p>{t('gs.sub')}</p>
   </div>
 
   {
@@ -140,13 +120,13 @@ const DEFAULT_INDEX = 2;
   }
 
   <fieldset>
-    <legend class="visually-hidden">Choose a task</legend>
+    <legend class="visually-hidden">{t('gs.chooseTask')}</legend>
     <div class="opts">
       {
         LEVELS.map((l) => (
           <label class={`o-${l.id}`} for={`${id}-${l.id}`}>
-            <i>{l.kind}</i>
-            {l.task}
+            <i>{t(`gs.${l.id}.kind` as UIKey)}</i>
+            {t(`gs.${l.id}.task` as UIKey)}
           </label>
         ))
       }
@@ -157,29 +137,29 @@ const DEFAULT_INDEX = 2;
     {
       LEVELS.map((l) => (
         <div class={`panel m-swap p-${l.id}`}>
-          <p class="verdict">{l.level}</p>
-          <p class="gist">{l.gist}</p>
+          <p class="verdict">{t(`gs.${l.id}.level` as UIKey)}</p>
+          <p class="gist">{t(`gs.${l.id}.gist` as UIKey)}</p>
           <div class="cols">
             <div>
-              <h4>Who reviews</h4>
+              <h4>{t('gs.whoReviews')}</h4>
               {l.reviewers.length === 0 ? (
-                <p class="empty">{l.reviewersEmpty}</p>
+                <p class="empty">{t(`gs.${l.id}.empty` as UIKey)}</p>
               ) : (
                 <ul>
                   {l.reviewers.map((r) => (
                     <li>
-                      {r.name}
-                      {r.role && <em> — {r.role}</em>}
+                      {r.nameKey ? t(r.nameKey) : r.name}
+                      {r.role && <em> — {t(r.role)}</em>}
                     </li>
                   ))}
                 </ul>
               )}
             </div>
             <div>
-              <h4>What is required</h4>
+              <h4>{t('gs.whatRequired')}</h4>
               <ul>
                 {l.requires.map((r) => (
-                  <li>{r}</li>
+                  <li>{t(r)}</li>
                 ))}
               </ul>
             </div>
@@ -190,9 +170,9 @@ const DEFAULT_INDEX = 2;
   </div>
 
   <div class="gates">
-    <span class="label">Gates — armed at every level, including L0</span>
-    <ul class="chips">{GATES.map((g) => <li>{g}</li>)}</ul>
-    <small>Process weight scales with risk. The gates do not — that is the point.</small>
+    <span class="label">{t('gs.gatesLabel')}</span>
+    <ul class="chips">{GATES.map((g) => <li>{t(g)}</li>)}</ul>
+    <small>{t('gs.gatesNote')}</small>
   </div>
 </div>
 

@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import { site } from '../data/site';
+import { useTranslations } from '../i18n/ui';
 import type { Locale } from '../i18n/ui';
 
 interface Props {
@@ -9,6 +10,12 @@ interface Props {
 }
 
 const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const dayWords = {
+  none: t('st.noDay'),
+  label: (v: { date: string; checks: number; failures: number }) => t('st.dayLabel', v),
+};
 import {
   fetchSnapshot,
   dayState,
@@ -45,40 +52,27 @@ const commitUrl = (commit: string) => (site.repo ? `${site.repo}/commit/${commit
 ---
 
 <Base
-  title="Status"
-  description="Live availability, response time and quality gates for this site — measured from outside the server, because a service cannot report its own downtime."
+  title={t('st.label')}
+  description={t('st.meta')}
   current="/status"
   locale={locale}
-  ogCard="status"
+  ogCard={locale === 'en' ? 'status' : `${locale}-status`}
 >
   <div class="page-head">
     <div class="wrap">
-      <p class="label">Status</p>
-      <h1>Is it up</h1>
-      <p class="lede">
-        Availability and response time for this site, and the result of the gates its last commit
-        had to pass. Everything on this page is measured; nothing is asserted.
-      </p>
-      <p class="nda">
-        Uptime is measured <strong>from outside</strong>, by a scheduled job that requests the
-        public URL every ten minutes and posts what it saw. That indirection is the point: a service
-        cannot report its own downtime, so a page fed only by the server would be a page that is
-        always up. Nothing here counts visitors — the site runs no analytics, and a status page is
-        not a side door for adding some.
-      </p>
+      <p class="label">{t('st.label')}</p>
+      <h1>{t('st.title')}</h1>
+      <p class="lede">{t('st.lede')}</p>
+      <p class="nda" set:html={t('st.note')} />
     </div>
   </div>
 
-  <Section
-    label="Availability"
-    title="Thirty days"
-    lead="One column per day. A day with no probe is blank rather than green — an unknown is not a success."
-  >
-    <div class="bar" role="img" aria-label="Daily availability for the last thirty days">
+  <Section label={t('st.avail.label')} title={t('st.avail.title')} lead={t('st.avail.lead')}>
+    <div class="bar" role="img" aria-label={t('st.barAlt')}>
       {
         slots.map((day) => (
-          <span class={`d d-${dayState(day)}`} data-slot title={dayLabel(day)}>
-            <span class="visually-hidden">{dayLabel(day)}</span>
+          <span class={`d d-${dayState(day)}`} data-slot title={dayLabel(day, dayWords)}>
+            <span class="visually-hidden">{dayLabel(day, dayWords)}</span>
           </span>
         ))
       }
@@ -87,52 +81,49 @@ const commitUrl = (commit: string) => (site.repo ? `${site.repo}/commit/${commit
     <dl class="stats m-stagger">
       <div>
         <dt class="num" data-k="availability">{formatPercent(initial?.uptime?.availability)}</dt>
-        <dd>availability, 30 days</dd>
+        <dd>{t('st.stat.availability')}</dd>
       </div>
       <div>
         <dt class="num" data-k="checks">{formatCount(initial?.uptime?.checks)}</dt>
-        <dd>checks recorded</dd>
+        <dd>{t('st.stat.checks')}</dd>
       </div>
       <div>
         <dt class="num" data-k="failures">{formatCount(initial?.uptime?.failures)}</dt>
-        <dd>failed checks</dd>
+        <dd>{t('st.stat.failures')}</dd>
       </div>
       <div>
         <dt class="num" data-k="p50">{formatMs(initial?.latency?.p50)}</dt>
-        <dd>response, median</dd>
+        <dd>{t('st.stat.p50')}</dd>
       </div>
       <div>
         <dt class="num" data-k="p95">{formatMs(initial?.latency?.p95)}</dt>
-        <dd>response, 95th</dd>
+        <dd>{t('st.stat.p95')}</dd>
       </div>
     </dl>
 
     <p class="asof">
       <span data-k="freshness">
-        {
-          takenAt
-            ? `Snapshot taken at build time, ${takenAt}. Probed every 10 minutes.`
-            : 'No probe data yet. The page will fill in once the scheduled check has run.'
-        }
+        {takenAt ? t('st.snapshot', { at: takenAt }) : t('st.noData')}
       </span>
     </p>
   </Section>
 
-  <Section
-    label="Quality gates"
-    title="What the last commit had to pass"
-    lead="These are the numbers CI measured on the commit currently in production, not numbers from a screenshot in a README."
-  >
+  <Section label={t('st.gates.label')} title={t('st.gates.title')} lead={t('st.gates.lead')}>
     <div class="gates" data-k="gates" data-repo={site.repo ?? undefined}>
       {
         initial?.gates ? (
           <>
             <p class="line">
-              <span class="key">CI</span>
-              <span class="val">{initial.gates.ci}</span>
+              <span class="key">{t('st.ci')}</span>
+              <span class="val">
+                {/* The endpoint reports one word; the page says it in the
+                      reader's language, falling back to the raw value if CI ever
+                      reports something this page has not been taught. */}
+                {initial.gates.ci === 'passing' ? t('st.ci.passing') : initial.gates.ci}
+              </span>
             </p>
             <p class="line">
-              <span class="key">Commit</span>
+              <span class="key">{t('st.commit')}</span>
               <span class="val">
                 {commitUrl(initial.gates.commit) ? (
                   <a href={commitUrl(initial.gates.commit)}>{initial.gates.commit}</a>
@@ -145,8 +136,8 @@ const commitUrl = (commit: string) => (site.repo ? `${site.repo}/commit/${commit
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">Route</th>
-                    <th scope="col">Performance</th>
+                    <th scope="col">{t('st.route')}</th>
+                    <th scope="col">{t('st.performance')}</th>
                     <th scope="col">LCP</th>
                   </tr>
                 </thead>
@@ -163,42 +154,42 @@ const commitUrl = (commit: string) => (site.repo ? `${site.repo}/commit/${commit
             )}
           </>
         ) : (
-          <p class="empty">No gate report yet. CI posts one after each green run on main.</p>
+          <p class="empty">{t('st.gates.empty')}</p>
         )
       }
     </div>
   </Section>
 
   <Section
-    label="Services"
-    title="What is running"
-    lead="The contact endpoint is the one that matters: it is the only channel on this site that can fail quietly."
+    label={t('st.services.label')}
+    title={t('st.services.title')}
+    lead={t('st.services.lead')}
     last
   >
     <dl class="kv">
       <div>
-        <dt>Contact endpoint</dt>
+        <dt>{t('st.contactEndpoint')}</dt>
         <dd data-k="contact">
-          {initial?.contact ? (initial.contact.ok ? 'answering' : 'not answering') : '—'}
+          {initial?.contact ? (initial.contact.ok ? t('st.answering') : t('st.notAnswering')) : '—'}
         </dd>
       </div>
       <div>
-        <dt>TLS certificate</dt>
+        <dt>{t('st.tls')}</dt>
         <dd data-k="tls">
           {
             initial?.tls?.daysRemaining === null || initial?.tls?.daysRemaining === undefined
               ? '—'
-              : `${initial.tls.daysRemaining} days remaining`
+              : t('st.daysRemaining', { days: initial.tls.daysRemaining })
           }
         </dd>
       </div>
       <div>
-        <dt>Node</dt>
+        <dt>{t('st.node')}</dt>
         <dd data-k="node">{initial?.service?.node ?? '—'}</dd>
       </div>
       <div>
-        <dt>Source</dt>
-        <dd>{site.repo ? <a href={site.repo}>the code behind this page</a> : 'private'}</dd>
+        <dt>{t('st.source')}</dt>
+        <dd>{site.repo ? <a href={site.repo}>{t('st.sourceLink')}</a> : t('st.private')}</dd>
       </div>
     </dl>
   </Section>

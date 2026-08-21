@@ -87,9 +87,17 @@ export function dayState(day: StatusDay | null): 'up' | 'partial' | 'down' | 'no
   return day.availability !== null && day.availability < 0.95 ? 'down' : 'partial';
 }
 
-export function dayLabel(day: StatusDay | null): string {
-  if (!day) return 'No data';
-  return `${day.date}: ${day.checks} checks, ${day.failures} failed`;
+/**
+ * The bar's per-day label, which is the only thing a screen reader gets from it.
+ * The wording is passed in rather than built here, so the sentence is one
+ * translatable string instead of three fragments glued in English word order.
+ */
+export function dayLabel(
+  day: StatusDay | null,
+  words: { none: string; label: (v: { date: string; checks: number; failures: number }) => string },
+): string {
+  if (!day) return words.none;
+  return words.label({ date: day.date, checks: day.checks, failures: day.failures });
 }
 
 export const formatPercent = (v: number | null | undefined) =>

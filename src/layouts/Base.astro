@@ -81,10 +81,14 @@ const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
  * A Ukrainian page still says "Groundwork" and "backend" in Latin, and an
  * English page never says anything in Cyrillic.
  *
- * Preloading all six cost 308 ms of LCP, measured: /uk went from 1203 ms to
- * 1511 ms and came straight back when the extra three were removed. Fifteen
- * kilobytes in front of the first paint is a whole round trip on the throttled
- * connection.
+ * Which set depends on what the page renders, and both answers were measured.
+ * While Ukrainian is unreviewed its pages render English, and preloading Cyrillic
+ * for them cost 308 ms — /uk went from 1203 ms to 1511 ms and came straight back
+ * when the extra three were removed. Once it is published the same page renders
+ * both scripts for real — Cyrillic prose, Latin stack names — and then
+ * preloading both is the cheaper answer by 147 ms: 1653 ms with Cyrillic alone,
+ * 1506 ms with all six, because the Latin faces are needed either way and are
+ * otherwise discovered a round trip late.
  *
  * The choice keys off whether the locale is *published*, not merely requested:
  * until its review is finished a Ukrainian page renders English, so preloading
@@ -92,13 +96,21 @@ const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
  * the last line is signed.
  */
 const rendersCyrillic = locale !== DEFAULT_LOCALE && COMPLETE_LOCALES.includes(locale);
-const script = rendersCyrillic ? 'cyrillic' : 'latin';
 
-const FONT_PRELOADS = [
-  `/fonts/onest-800-${script}.woff2`,
-  `/fonts/onest-400-${script}.woff2`,
-  `/fonts/jetbrains-mono-400-${script}.woff2`,
-];
+const FONT_PRELOADS = rendersCyrillic
+  ? [
+      '/fonts/onest-800-cyrillic.woff2',
+      '/fonts/onest-400-cyrillic.woff2',
+      '/fonts/jetbrains-mono-400-cyrillic.woff2',
+      '/fonts/onest-800-latin.woff2',
+      '/fonts/onest-400-latin.woff2',
+      '/fonts/jetbrains-mono-400-latin.woff2',
+    ]
+  : [
+      '/fonts/onest-800-latin.woff2',
+      '/fonts/onest-400-latin.woff2',
+      '/fonts/jetbrains-mono-400-latin.woff2',
+    ];
 ---
 
 <!doctype html>

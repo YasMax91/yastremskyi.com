@@ -1,13 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
 import CaseStudy from '../../../views/CaseStudy.astro';
+import { forLocale } from '../../../i18n/content';
 
 export async function getStaticPaths() {
   const cases = await getCollection('work');
-  return cases.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  return forLocale(cases, 'uk').map(({ entry, slug, translated }) => ({
+    params: { slug },
+    props: { entry, translated },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, translated } = Astro.props;
 ---
 
-<CaseStudy entry={entry} locale="uk" />
+<CaseStudy entry={entry} translated={translated} locale="uk" />

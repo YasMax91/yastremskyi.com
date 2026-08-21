@@ -5,6 +5,14 @@ import Section from '../components/Section.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
+import { useTranslations, DEFAULT_LOCALE } from '../i18n/ui';
+
+// The CV is English in every locale by an explicit decision, so it asks for the
+// default locale rather than following the page it is linked from.
+const t = useTranslations(DEFAULT_LOCALE);
+const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' });
+const when = (value: string) =>
+  value === 'present' ? t('tl.present') : monthYear.format(new Date(`${value}-01T00:00:00Z`));
 
 /**
  * The PDF is Max's own file rather than something generated from this page, so
@@ -104,7 +112,7 @@ const ACHIEVEMENTS = [
           <li>
             <div class="when">
               <span class="num">
-                {job.from} — {job.to}
+                {when(job.from)} — {when(job.to)}
               </span>
             </div>
             <div>
@@ -112,7 +120,7 @@ const ACHIEVEMENTS = [
               <p class="org">{job.org}</p>
               <ul>
                 {job.highlights.map((h) => (
-                  <li>{h}</li>
+                  <li>{t(h)}</li>
                 ))}
               </ul>
             </div>
@@ -144,8 +152,8 @@ const ACHIEVEMENTS = [
       {
         site.languages.map((l) => (
           <div>
-            <dt>{l.name}</dt>
-            <dd>{l.level}</dd>
+            <dt>{t(l.nameKey)}</dt>
+            <dd>{t(l.levelKey)}</dd>
           </div>
         ))
       }

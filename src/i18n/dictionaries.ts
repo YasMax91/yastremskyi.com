@@ -51,6 +51,302 @@ export const ui = {
     'site.location': 'Ukraine',
     'site.experience': '6+ years',
     'site.markets': 'Israel · Ukraine',
+    'site.languages': 'English B2 · Ukrainian native · Russian fluent',
+    'lang.english': 'English',
+    'lang.ukrainian': 'Ukrainian',
+    'lang.russian': 'Russian',
+    'lang.level.b2': 'B2',
+    'lang.level.native': 'Native',
+    'lang.level.fluent': 'Fluent',
+    'site.oneInThree': '1 in 3',
+    'work.meta':
+      'Four engineering decision records: Groundwork, a voice-to-structured-data pipeline, payments and clearing, and a multi-market commerce platform.',
+    'work.lede':
+      'Not feature lists. Each one records the constraint, what was chosen over what, and the detail a mid-level engineer would have got wrong — because that is what a senior reader actually evaluates.',
+    'work.nda':
+      'Three of the four are under NDA. The domains are described concretely and the clients are not named, which is the whole of the compromise: no logos, no product names, no screenshots. Groundwork is the exception — it is public, and it is linked.',
+    'work.gwSummary':
+      'Risk-based task classification L0–L4, {agents} specialised review agents, {gates} automated gates and {procedures} workflow procedures, shipped under {licence} with semantic versioning.',
+    'work.caseLabel': 'Case study · under NDA, described generically',
+    'tl.radevs.note': 'Laravel platforms and the studio’s AI engineering practice.',
+    'tl.terraforce.note': 'E-commerce, admin and CRM platforms, mobile app APIs.',
+    'tl.imrev.note': 'E-commerce and corporate platforms, integrations.',
+    'tl.yuks.note': 'Legacy desktop maintenance and a WinForms migration.',
+    'tl.radevs.h1':
+      'Authored and open-sourced Groundwork, and set the team’s engineering standards and Definition of Done around it.',
+    'tl.radevs.h2':
+      'Built a reusable multi-market headless commerce platform: storefront JSON API, back-office admin, retail and wholesale pricing engine, driver-abstracted payments and delivery.',
+    'tl.radevs.h3':
+      'Shipped applied AI to production — an intent gateway that validates model output instead of executing it, voice intake behind schema-constrained extraction, OCR and computer-vision pipelines.',
+    'tl.radevs.h4':
+      'Engineered the payment and financial subsystems: card tokenization, idempotency-keyed clearing, decimal money with bcmath, accounting and tax export, signed-webhook reconciliation.',
+    'tl.radevs.h5':
+      'Architected order-lifecycle and production-workflow systems with multi-station scan tracking, quality control, weighted auto-assignment and centralised state-transition guards.',
+    'tl.radevs.h6': 'Mentored engineers through review agents and architecture decisions.',
+    'tl.terraforce.h1':
+      'Built and maintained e-commerce backends with subscription payments, local checkout and delivery, multi-language storefronts and response-query caching.',
+    'tl.terraforce.h2':
+      'Developed admin panels with custom tools, cards, fields and dashboards, including a leads-management CRM with rich-text editing and invoice generation.',
+    'tl.terraforce.h3':
+      'Built API-first mobile app backends: JWT auth, push notifications, QR codes, two-factor auth, and PDF/Word/Excel document generation.',
+    'tl.terraforce.h4':
+      'Delivered search-driven features — full-text search, geo-targeting, SMS and messenger notifications, real-time sockets, social login.',
+    'tl.terraforce.h5':
+      'Integrated an early LLM alongside Google APIs and web-scraping pipelines for content generation.',
+    'tl.imrev.h1':
+      'Built e-commerce and corporate platforms end to end — custom modules, admin panels and storefronts — across concurrent client projects.',
+    'tl.imrev.h2':
+      'Integrated payment, shipping and analytics providers, replacing manual client workflows with automated order flows.',
+    'tl.imrev.h3':
+      'Optimised page, catalogue and search performance through query tuning, indexing and caching, and owned post-production incident handling.',
+    'tl.yuks.h1':
+      'Maintained and extended legacy modules, contributed to a migration to WinForms, and resolved pre-release defects during QA and hardening cycles.',
+    'tl.present': 'Present',
+    'gw.problem.leadFull':
+      'Every safeguard below exists because the failure it prevents happened first.',
+    'gw.design.lead':
+      'A typo and a change to how VAT is calculated do not deserve the same ceremony. Applying the full process to everything is how a process stops being used — so the level decides what runs.',
+    'gw.review.lead':
+      'Each runs in a fresh context, so the reasoning that produced a mistake cannot quietly reproduce it.',
+    'gw.adoption.lead':
+      'Numbers are approximate and point-in-time, which is why they carry a date.',
+    'gw.install.lead':
+      '`init` derives thin, domain-only contracts from the code itself and labels anything it had to assume.',
+    'gw.tableCaption': 'Task classification L0–L4',
+    'st.meta':
+      'Live availability, response time and quality gates for this site — measured from outside the server, because a service cannot report its own downtime.',
+    'st.label': 'Status',
+    'st.title': 'Is it up',
+    'st.lede':
+      'Availability and response time for this site, and the result of the gates its last commit had to pass. Everything on this page is measured; nothing is asserted.',
+    'st.note':
+      'Uptime is measured <strong>from outside</strong>, by a scheduled job that requests the public URL every ten minutes and posts what it saw. That indirection is the point: a service cannot report its own downtime, so a page fed only by the server would be a page that is always up. Nothing here counts visitors — the site runs no analytics, and a status page is not a side door for adding some.',
+    'st.avail.label': 'Availability',
+    'st.avail.title': 'Thirty days',
+    'st.avail.lead':
+      'One column per day. A day with no probe is blank rather than green — an unknown is not a success.',
+    'st.barAlt': 'Daily availability for the last thirty days',
+    'st.stat.availability': 'availability, 30 days',
+    'st.stat.checks': 'checks recorded',
+    'st.stat.failures': 'failed checks',
+    'st.stat.p50': 'response, median',
+    'st.stat.p95': 'response, 95th',
+    'st.gates.label': 'Quality gates',
+    'st.gates.title': 'What the last commit had to pass',
+    'st.gates.lead':
+      'These are the numbers CI measured on the commit currently in production, not numbers from a screenshot in a README.',
+    'st.gates.empty': 'No gate report yet. CI posts one after each green run on main.',
+    'st.ci': 'CI',
+    'st.ci.passing': 'passing',
+    'st.commit': 'Commit',
+    'st.route': 'Route',
+    'st.performance': 'Performance',
+    'st.services.label': 'Services',
+    'st.services.title': 'What is running',
+    'st.services.lead':
+      'The contact endpoint is the one that matters: it is the only channel on this site that can fail quietly.',
+    'st.contactEndpoint': 'Contact endpoint',
+    'st.tls': 'TLS certificate',
+    'st.node': 'Node',
+    'st.source': 'Source',
+    'st.sourceLink': 'the code behind this page',
+    'st.private': 'private',
+    'st.answering': 'answering',
+    'st.notAnswering': 'not answering',
+    'st.daysRemaining': '{days} days remaining',
+    'st.noData': 'No probe data yet. The page will fill in once the scheduled check has run.',
+    'st.snapshot': 'Snapshot taken at build time, {at}. Probed every 10 minutes.',
+    'st.live': 'Live as of {at}. Probed every {minutes} minutes.',
+    'st.stale': 'No probe since {at} — this data is stale, not current.',
+    'st.noDay': 'No data',
+    'st.dayLabel': '{date}: {checks} checks, {failures} failed',
+    'gw.meta':
+      'An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and eleven gates.',
+    'gw.heroA': 'An agent that is',
+    'gw.heroB': 'not allowed to say “done”',
+    'gw.heroC': 'until the work has been checked.',
+    'gw.licence': 'Licence',
+    'gw.runsIn': 'Runs in',
+    'gw.targets': 'Targets',
+    'gw.targetsValue': 'Laravel backends',
+    'gw.author': 'Author',
+    'gw.problem.label': 'The problem',
+    'gw.problem.title': 'Plausible is not the same as correct',
+    'gw.problem.lead': 'The design principle the plugin is built on',
+    'gw.p1.title': 'It guesses about other people’s APIs',
+    'gw.p1.body':
+      'An agent asked what a payment provider returns will produce a confident, well-formatted, entirely invented answer. Groundwork requires a citation from official documentation, or a sandbox result — anything else is recorded as unknown rather than assumed.',
+    'gw.p2.title': 'It plans from the files it was shown',
+    'gw.p2.body':
+      'The change looks contained because nobody looked outward. Discovery maps the blast radius first — callers, events, jobs, policies, cascade relationships, the tests that cover any of it — so the plan is built on connections rather than on the three files in the prompt.',
+    'gw.p3.title': 'It answers the question it was asked',
+    'gw.p3.body':
+      'Which is not always the question worth answering. A separate pass predicts what nobody thought to ask, and the interview puts those decisions back to the person who owns them instead of settling them quietly.',
+    'gw.p4.title': 'It reports success',
+    'gw.p4.body':
+      '“It works” is a claim, and a claim is not evidence. A reviewer whose only job is to refute the claim gets to look before it is believed.',
+    'gw.design.label': 'The design',
+    'gw.design.title': 'Weight scales with risk',
+    'gw.table.level': 'Level',
+    'gw.table.covers': 'What it covers',
+    'gw.table.agents': 'Review agents',
+    'gw.table.approval': 'Approval',
+    'gw.l0.covers': 'Typo, comment, documentation',
+    'gw.l0.agents': 'None',
+    'gw.l0.approval': 'Not required',
+    'gw.l1.covers': 'Small bug fix',
+    'gw.l1.agents': 'None — a targeted self-trace',
+    'gw.l1.approval': 'Unless told to apply now',
+    'gw.l2.covers': 'Normal feature',
+    'gw.l2.agents': 'Impact map, conformance',
+    'gw.l2.approval': 'Required',
+    'gw.l3.covers': 'Permissions, migrations, public contracts, financial visibility',
+    'gw.l3.agents': 'All five',
+    'gw.l3.approval': 'Required',
+    'gw.l4.covers':
+      'Financial calculation, order lifecycle, the permission model, destructive migrations',
+    'gw.l4.agents': 'All five, plus an adversarial panel',
+    'gw.l4.approval': 'Human, always',
+    'gw.review.label': 'Review',
+    'gw.review.title': 'Five specialists, one job each',
+    'gw.a1.body':
+      'What will this break? Traces outward from every touched symbol — callers, events, listeners, jobs, scheduled commands, policies, cascade relationships, and the tests covering any of it.',
+    'gw.a2.body':
+      'What did nobody think to ask? Predicts the omitted dimension rather than the existing coupling: unintended consequences, missing requirements, the domain angle the requester is not the expert in.',
+    'gw.a3.body':
+      'What does the provider actually do? Reads the official documentation and returns findings that each carry a source, or are marked unknown. It is not allowed to guess instead of check.',
+    'gw.a4.body':
+      'Is the “it works” claim true? Tries to refute it against real code, official docs and sandbox results. Defaults to skeptical.',
+    'gw.a5.body':
+      'Does the diff satisfy the acceptance criteria that were agreed? Judges implementation against spec in a fresh context, and reports gaps rather than style.',
+    'gw.adoption.label': 'Adoption',
+    'gw.adoption.title': 'In daily use, not in a demo',
+    'gw.numberTitle': 'The number worth arguing about',
+    'gw.numberBody':
+      'Roughly one task in three never reaches code. Not because the tooling refused, but because writing the specification showed the request was mis-scoped, already solved elsewhere, or cheaper to handle without development at all.',
+    'gw.install.label': 'Install',
+    'gw.install.title': 'Three lines',
+    'gw.readSource': 'Read the source',
+    'gw.askAbout': 'Ask me about it',
+    'about.meta':
+      'Six years of backend work across the Israeli and Ukrainian markets — payments, order lifecycles, production workflows — and the tooling built to keep AI-assisted engineering honest.',
+    'about.label': 'About',
+    'about.title': 'The person',
+    'about.lede':
+      'Six years of backend work, most of it on systems where a wrong answer costs somebody money.',
+    'about.career.label': 'Career',
+    'about.career.title': 'Where the work happened',
+    'about.career.lead':
+      'Employers are named. Clients are not — three of the four case studies sit under NDA, and none of them is tied to a period or a company here.',
+    'about.markets.label': 'Markets',
+    'about.markets.title': 'Israel and Ukraine',
+    'about.markets.lead':
+      'Two markets with very different assumptions, which is most of why the work got interesting.',
+    'about.markets.il':
+      'The Israeli work meant Hebrew and right-to-left products, Israeli fintech and accounting systems, and telephony that has to speak to people rather than at them. Right-to-left is where most implementations quietly break: text has to be passed in logical order, because reordering happens per display line <em>after</em> wrapping — a paragraph reversed in advance reads bottom-up the moment it wraps.',
+    'about.markets.ua':
+      'The Ukrainian work was commerce and integration at volume: catalogue sync with an ERP, local payment and delivery providers, and platforms cloned per market without forking the codebase.',
+    'about.lang.label': 'Languages',
+    'about.lang.title': 'How I communicate',
+    'about.lang.note':
+      'Working language on a team is English. Documentation, specs, commit messages and API contracts are written in English regardless of who is reading them, because the next person to open the repository may not share a first language with anyone currently on it.',
+    'about.lead.label': 'Leading',
+    'about.lead.title': 'How I run a team',
+    'about.lead.lead':
+      'Mostly by making the standard checkable, so it survives the week I am not looking.',
+    'about.lead.p1':
+      'I set the engineering standards and the Definition of Done, and then I put them in tooling rather than in a wiki page. Groundwork exists because a review checklist that lives in somebody’s head is a checklist that gets skipped under deadline — and because an AI agent will report success with exactly the same confidence whether or not it succeeded.',
+    'about.lead.p2':
+      'The part that took longest to learn is that the process has to scale down. A typo and a change to how VAT is calculated do not deserve the same ceremony, and applying the heavy version to everything is how a process stops being used at all.',
+    'about.next.label': 'Next',
+    'about.next.title': 'What I want next',
+    'about.next.lead': 'A Senior Backend or Tech Lead role on a product with real domain weight.',
+    'about.next.body':
+      'Payments, order lifecycles, production workflows, applied AI that has to survive contact with production — those are the problems I am good at and the ones I want more of. Remote worldwide, or relocation. {notice}.',
+    'about.readCv': 'Read the CV',
+    'case.allFour': 'All four decisions',
+    'form.name': 'Your name',
+    'form.email': 'Email',
+    'form.message': 'Message',
+    'form.honeypot': 'Company — leave this empty',
+    'form.send': 'Send',
+    'form.orWrite': 'Or write directly to',
+    'form.privacy':
+      'The message goes to my own server and is sent on to my inbox. It is not stored, there is no tracking on this page, and nobody else sees it.',
+    'form.sending': 'Sending…',
+    'form.networkError':
+      'The message could not be sent — the network refused. Email me directly and I will see it.',
+    'notes.label': 'Notes',
+    'notes.title': 'Writing',
+    'notes.meta': 'Occasional writing on backend engineering, verification and applied AI.',
+    'case.emailAbout': 'Ask me about this one',
+    'gs.title': 'Pick a task. Watch the process resize.',
+    'gs.sub':
+      'Zero JavaScript — radio inputs and CSS. Keyboard: Tab into the group, then arrow keys. Works with scripting disabled.',
+    'gs.chooseTask': 'Choose a task',
+    'gs.whoReviews': 'Who reviews',
+    'gs.whatRequired': 'What is required',
+    'gs.gatesLabel': 'Gates — armed at every level, including L0',
+    'gs.gatesNote': 'Process weight scales with risk. The gates do not — that is the point.',
+    'gs.typo.kind': 'Typo',
+    'gs.typo.task': 'Fix a typo in a code comment',
+    'gs.typo.level': 'L0 — Tiny',
+    'gs.typo.gist':
+      'No spec. No plan. No review agents. No approval. The automatic gates are the entire Definition of Done.',
+    'gs.typo.empty': 'Nobody — and that is deliberate.',
+    'gs.typo.req1': 'The gates that fire on their own',
+    'gs.bug.kind': 'Bug',
+    'gs.bug.task': 'Wrong subject line on a notification email',
+    'gs.bug.level': 'L1 — Small fix',
+    'gs.bug.gist':
+      'A regression test that fails first, then one live exercise of the single thing fixed — not a sweep of every consumer.',
+    'gs.bug.empty': 'No agents — a targeted self-trace instead.',
+    'gs.bug.req1': 'Short inline spec',
+    'gs.bug.req2': 'Fail-first regression test',
+    'gs.bug.req3': 'Live check of the one thing fixed',
+    'gs.feature.kind': 'Feature',
+    'gs.feature.task': 'Add an orders export endpoint',
+    'gs.feature.level': 'L2 — Feature',
+    'gs.feature.gist':
+      'Discovery fans out before anything is planned. The blast radius is mapped, not assumed, and nothing is written before the plan is agreed.',
+    'gs.feature.req1': 'Spec, plan, approval',
+    'gs.feature.req2': 'Up to 2 rounds of questions',
+    'gs.feature.req3': 'Tests written before the code',
+    'gs.access.kind': 'Access',
+    'gs.access.task': 'Change who can see supplier prices',
+    'gs.access.level': 'L3 — High risk',
+    'gs.access.gist':
+      'Permissions, migrations, public contracts, financial visibility. Here the intent gets challenged, not only the code.',
+    'gs.access.req1': 'Spec, plan, requirements check, deployment notes',
+    'gs.access.req2': 'Up to 4 rounds of questions',
+    'gs.access.req3': 'An ADR when the decision is cross-cutting',
+    'gs.money.kind': 'Money',
+    'gs.money.task': 'Change how VAT is calculated on refunds',
+    'gs.money.level': 'L4 — Critical',
+    'gs.money.gist':
+      'Financial calculation, order lifecycle, the permission model, destructive migrations. Being approximately right here is being wrong.',
+    'gs.money.req1': 'Everything L3 requires',
+    'gs.money.req2': 'Rollback notes',
+    'gs.money.req3': 'Human approval, always',
+    'gs.role.break': 'what will this break',
+    'gs.role.conformance': 'does the diff satisfy the criteria',
+    'gs.role.blindspot': 'what nobody thought to ask',
+    'gs.role.grounded': 'what the provider actually does, cited',
+    'gs.role.verify': 'is “it works” true',
+    'gs.role.everythingL3': 'Everything L3 engages',
+    'gs.role.panel': 'An adversarial panel',
+    'gs.role.panelRole': 'at least two independent skeptics on the riskiest claims',
+    'gs.gate.format': 'format on edit',
+    'gs.gate.analysis': 'static analysis',
+    'gs.gate.tests': 'test suite',
+    'gs.gate.openapi': 'OpenAPI contract',
+    'gs.gate.runner': 'enforced runner',
+    'gs.gate.migrations': 'migrations locked',
+    'gs.gate.edits': 'edits locked in discovery',
+    'gs.gate.unpushed': 'unpushed work',
+    'gs.gate.coverage': 'coverage claim',
+    'gs.gate.intent': 'task intent',
+    'gs.gate.contract': 'agent contract',
     'home.caps.title': 'What I do',
     'home.caps.prose':
       'Grouped honestly. No percentages — a bar chart of skills tells a reader nothing they can verify.',
@@ -152,6 +448,303 @@ export const ui = {
     'site.location': 'Україна',
     'site.experience': '6+ років',
     'site.markets': 'Ізраїль · Україна',
+    'site.languages': 'Англійська B2 · українська рідна · російська вільно',
+    'lang.english': 'Англійська',
+    'lang.ukrainian': 'Українська',
+    'lang.russian': 'Російська',
+    'lang.level.b2': 'B2',
+    'lang.level.native': 'Рідна',
+    'lang.level.fluent': 'Вільно',
+    'site.oneInThree': '1 з 3',
+    'work.meta':
+      'Чотири інженерні рішення, зафіксовані як записи: Groundwork, конвеєр «голос → структуровані дані», платежі й кліринг, мультиринкова e-commerce платформа.',
+    'work.lede':
+      'Не переліки можливостей. Кожен запис фіксує обмеження, що обрано замість чого, і ту деталь, яку middle-інженер зробив би неправильно, — бо саме це оцінює досвідчений читач.',
+    'work.nda':
+      'Три з чотирьох — під NDA. Домени описані конкретно, клієнти не названі, і в цьому весь компроміс: без логотипів, без назв продуктів, без скриншотів. Groundwork — виняток: він публічний, і на нього є посилання.',
+    'work.gwSummary':
+      'Класифікація задач за ризиком L0–L4, {agents} спеціалізованих review-агентів, {gates} автоматичних гейтів і {procedures} процедур робочого процесу, під ліцензією {licence} із семантичним версіюванням.',
+    'work.caseLabel': 'Кейс · під NDA, описано узагальнено',
+    'tl.radevs.note': 'Laravel-платформи та практика AI-інженерії студії.',
+    'tl.terraforce.note': 'E-commerce, адмін- і CRM-платформи, API для мобільних застосунків.',
+    'tl.imrev.note': 'E-commerce та корпоративні платформи, інтеграції.',
+    'tl.yuks.note': 'Підтримка легасі-десктопу та міграція на WinForms.',
+    'tl.radevs.h1':
+      'Створив і відкрив код Groundwork, побудувавши навколо нього інженерні стандарти команди та визначення готовності.',
+    'tl.radevs.h2':
+      'Побудував багаторазову мультиринкову headless-платформу e-commerce: JSON API вітрини, адміністративну частину, рушій роздрібних і оптових цін, платежі та доставку за драйверами.',
+    'tl.radevs.h3':
+      'Вивів прикладний AI у продакшн — шлюз намірів, який перевіряє вихід моделі замість того, щоб його виконувати, голосовий вхід за схемо-обмеженим вилученням, конвеєри OCR і комп’ютерного зору.',
+    'tl.radevs.h4':
+      'Спроєктував платіжну й фінансову підсистеми: токенізацію карток, кліринг із ключами ідемпотентності, десяткові гроші через bcmath, бухгалтерський і податковий експорт, звірку за підписаними вебхуками.',
+    'tl.radevs.h5':
+      'Спроєктував системи життєвого циклу замовлень і виробничих процесів зі скануванням на кількох станціях, контролем якості, зваженим автопризначенням і централізованими перевірками переходів станів.',
+    'tl.radevs.h6': 'Менторив інженерів через review-агентів та архітектурні рішення.',
+    'tl.terraforce.h1':
+      'Будував і підтримував бекенди e-commerce з підписковими платежами, локальним оформленням і доставкою, багатомовними вітринами й кешуванням відповідей на запити.',
+    'tl.terraforce.h2':
+      'Розробляв адмінпанелі з власними інструментами, картками, полями та дашбордами, зокрема CRM для управління лідами з форматованим редактором і генерацією рахунків.',
+    'tl.terraforce.h3':
+      'Будував API-first бекенди для мобільних застосунків: JWT-автентифікація, пуш-сповіщення, QR-коди, двофакторна автентифікація, генерація документів PDF/Word/Excel.',
+    'tl.terraforce.h4':
+      'Реалізував пошукові можливості — повнотекстовий пошук, геотаргетинг, сповіщення через SMS і месенджери, сокети в реальному часі, вхід через соцмережі.',
+    'tl.terraforce.h5':
+      'Інтегрував ранню LLM разом із Google API та конвеєрами вебскрапінгу для генерації контенту.',
+    'tl.imrev.h1':
+      'Будував e-commerce і корпоративні платформи від початку до кінця — власні модулі, адмінпанелі та вітрини — на паралельних клієнтських проєктах.',
+    'tl.imrev.h2':
+      'Інтегрував платіжні, логістичні та аналітичні сервіси, замінивши ручні процеси клієнта автоматизованими потоками замовлень.',
+    'tl.imrev.h3':
+      'Оптимізував швидкодію сторінок, каталогу й пошуку через налаштування запитів, індексацію та кешування, і відповідав за розбір інцидентів після релізу.',
+    'tl.yuks.h1':
+      'Підтримував і розширював легасі-модулі, брав участь у міграції на WinForms і виправляв передрелізні дефекти під час циклів QA та стабілізації.',
+    'tl.present': 'Дотепер',
+    'gw.problem.leadFull':
+      'Кожен запобіжник нижче існує тому, що збій, який він відвертає, уже стався.',
+    'gw.design.lead':
+      'Одруківка і зміна в нарахуванні ПДВ не заслуговують однакової церемонії. Застосування повного процесу до всього — це те, як процес перестають використовувати, тож рівень вирішує, що саме запускається.',
+    'gw.review.lead':
+      'Кожен працює у свіжому контексті, тож міркування, які призвели до помилки, не можуть тихо її відтворити.',
+    'gw.adoption.lead': 'Числа приблизні й на момент часу — саме тому вони мають дату.',
+    'gw.install.lead':
+      '`init` виводить тонкі, суто доменні контракти з самого коду й позначає все, що довелося припустити.',
+    'gw.tableCaption': 'Класифікація задач L0–L4',
+    'st.meta':
+      'Жива доступність, час відповіді та гейти якості цього сайту — виміряні ззовні сервера, бо сервіс не може відзвітувати про власне падіння.',
+    'st.label': 'Стан',
+    'st.title': 'Чи працює',
+    'st.lede':
+      'Доступність і час відповіді цього сайту, а також результат гейтів, які мав пройти його останній коміт. Усе на цій сторінці виміряно; нічого не стверджується на слово.',
+    'st.note':
+      'Аптайм вимірюється <strong>ззовні</strong> — запланованим завданням, яке кожні десять хвилин запитує публічну адресу й надсилає те, що побачило. Ця непрямість і є суттю: сервіс не може відзвітувати про власне падіння, тож сторінка, яку живить лише сервер, була б сторінкою, де завжди все добре. Тут не рахують відвідувачів — на сайті немає жодної аналітики, і сторінка стану не є чорним ходом, щоб її додати.',
+    'st.avail.label': 'Доступність',
+    'st.avail.title': 'Тридцять днів',
+    'st.avail.lead':
+      'Один стовпчик на день. День без перевірки лишається порожнім, а не зеленим: невідоме — це не успіх.',
+    'st.barAlt': 'Щоденна доступність за останні тридцять днів',
+    'st.stat.availability': 'доступність, 30 днів',
+    'st.stat.checks': 'зафіксованих перевірок',
+    'st.stat.failures': 'невдалих перевірок',
+    'st.stat.p50': 'відповідь, медіана',
+    'st.stat.p95': 'відповідь, 95-й перцентиль',
+    'st.gates.label': 'Гейти якості',
+    'st.gates.title': 'Що мав пройти останній коміт',
+    'st.gates.lead':
+      'Це числа, які CI виміряв на коміті, що зараз у продакшні, а не числа зі скриншота в README.',
+    'st.gates.empty':
+      'Звіту про гейти ще немає. CI надсилає його після кожного зеленого прогону на main.',
+    'st.ci': 'CI',
+    'st.ci.passing': 'пройдено',
+    'st.commit': 'Коміт',
+    'st.route': 'Маршрут',
+    'st.performance': 'Швидкодія',
+    'st.services.label': 'Сервіси',
+    'st.services.title': 'Що працює',
+    'st.services.lead':
+      'Контактний ендпоінт — той, що має значення: це єдиний канал на цьому сайті, який може відмовити тихо.',
+    'st.contactEndpoint': 'Контактний ендпоінт',
+    'st.tls': 'Сертифікат TLS',
+    'st.node': 'Node',
+    'st.source': 'Вихідний код',
+    'st.sourceLink': 'код, який стоїть за цією сторінкою',
+    'st.private': 'приватний',
+    'st.answering': 'відповідає',
+    'st.notAnswering': 'не відповідає',
+    'st.daysRemaining': 'залишилося днів: {days}',
+    'st.noData':
+      'Даних перевірок ще немає. Сторінка заповниться, щойно відпрацює заплановане завдання.',
+    'st.snapshot': 'Знімок зроблено під час збірки, {at}. Перевірка кожні 10 хвилин.',
+    'st.live': 'Наживо станом на {at}. Перевірка кожні {minutes} хвилин.',
+    'st.stale': 'Перевірок не було з {at} — ці дані застарілі, а не поточні.',
+    'st.noDay': 'Даних немає',
+    'st.dayLabel': '{date}: перевірок {checks}, невдалих {failures}',
+    'gw.meta':
+      'Плагін для Claude Code з відкритим кодом, який робить перевірку частиною процесу розробки: класифікація задач за ризиком L0–L4, п’ять спеціалізованих review-агентів і одинадцять гейтів.',
+    'gw.heroA': 'Агент, якому',
+    'gw.heroB': 'не дозволено сказати «готово»',
+    'gw.heroC': 'доки роботу не перевірено.',
+    'gw.licence': 'Ліцензія',
+    'gw.runsIn': 'Працює в',
+    'gw.targets': 'Ціль',
+    'gw.targetsValue': 'Laravel-бекенди',
+    'gw.author': 'Автор',
+    'gw.problem.label': 'Проблема',
+    'gw.problem.title': 'Правдоподібне — не те саме, що правильне',
+    'gw.problem.lead': 'Принцип, на якому побудовано плагін',
+    'gw.p1.title': 'Він вгадує щодо чужих API',
+    'gw.p1.body':
+      'Агент, у якого спитали, що повертає платіжний провайдер, видасть упевнену, добре відформатовану й цілком вигадану відповідь. Groundwork вимагає посилання на офіційну документацію або результат із пісочниці — усе інше записується як невідоме, а не як припущення.',
+    'gw.p2.title': 'Він планує за тими файлами, які йому показали',
+    'gw.p2.body':
+      'Зміна виглядає локальною, бо ніхто не подивився назовні. Дослідження спершу картографує радіус ураження — тих, хто викликає, події, задачі, політики, каскадні зв’язки, тести, які це покривають, — тож план будується на зв’язках, а не на трьох файлах із промпту.',
+    'gw.p3.title': 'Він відповідає на поставлене запитання',
+    'gw.p3.body':
+      'А це не завжди те запитання, на яке варто відповідати. Окремий прохід передбачає те, про що ніхто не здогадався спитати, а інтерв’ю повертає ці рішення тому, кому вони належать, замість вирішувати їх тихцем.',
+    'gw.p4.title': 'Він звітує про успіх',
+    'gw.p4.body':
+      '«Воно працює» — це твердження, а твердження не є доказом. Рецензент, єдине завдання якого — спростувати твердження, отримує право подивитися до того, як у нього повірять.',
+    'gw.design.label': 'Будова',
+    'gw.design.title': 'Вага зростає з ризиком',
+    'gw.table.level': 'Рівень',
+    'gw.table.covers': 'Що охоплює',
+    'gw.table.agents': 'Review-агенти',
+    'gw.table.approval': 'Погодження',
+    'gw.l0.covers': 'Одруківка, коментар, документація',
+    'gw.l0.agents': 'Немає',
+    'gw.l0.approval': 'Не потрібне',
+    'gw.l1.covers': 'Невелике виправлення бага',
+    'gw.l1.agents': 'Немає — точкове самотрасування',
+    'gw.l1.approval': 'Якщо не сказано застосувати одразу',
+    'gw.l2.covers': 'Звичайна функціональність',
+    'gw.l2.agents': 'Карта впливу, відповідність',
+    'gw.l2.approval': 'Потрібне',
+    'gw.l3.covers': 'Права доступу, міграції, публічні контракти, видимість фінансових даних',
+    'gw.l3.agents': 'Усі п’ять',
+    'gw.l3.approval': 'Потрібне',
+    'gw.l4.covers':
+      'Фінансові розрахунки, життєвий цикл замовлення, модель прав, руйнівні міграції',
+    'gw.l4.agents': 'Усі п’ять і змагальна панель',
+    'gw.l4.approval': 'Людиною, завжди',
+    'gw.review.label': 'Перевірка',
+    'gw.review.title': 'П’ять спеціалістів, по одному завданню',
+    'gw.a1.body':
+      'Що це зламає? Трасує назовні від кожного зачепленого символа — ті, хто викликає, події, слухачі, задачі, заплановані команди, політики, каскадні зв’язки і тести, які це покривають.',
+    'gw.a2.body':
+      'Про що ніхто не здогадався спитати? Передбачає пропущений вимір, а не наявний зв’язок: неочікувані наслідки, відсутні вимоги, доменний кут, у якому замовник не є експертом.',
+    'gw.a3.body':
+      'Що насправді робить провайдер? Читає офіційну документацію і повертає висновки, кожен із джерелом або позначений як невідомий. Йому не дозволено вгадувати замість перевіряти.',
+    'gw.a4.body':
+      'Чи правдиве твердження «воно працює»? Намагається спростувати його на реальному коді, офіційній документації та результатах у пісочниці. За замовчуванням налаштований скептично.',
+    'gw.a5.body':
+      'Чи задовольняє diff узгоджені критерії приймання? Оцінює реалізацію проти специфікації у свіжому контексті й повідомляє про прогалини, а не про стиль.',
+    'gw.adoption.label': 'Використання',
+    'gw.adoption.title': 'У щоденній роботі, а не в демо',
+    'gw.numberTitle': 'Цифра, про яку варто сперечатися',
+    'gw.numberBody':
+      'Приблизно кожна третя задача не доходить до коду. Не тому, що інструмент відмовив, а тому, що написання специфікації показало: запит неправильно окреслений, уже вирішений деінде або дешевший у розв’язанні без розробки взагалі.',
+    'gw.install.label': 'Встановлення',
+    'gw.install.title': 'Три рядки',
+    'gw.readSource': 'Подивитися вихідний код',
+    'gw.askAbout': 'Запитати мене про це',
+    'about.meta':
+      'Шість років бекенд-розробки на ізраїльському та українському ринках — платежі, життєвий цикл замовлень, виробничі процеси — і інструменти, які тримають AI-асистовану розробку чесною.',
+    'about.label': 'Про мене',
+    'about.title': 'Людина',
+    'about.lede':
+      'Шість років бекенд-розробки, здебільшого в системах, де неправильна відповідь коштує комусь грошей.',
+    'about.career.label': 'Кар’єра',
+    'about.career.title': 'Де відбувалася робота',
+    'about.career.lead':
+      'Роботодавці названі. Клієнти — ні: три з чотирьох кейсів під NDA, і жоден із них тут не прив’язаний ні до періоду, ні до компанії.',
+    'about.markets.label': 'Ринки',
+    'about.markets.title': 'Ізраїль та Україна',
+    'about.markets.lead':
+      'Два ринки з дуже різними припущеннями — здебільшого саме тому робота й стала цікавою.',
+    'about.markets.il':
+      'Ізраїльська робота означала іврит і продукти з письмом справа наліво, ізраїльський фінтех і бухгалтерські системи, а також телефонію, яка має говорити з людьми, а не до них. Письмо справа наліво — саме те місце, де більшість реалізацій тихо ламається: текст треба передавати в логічному порядку, бо перевпорядкування відбувається порядково <em>після</em> перенесення. Абзац, розвернутий заздалегідь, читається знизу вгору тієї миті, як його перенесе.',
+    'about.markets.ua':
+      'Українська робота — це комерція та інтеграції на обсязі: синхронізація каталогу з ERP, локальні платіжні служби й служби доставки, платформи, клоновані під кожен ринок без форку кодової бази.',
+    'about.lang.label': 'Мови',
+    'about.lang.title': 'Як я спілкуюся',
+    'about.lang.note':
+      'Робоча мова в команді — англійська. Документація, специфікації, повідомлення комітів і контракти API пишуться англійською незалежно від того, хто їх читає: наступна людина, яка відкриє репозиторій, може не мати спільної рідної мови ні з ким із нинішньої команди.',
+    'about.lead.label': 'Керування',
+    'about.lead.title': 'Як я веду команду',
+    'about.lead.lead':
+      'Здебільшого тим, що роблю стандарт перевірюваним — щоб він пережив тиждень, коли я не дивлюся.',
+    'about.lead.p1':
+      'Я задаю інженерні стандарти й визначення готовності, а потім кладу їх в інструменти, а не на сторінку у вікі. Groundwork існує тому, що чекліст перевірки, який живе в чиїйсь голові, — це чекліст, який пропускають під дедлайн, і тому, що AI-агент відзвітує про успіх з абсолютно тією самою впевненістю, незалежно від того, чи був той успіх.',
+    'about.lead.p2':
+      'Найдовше довелося вчитися того, що процес має вміти зменшуватися. Одруківка і зміна в нарахуванні ПДВ не заслуговують однакової церемонії, а застосування важкої версії до всього — це те, як процес перестають використовувати взагалі.',
+    'about.next.label': 'Далі',
+    'about.next.title': 'Чого я хочу далі',
+    'about.next.lead': 'Позиції Senior Backend або Tech Lead у продукті з реальною вагою домену.',
+    'about.next.body':
+      'Платежі, життєвий цикл замовлень, виробничі процеси, прикладний AI, який має вижити при зустрічі з продакшном, — це задачі, у яких я добрий і яких хочу більше. Віддалено з будь-якої точки або релокація. {notice}.',
+    'about.readCv': 'Прочитати резюме',
+    'case.allFour': 'Усі чотири рішення',
+    'form.name': 'Ваше ім’я',
+    'form.email': 'Пошта',
+    'form.message': 'Повідомлення',
+    'form.honeypot': 'Компанія — залиште порожнім',
+    'form.send': 'Надіслати',
+    'form.orWrite': 'Або напишіть напряму на',
+    'form.privacy':
+      'Повідомлення йде на мій власний сервер і пересилається до моєї поштової скриньки. Воно не зберігається, на цій сторінці немає жодного стеження, і ніхто інший його не бачить.',
+    'form.sending': 'Надсилаємо…',
+    'form.networkError':
+      'Повідомлення не вдалося надіслати — мережа відмовила. Напишіть мені поштою, і я побачу.',
+    'notes.label': 'Нотатки',
+    'notes.title': 'Тексти',
+    'notes.meta': 'Нечасті тексти про бекенд-розробку, перевірку та прикладний AI.',
+    'case.emailAbout': 'Запитати мене про це',
+    'gs.title': 'Оберіть задачу. Подивіться, як змінюється процес.',
+    'gs.sub':
+      'Нуль JavaScript — radio-поля і CSS. З клавіатури: Tab у групу, далі стрілки. Працює з вимкненими скриптами.',
+    'gs.chooseTask': 'Оберіть задачу',
+    'gs.whoReviews': 'Хто перевіряє',
+    'gs.whatRequired': 'Що потрібно',
+    'gs.gatesLabel': 'Гейти — увімкнені на кожному рівні, зокрема на L0',
+    'gs.gatesNote': 'Вага процесу росте з ризиком. Гейти — ні, і в цьому суть.',
+    'gs.typo.kind': 'Одруківка',
+    'gs.typo.task': 'Виправити одруківку в коментарі до коду',
+    'gs.typo.level': 'L0 — Дрібниця',
+    'gs.typo.gist':
+      'Без специфікації. Без плану. Без review-агентів. Без погодження. Автоматичні гейти і є повне визначення готовності.',
+    'gs.typo.empty': 'Ніхто — і це навмисно.',
+    'gs.typo.req1': 'Гейти, які спрацьовують самі',
+    'gs.bug.kind': 'Баг',
+    'gs.bug.task': 'Неправильна тема в листі-сповіщенні',
+    'gs.bug.level': 'L1 — Невелике виправлення',
+    'gs.bug.gist':
+      'Регресійний тест, який спершу падає, потім одна жива перевірка саме того, що виправлено, — а не обхід усіх споживачів.',
+    'gs.bug.empty': 'Без агентів — натомість точкове самотрасування.',
+    'gs.bug.req1': 'Коротка вбудована специфікація',
+    'gs.bug.req2': 'Регресійний тест, який падає першим',
+    'gs.bug.req3': 'Жива перевірка того єдиного, що виправлено',
+    'gs.feature.kind': 'Функціональність',
+    'gs.feature.task': 'Додати ендпоінт експорту замовлень',
+    'gs.feature.level': 'L2 — Функціональність',
+    'gs.feature.gist':
+      'Дослідження розходиться вшир ще до планування. Радіус ураження картографують, а не припускають, і нічого не пишуть до узгодження плану.',
+    'gs.feature.req1': 'Специфікація, план, погодження',
+    'gs.feature.req2': 'До 2 раундів запитань',
+    'gs.feature.req3': 'Тести, написані до коду',
+    'gs.access.kind': 'Доступи',
+    'gs.access.task': 'Змінити, хто бачить закупівельні ціни',
+    'gs.access.level': 'L3 — Високий ризик',
+    'gs.access.gist':
+      'Права доступу, міграції, публічні контракти, видимість фінансових даних. Тут під сумнів ставлять намір, а не лише код.',
+    'gs.access.req1': 'Специфікація, план, звірка вимог, нотатки до розгортання',
+    'gs.access.req2': 'До 4 раундів запитань',
+    'gs.access.req3': 'ADR, коли рішення наскрізне',
+    'gs.money.kind': 'Гроші',
+    'gs.money.task': 'Змінити нарахування ПДВ при поверненнях',
+    'gs.money.level': 'L4 — Критично',
+    'gs.money.gist':
+      'Фінансові розрахунки, життєвий цикл замовлення, модель прав, руйнівні міграції. Бути приблизно правим тут означає бути неправим.',
+    'gs.money.req1': 'Усе, що вимагає L3',
+    'gs.money.req2': 'Нотатки щодо відкату',
+    'gs.money.req3': 'Погодження людиною, завжди',
+    'gs.role.break': 'що це зламає',
+    'gs.role.conformance': 'чи задовольняє diff критерії',
+    'gs.role.blindspot': 'про що ніхто не здогадався спитати',
+    'gs.role.grounded': 'що насправді робить провайдер, з посиланням',
+    'gs.role.verify': 'чи правда, що «воно працює»',
+    'gs.role.everythingL3': 'Усе, що вмикає L3',
+    'gs.role.panel': 'Змагальна панель',
+    'gs.role.panelRole': 'щонайменше двоє незалежних скептиків на найризикованіших твердженнях',
+    'gs.gate.format': 'форматування при редагуванні',
+    'gs.gate.analysis': 'статичний аналіз',
+    'gs.gate.tests': 'набір тестів',
+    'gs.gate.openapi': 'контракт OpenAPI',
+    'gs.gate.runner': 'примусовий runner',
+    'gs.gate.migrations': 'міграції заблоковано',
+    'gs.gate.edits': 'правки заблоковано під час дослідження',
+    'gs.gate.unpushed': 'незапушена робота',
+    'gs.gate.coverage': 'заявлене покриття',
+    'gs.gate.intent': 'намір задачі',
+    'gs.gate.contract': 'контракт агента',
     'home.caps.title': 'Що я роблю',
     'home.caps.prose':
       'Згруповано чесно. Без відсотків — стовпчик «навички на 80%» не каже читачеві нічого, що він міг би перевірити.',

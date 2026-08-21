@@ -13,6 +13,8 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import {
   clientIp,
+  localeOf,
+  thanksPath,
   validate,
   looksAutomated,
   createLimiter,
@@ -272,6 +274,70 @@ describe('the endpoint', () => {
       });
       assert.equal(res.status, 303);
       assert.match(res.headers.get('location'), /\/thanks$/);
+    });
+  });
+});
+
+describe('language', () => {
+  test('takes the locale the form declared', () => {
+    assert.equal(localeOf({ lang: 'uk' }), 'uk');
+    assert.equal(localeOf({ lang: 'en' }), 'en');
+  });
+
+  test('falls back to English when the field is absent, empty or unknown', () => {
+    assert.equal(localeOf({}), 'en');
+    assert.equal(localeOf({ lang: '' }), 'en');
+    assert.equal(localeOf({ lang: 'de' }), 'en');
+    assert.equal(localeOf({ lang: 42 }), 'en');
+  });
+
+  test('cannot be used to aim the redirect somewhere else', () => {
+    // The field arrives from a form anyone can forge, so it selects from a fixed
+    // set rather than being interpolated into a path. Anything else is a way to
+    // bounce a visitor off this site with our own domain in the address bar.
+    for (const hostile of [
+      '../../evil',
+      'https://evil.example',
+      '//evil.example',
+      'uk/../../x',
+      'en\r\nLocation: https://evil.example',
+    ]) {
+      assert.equal(localeOf({ lang: hostile }), 'en');
+      assert.ok(!thanksPath(localeOf({ lang: hostile })).includes('evil'));
+    }
+  });
+
+  test('sends a Ukrainian visitor to the Ukrainian thank-you page', () => {
+    assert.equal(thanksPath('uk'), '/uk/thanks');
+    assert.equal(thanksPath('en'), '/thanks');
+  });
+
+  test('answers a Ukrainian submission in Ukrainian', () => {
+    const errors = validate({ name: '', email: '', message: '' }, 'uk');
+    assert.ok(/[\u0400-\u04FF]/.test(errors.name), `expected Ukrainian, got: ${errors.name}`);
+    assert.ok(/[\u0400-\u04FF]/.test(errors.email));
+    assert.ok(/[\u0400-\u04FF]/.test(errors.message));
+  });
+
+  test('answers an English submission in English, unchanged', () => {
+    const errors = validate({ name: '', email: '', message: '' }, 'en');
+    assert.equal(errors.name, 'Please tell me your name.');
+  });
+
+  test('a Ukrainian no-JavaScript submission redirects to /uk/thanks', async () => {
+    await withServer({ send: async () => ({ id: 'x' }) }, async ({ post }) => {
+      const res = await post({ ...VALID, lang: 'uk' }, { Accept: 'text/html' });
+      assert.equal(res.status, 303);
+      assert.match(res.headers.get('location'), /\/uk\/thanks$/);
+    });
+  });
+
+  test('an English submission still redirects to /thanks', async () => {
+    await withServer({ send: async () => ({ id: 'x' }) }, async ({ post }) => {
+      const res = await post(VALID, { Accept: 'text/html' });
+      assert.equal(res.status, 303);
+      assert.match(res.headers.get('location'), /\/thanks$/);
+      assert.ok(!res.headers.get('location').includes('/uk/'));
     });
   });
 });

@@ -7,6 +7,7 @@ import Base from '../layouts/Base.astro';
 import GateSimulator from '../components/GateSimulator.astro';
 import { site } from '../data/site';
 import { useTranslations, localePath, type Locale } from '../i18n/ui';
+import { forLocale } from '../i18n/content';
 
 interface Props {
   locale: Locale;
@@ -15,7 +16,11 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
-const cases = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+// Per language, falling back to the English original where a translation does
+// not exist yet — and carrying that fact so the card can say so.
+const cases = forLocale(await getCollection('work'), locale).sort(
+  (a, b) => a.entry.data.order - b.entry.data.order,
+);
 
 const jsonLd = [
   {
@@ -49,6 +54,7 @@ const jsonLd = [
   title={t('site.name')}
   description={t('home.meta')}
   current="/"
+  ogCard={locale === 'en' ? 'default' : `${locale}-default`}
   jsonLd={jsonLd}
 >
   <div class="hero">
@@ -72,7 +78,7 @@ const jsonLd = [
             <dt>{t('home.facts.openTo')}</dt><dd>{t('site.availability')}</dd>
             <dt>{t('home.facts.markets')}</dt><dd>{t('site.markets')}</dd>
             <dt>{t('home.facts.languages')}</dt>
-            <dd>{site.languages.map((l) => `${l.name} ${l.level}`).join(' · ')}</dd>
+            <dd>{t('site.languages')}</dd>
           </dl>
         </div>
         <div class="portrait-cell">
@@ -133,12 +139,12 @@ const jsonLd = [
           <dt class="num">{site.stats.frontendHandoffs}</dt><dd>{t('home.stats.handoffs')}</dd>
         </div>
         <div>
-          <dt class="num">{site.stats.stoppedBeforeCode}</dt><dd>{t('home.stats.stopped')}</dd>
+          <dt class="num">{t('site.oneInThree')}</dt><dd>{t('home.stats.stopped')}</dd>
         </div>
       </dl>
       <p class="asof">{t('meta.asOf')}</p>
 
-      <GateSimulator id="home-sim" />
+      <GateSimulator id="home-sim" locale={locale} />
     </div>
   </section>
 
@@ -174,12 +180,12 @@ const jsonLd = [
           </div>
         </li>
         {
-          cases.map((entry, i) => (
+          cases.map(({ entry, slug }, i) => (
             <li>
               <span class="n num">0{i + 2}</span>
               <div>
                 <h3>
-                  <a href={localePath(`/work/${entry.id}`, locale)}>{entry.data.title}</a>
+                  <a href={localePath(`/work/${slug}`, locale)}>{entry.data.title}</a>
                 </h3>
                 <p>{entry.data.summary}</p>
                 <ul class="tags">
@@ -189,7 +195,7 @@ const jsonLd = [
                 </ul>
               </div>
               <div class="subtle">
-                <b>The subtle part</b>
+                <b>{t('home.subtle')}</b>
                 <span>{entry.data.subtle.split('\n\n')[0]}</span>
               </div>
             </li>
@@ -206,17 +212,17 @@ const jsonLd = [
           <p class="label">{t('home.capabilities')}</p>
           <h2>{t('home.caps.title')}</h2>
         </div>
-        <p class="prose">
-          Grouped honestly. No percentages — a bar chart of skills tells a reader nothing they can
-          verify.
-        </p>
+        <p class="prose">{t('home.caps.prose')}</p>
       </div>
       <div class="caps m-stagger">
         {
           site.capabilities.map((group) => (
             <div>
               <h3>{t(group.key)}</h3>
-              <ul>
+              {/* Capability items are terms, not prose: they stay English in
+                  every language by the same decision that keeps `backend` and
+                  `code review` untranslated. */}
+              <ul class="chips">
                 {group.items.map((item) => (
                   <li>{item}</li>
                 ))}
@@ -235,7 +241,7 @@ const jsonLd = [
           <p class="label">{t('home.howIWork')}</p>
           <h2>{t('home.how.title')}</h2>
         </div>
-        <p class="prose">They are not aspirations. They are what the tooling enforces.</p>
+        <p class="prose">{t('home.how.prose')}</p>
       </div>
       <div class="prin m-stagger">
         {
@@ -262,7 +268,7 @@ const jsonLd = [
         </p>
       </div>
       <div class="contact-grid m-reveal">
-        <ContactForm />
+        <ContactForm locale={locale} />
         <div class="elsewhere">
           <h3>{t('home.elsewhere')}</h3>
           <ul>

@@ -1,17 +1,25 @@
 ---
 import { site } from '../data/site';
+import { useTranslations, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 
 /**
  * The adoption figures. They are point-in-time by nature, so the "as of" stamp
  * is part of the component rather than something a page might forget to add.
  */
 const rows = [
-  { value: String(site.stats.codebases), label: 'production codebases' },
-  { value: String(site.stats.procedureRuns), label: 'procedure runs' },
-  { value: String(site.stats.specsWritten), label: 'written specs' },
-  { value: String(site.stats.frontendHandoffs), label: 'frontend hand-offs' },
-  { value: site.stats.stoppedBeforeCode, label: 'stopped before code' },
-];
+  { value: String(site.stats.codebases), label: 'home.stats.codebases' },
+  { value: String(site.stats.procedureRuns), label: 'home.stats.runs' },
+  { value: String(site.stats.specsWritten), label: 'home.stats.specs' },
+  { value: String(site.stats.frontendHandoffs), label: 'home.stats.handoffs' },
+  { value: t('site.oneInThree'), label: 'home.stats.stopped' },
+] as const;
 ---
 
 <dl class="stats">
@@ -19,12 +27,12 @@ const rows = [
     rows.map((row) => (
       <div>
         <dt class="num">{row.value}</dt>
-        <dd>{row.label}</dd>
+        <dd>{t(row.label)}</dd>
       </div>
     ))
   }
 </dl>
-<p class="asof">Approximate, as of {site.stats.asOf}</p>
+<p class="asof">{t('meta.asOf')}</p>
 
 <style>
   .stats {

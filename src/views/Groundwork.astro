@@ -6,13 +6,14 @@ import Stats from '../components/Stats.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
-import type { Locale } from '../i18n/ui';
+import { useTranslations, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
+const t = useTranslations(locale);
 
 /**
  * This page is case study #1, not a second page about the same thing. `/work`
@@ -20,59 +21,27 @@ const { locale } = Astro.props;
  */
 
 const PROBLEMS = [
-  {
-    title: 'It guesses about other people’s APIs',
-    body: 'An agent asked what a payment provider returns will produce a confident, well-formatted, entirely invented answer. Groundwork requires a citation from official documentation, or a sandbox result — anything else is recorded as unknown rather than assumed.',
-  },
-  {
-    title: 'It plans from the files it was shown',
-    body: 'The change looks contained because nobody looked outward. Discovery maps the blast radius first — callers, events, jobs, policies, cascade relationships, the tests that cover any of it — so the plan is built on connections rather than on the three files in the prompt.',
-  },
-  {
-    title: 'It answers the question it was asked',
-    body: 'Which is not always the question worth answering. A separate pass predicts what nobody thought to ask, and the interview puts those decisions back to the person who owns them instead of settling them quietly.',
-  },
-  {
-    title: 'It reports success',
-    body: '“It works” is a claim, and a claim is not evidence. A reviewer whose only job is to refute the claim gets to look before it is believed.',
-  },
-];
+  { title: 'gw.p1.title', body: 'gw.p1.body' },
+  { title: 'gw.p2.title', body: 'gw.p2.body' },
+  { title: 'gw.p3.title', body: 'gw.p3.body' },
+  { title: 'gw.p4.title', body: 'gw.p4.body' },
+] as const;
 
 const LEVELS = [
-  ['L0', 'Typo, comment, documentation', 'None', 'Not required'],
-  ['L1', 'Small bug fix', 'None — a targeted self-trace', 'Unless told to apply now'],
-  ['L2', 'Normal feature', 'Impact map, conformance', 'Required'],
-  ['L3', 'Permissions, migrations, public contracts, financial visibility', 'All five', 'Required'],
-  [
-    'L4',
-    'Financial calculation, order lifecycle, the permission model, destructive migrations',
-    'All five, plus an adversarial panel',
-    'Human, always',
-  ],
-];
+  ['L0', 'gw.l0.covers', 'gw.l0.agents', 'gw.l0.approval'],
+  ['L1', 'gw.l1.covers', 'gw.l1.agents', 'gw.l1.approval'],
+  ['L2', 'gw.l2.covers', 'gw.l2.agents', 'gw.l2.approval'],
+  ['L3', 'gw.l3.covers', 'gw.l3.agents', 'gw.l3.approval'],
+  ['L4', 'gw.l4.covers', 'gw.l4.agents', 'gw.l4.approval'],
+] as const;
 
 const AGENTS = [
-  {
-    name: 'impact-mapper',
-    body: 'What will this break? Traces outward from every touched symbol — callers, events, listeners, jobs, scheduled commands, policies, cascade relationships, and the tests covering any of it.',
-  },
-  {
-    name: 'blind-spot-mapper',
-    body: 'What did nobody think to ask? Predicts the omitted dimension rather than the existing coupling: unintended consequences, missing requirements, the domain angle the requester is not the expert in.',
-  },
-  {
-    name: 'grounded-researcher',
-    body: 'What does the provider actually do? Reads the official documentation and returns findings that each carry a source, or are marked unknown. It is not allowed to guess instead of check.',
-  },
-  {
-    name: 'adversarial-verifier',
-    body: 'Is the “it works” claim true? Tries to refute it against real code, official docs and sandbox results. Defaults to skeptical.',
-  },
-  {
-    name: 'conformance-reviewer',
-    body: 'Does the diff satisfy the acceptance criteria that were agreed? Judges implementation against spec in a fresh context, and reports gaps rather than style.',
-  },
-];
+  { name: 'impact-mapper', body: 'gw.a1.body' },
+  { name: 'blind-spot-mapper', body: 'gw.a2.body' },
+  { name: 'grounded-researcher', body: 'gw.a3.body' },
+  { name: 'adversarial-verifier', body: 'gw.a4.body' },
+  { name: 'conformance-reviewer', body: 'gw.a5.body' },
+] as const;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -89,39 +58,37 @@ const jsonLd = {
 
 <Base
   title="Groundwork"
-  description="An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and eleven gates."
+  description={t('gw.meta')}
   current="/groundwork"
   locale={locale}
-  ogCard="groundwork"
+  ogCard={locale === 'en' ? 'groundwork' : `${locale}-groundwork`}
   jsonLd={jsonLd}
 >
   <div class="page-head">
     <div class="wrap">
-      <p class="label">Open source · {site.groundwork.licence} · the flagship</p>
+      <p class="label">{t('home.gw.label', { licence: site.groundwork.licence })}</p>
       <h1>Groundwork</h1>
       <p class="lede">
-        An agent that is <b>not allowed to say “done”</b> until the work has been checked.
+        {t('gw.heroA')}
+        <b>{t('gw.heroB')}</b>
+        {t('gw.heroC')}
       </p>
       <dl class="meta">
-        <div><dt>Licence</dt><dd>{site.groundwork.licence}</dd></div>
-        <div><dt>Runs in</dt><dd>Claude Code</dd></div>
-        <div><dt>Targets</dt><dd>Laravel backends</dd></div>
-        <div><dt>Author</dt><dd>{site.name}</dd></div>
+        <div><dt>{t('gw.licence')}</dt><dd>{site.groundwork.licence}</dd></div>
+        <div><dt>{t('gw.runsIn')}</dt><dd>Claude Code</dd></div>
+        <div><dt>{t('gw.targets')}</dt><dd>{t('gw.targetsValue')}</dd></div>
+        <div><dt>{t('gw.author')}</dt><dd>{t('site.name')}</dd></div>
       </dl>
     </div>
   </div>
 
   <Section
     id="problem"
-    label="The problem"
-    title="Plausible is not the same as correct"
-    lead="Every safeguard below exists because the failure it prevents happened first."
+    label={t('gw.problem.label')}
+    title={t('gw.problem.title')}
+    lead={t('gw.problem.leadFull')}
   >
-    <blockquote class="pull">
-      “An agent will happily write plausible code and just as happily report that it is done.
-      Groundwork makes the checking part of the process.”
-      <cite>The design principle the plugin is built on</cite>
-    </blockquote>
+    <blockquote class="pull">{t('home.gw.quote')}</blockquote>
 
     <ol class="steps">
       {
@@ -129,8 +96,8 @@ const jsonLd = {
           <li>
             <span class="n num">0{i + 1}</span>
             <div>
-              <h3>{p.title}</h3>
-              <p>{p.body}</p>
+              <h3>{t(p.title)}</h3>
+              <p>{t(p.body)}</p>
             </div>
           </li>
         ))
@@ -140,19 +107,19 @@ const jsonLd = {
 
   <Section
     id="design"
-    label="The design"
-    title="Weight scales with risk"
-    lead="A typo and a change to how VAT is calculated do not deserve the same ceremony. Applying the full process to everything is how a process stops being used — so the level decides what runs."
+    label={t('gw.design.label')}
+    title={t('gw.design.title')}
+    lead={t('gw.design.lead')}
   >
     <div class="table-scroll">
       <table>
-        <caption>Task classification L0–L4</caption>
+        <caption>{t('gw.tableCaption')}</caption>
         <thead>
           <tr>
-            <th scope="col">Level</th>
-            <th scope="col">What it covers</th>
-            <th scope="col">Review agents</th>
-            <th scope="col">Approval</th>
+            <th scope="col">{t('gw.table.level')}</th>
+            <th scope="col">{t('gw.table.covers')}</th>
+            <th scope="col">{t('gw.table.agents')}</th>
+            <th scope="col">{t('gw.table.approval')}</th>
           </tr>
         </thead>
         <tbody>
@@ -160,9 +127,9 @@ const jsonLd = {
             LEVELS.map(([level, covers, agents, approval]) => (
               <tr>
                 <th scope="row">{level}</th>
-                <td>{covers}</td>
-                <td>{agents}</td>
-                <td>{approval}</td>
+                <td>{t(covers)}</td>
+                <td>{t(agents)}</td>
+                <td>{t(approval)}</td>
               </tr>
             ))
           }
@@ -171,22 +138,22 @@ const jsonLd = {
     </div>
 
     <div class="sim-slot">
-      <GateSimulator id="gw-sim" />
+      <GateSimulator id="gw-sim" locale={locale} />
     </div>
   </Section>
 
   <Section
     id="agents"
-    label="Review"
-    title="Five specialists, one job each"
-    lead="Each runs in a fresh context, so the reasoning that produced a mistake cannot quietly reproduce it."
+    label={t('gw.review.label')}
+    title={t('gw.review.title')}
+    lead={t('gw.review.lead')}
   >
     <div class="agents">
       {
         AGENTS.map((a) => (
           <div>
             <h3>{a.name}</h3>
-            <p>{a.body}</p>
+            <p>{t(a.body)}</p>
           </div>
         ))
       }
@@ -195,40 +162,38 @@ const jsonLd = {
 
   <Section
     id="adoption"
-    label="Adoption"
-    title="In daily use, not in a demo"
-    lead="Numbers are approximate and point-in-time, which is why they carry a date."
+    label={t('gw.adoption.label')}
+    title={t('gw.adoption.title')}
+    lead={t('gw.adoption.lead')}
   >
-    <Stats />
+    <Stats locale={locale} />
     <div class="callout">
       {
         /* h3, not h4: the section above it is an h2, and skipping a level breaks
           the document outline for anyone navigating by headings. It keeps the
           mono micro-label look through a class rather than through its tag. */
       }
-      <h3 class="callout-title">The number worth arguing about</h3>
+      <h3 class="callout-title">{t('gw.numberTitle')}</h3>
       <p>
-        Roughly one task in three never reaches code. Not because the tooling refused, but because
-        writing the specification showed the request was mis-scoped, already solved elsewhere, or
-        cheaper to handle without development at all.
+        {t('gw.numberBody')}
       </p>
     </div>
   </Section>
 
   <Section
     id="install"
-    label="Install"
-    title="Three lines"
-    lead="`init` derives thin, domain-only contracts from the code itself and labels anything it had to assume."
+    label={t('gw.install.label')}
+    title={t('gw.install.title')}
+    lead={t('gw.install.lead')}
     last
   >
     <pre><code>/plugin marketplace add YasMax91/groundwork
 /plugin install groundwork@yasmax
 /groundwork:init</code></pre>
     <ButtonRow>
-      <Button href={site.groundwork.repo}>Read the source</Button>
+      <Button href={site.groundwork.repo}>{t('gw.readSource')}</Button>
       <Button href={`mailto:${site.contact.email}?subject=Groundwork`} variant="outline">
-        Ask me about it
+        {t('gw.askAbout')}
       </Button>
     </ButtonRow>
   </Section>

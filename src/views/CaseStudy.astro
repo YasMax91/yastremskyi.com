@@ -4,15 +4,24 @@ import Base from '../layouts/Base.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
-import { localePath, type Locale } from '../i18n/ui';
+import { useTranslations, localePath, type Locale } from '../i18n/ui';
 import UntranslatedNotice from '../components/UntranslatedNotice.astro';
+import { entrySlug } from '../i18n/content';
 
 interface Props {
   entry: CollectionEntry<'work'>;
   locale: Locale;
+  /** False when this body is the English original shown on a Ukrainian page. */
+  translated: boolean;
 }
 
-const { entry, locale } = Astro.props;
+const { entry, locale, translated } = Astro.props;
+const t = useTranslations(locale);
+
+// The entry id carries its language directory — `en/payments-and-clearing` —
+// so the card name has to come from the slug, or every Open Graph URL points at
+// a file that was never generated.
+const slug = entrySlug(entry);
 const c = entry.data;
 
 /**
@@ -21,16 +30,22 @@ const c = entry.data;
  * construction rather than by convention.
  */
 const spine = [
-  { label: 'Context', body: c.context },
-  { label: 'The constraint', body: c.constraint },
+  { label: t('case.context'), body: c.context },
+  { label: t('case.constraint'), body: c.constraint },
 ] as const;
 ---
 
-<Base title={c.title} description={c.summary} current="/work" ogCard={`work-${entry.id}`}>
+<Base
+  locale={locale}
+  title={c.title}
+  description={c.summary}
+  current="/work"
+  ogCard={`${locale === 'en' ? '' : `${locale}-`}work-${slug}`}
+>
   <div class="page-head">
     <div class="wrap">
-      <UntranslatedNotice locale={locale} />
-      <p class="label">Case study · under NDA, described generically</p>
+      <UntranslatedNotice locale={locale} translated={translated} />
+      <p class="label">{t('work.caseLabel')}</p>
       <h1>{c.title}</h1>
       <p class="lede">{c.summary}</p>
       <ul class="tags">
@@ -57,13 +72,13 @@ const spine = [
 
     <section>
       <div class="wrap grid m-reveal">
-        <h2>The decision</h2>
+        <h2>{t('case.decision')}</h2>
         <div class="prose">
-          <h3>What was chosen</h3>
+          <h3>{t('case.chosen')}</h3>
           {c.decision.chosen.split('\n\n').map((para) => <p>{para}</p>)}
-          <h3>What was rejected</h3>
+          <h3>{t('case.rejected')}</h3>
           {c.decision.rejected.split('\n\n').map((para) => <p>{para}</p>)}
-          <h3>The trade-off</h3>
+          <h3>{t('case.tradeoff')}</h3>
           {c.decision.tradeoff.split('\n\n').map((para) => <p>{para}</p>)}
         </div>
       </div>
@@ -71,7 +86,7 @@ const spine = [
 
     <section class="highlight">
       <div class="wrap grid m-reveal">
-        <h2>The subtle part</h2>
+        <h2>{t('case.subtle')}</h2>
         <div class="prose">
           {c.subtle.split('\n\n').map((para) => <p>{para}</p>)}
         </div>
@@ -80,7 +95,7 @@ const spine = [
 
     <section>
       <div class="wrap grid m-reveal">
-        <h2>Outcome</h2>
+        <h2>{t('case.outcome')}</h2>
         <div class="prose">
           {c.outcome.split('\n\n').map((para) => <p>{para}</p>)}
         </div>
@@ -90,9 +105,9 @@ const spine = [
 
   <div class="wrap">
     <ButtonRow>
-      <Button href={localePath('/work', locale)} variant="outline">All four decisions</Button>
+      <Button href={localePath('/work', locale)} variant="outline">{t('case.allFour')}</Button>
       <Button href={`mailto:${site.contact.email}?subject=${encodeURIComponent(c.title)}`}>
-        Ask me about this one
+        {t('case.emailAbout')}
       </Button>
     </ButtonRow>
   </div>
