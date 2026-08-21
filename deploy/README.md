@@ -17,6 +17,7 @@ There was no room for a second web server, so this site shares that Caddy.
 | ---------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | The site         | `/var/www/yastremskyi.com`, bind-mounted read-only into the container at `/srv/yastremskyi` | `tiles-web-1` (Caddy 2.11.4)                    |
 | Contact endpoint | `/srv/yastremskyi-contact/contact.mjs`, systemd unit `contact`                              | Node 18 on the host, bound to `172.17.0.1:8788` |
+| Status endpoint  | `/srv/yastremskyi-status/status.mjs`, systemd unit `status`                                 | Node 18 on the host, bound to `172.17.0.1:8789` |
 | TLS              | Let's Encrypt, HTTP-01                                                                      | Caddy, automatic                                |
 | CDN              | Cloudflare, proxied                                                                         | —                                               |
 
@@ -35,7 +36,20 @@ when the proxy runs on the host. Here the proxy is a container and arrives on
 `172.17.0.1`, so loopback is unreachable from it — the first deploy returned 502
 for exactly this reason. `BIND_ADDR` chooses the address explicitly rather than
 listening on `0.0.0.0` and hoping the firewall holds. `ufw` allows
-`172.16.0.0/12` to reach port 8788 and nothing else.
+`172.16.0.0/12` to reach ports 8788 and 8789 and nothing else.
+
+This paragraph was already here when the status endpoint was added, and the
+status endpoint was still deployed on loopback and still answered 502. Both
+halves — the bind address and the `ufw` rule — are now in the first-time block
+below as commands rather than as prose, because a trap described in a paragraph
+someone has to remember to re-read is a trap that is still armed.
+
+**The host runs Node 18, and the build toolchain needs 22.** `package.json`
+declares `engines.node >= 22.12.0`, which is what Astro 7 needs to _build_ the
+site. Nothing built on the box: the services that run there are single files with
+no dependencies, and both are checked against the host's actual Node before being
+enabled. Anything added to `server/` has to stay inside Node 18 or the box needs
+upgrading first — the two numbers disagreeing is not an oversight.
 
 **`MemoryDenyWriteExecute` is not set on the service.** It was, and Node died at
 startup with `Fatal javascript OOM in MemoryChunk allocation failed during
@@ -110,7 +124,14 @@ First time, on the box:
 # The ingest token. Generated on the server so it is never in a shell history
 # on a laptop, and never in this repository.
 sudo mkdir -p /etc/yastremskyi
-printf 'STATUS_TOKEN=%s\n' "$(openssl rand -hex 32)" | sudo tee /etc/yastremskyi/status.env >/dev/null
+{
+  printf 'STATUS_TOKEN=%s\n' "$(openssl rand -hex 32)"
+  # NOT loopback. Caddy runs in a container and reaches the host over the docker
+  # bridge, so a service on 127.0.0.1 is invisible to it — the symptom is a 502
+  # from the edge while `curl` on the box works perfectly. The contact endpoint
+  # binds the same address for the same reason.
+  printf 'BIND_ADDR=172.17.0.1\n'
+} | sudo tee /etc/yastremskyi/status.env >/dev/null
 sudo chmod 600 /etc/yastremskyi/status.env
 sudo chown root:root /etc/yastremskyi/status.env
 
@@ -119,7 +140,17 @@ sudo cp deploy/status.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now status
 systemctl is-active status
+
+# ufw allows the contact port from the docker bridges and nothing else. The
+# status port needs the same, or the container's request times out and the edge
+# answers 502 — a timeout rather than a refusal, which reads like the service is
+# down when it is simply unreachable.
+sudo ufw allow from 172.16.0.0/12 to any port 8789 proto tcp \
+  comment 'yastremskyi status endpoint, docker bridges only'
 ```
+
+Both of those cost a round trip each on the first install; neither is guessable
+from the code, which is why they are here rather than in someone's memory.
 
 Then the same token goes into the repository's Actions secrets as
 `STATUS_INGEST_TOKEN` — the scheduled probe and the CI gate report both use it.

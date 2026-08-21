@@ -7,8 +7,17 @@
 # and `caddy validate` runs before every reload — if it fails, nothing has
 # changed and the site that was already running is still running.
 #
-#   docker run --rm -e SITE_ADDRESS=... -v /opt/tiles/deploy/Caddyfile:/etc/caddy/Caddyfile:ro \
+#   docker run --rm -e SITE_ADDRESS=warmap.duckdns.org \
+#     -v /opt/tiles/deploy/Caddyfile:/etc/caddy/Caddyfile:ro \
 #     caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+#
+# SITE_ADDRESS is not optional and not cosmetic. The tiles block opens with
+# `{$SITE_ADDRESS} {`, so without the variable that line becomes `{`, Caddy reads
+# the whole file as a global options block, and validation fails at line 12 with
+# `unrecognized global option: @compressible` — an error that points at the
+# neighbour's config and says nothing about the real cause. If validation fails,
+# run it against the unmodified file first: if that fails too, the problem is the
+# command, not the change.
 #   docker exec tiles-web-1 caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 #
 # Kept here so the repository holds what actually runs. Copied back from the
@@ -54,6 +63,11 @@ yastremskyi.com {
 	# The status endpoint, on its own port and its own systemd unit. Same
 	# reasoning as above: headers pass through so the ingest rate limiter can see
 	# who is calling.
+	#
+	# Two things must be true on the host for this to work, and both fail as a
+	# 502 at the edge rather than as anything informative: the service binds
+	# 172.17.0.1 rather than loopback, and ufw allows 8789 from 172.16.0.0/12.
+	# See deploy/README.md.
 	handle /api/status* {
 		reverse_proxy host.docker.internal:8789
 	}
