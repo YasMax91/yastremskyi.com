@@ -39,7 +39,16 @@ import { timingSafeEqual } from 'node:crypto';
 const PORT = Number(process.env.PORT ?? 8789);
 const BIND = process.env.BIND_ADDR ?? '127.0.0.1';
 const STORE_PATH = process.env.STATUS_STORE ?? '/var/lib/yastremskyi-status/status.json';
-const CONTACT_HEALTH = process.env.CONTACT_HEALTH ?? 'http://127.0.0.1:8788/health';
+/**
+ * Where to find the contact endpoint's health route.
+ *
+ * The default follows this service's own bind address rather than assuming
+ * loopback. Both services run on the same host and, because the reverse proxy is
+ * a container, both listen on the docker bridge — so a hard-coded 127.0.0.1 here
+ * reported a perfectly healthy contact endpoint as down. It did that in
+ * production, on a page whose entire purpose is not to be wrong about this.
+ */
+const CONTACT_HEALTH = process.env.CONTACT_HEALTH ?? `http://${BIND}:8788/health`;
 
 /** How much history the page shows, and therefore how much is kept. */
 export const RETENTION_DAYS = 30;

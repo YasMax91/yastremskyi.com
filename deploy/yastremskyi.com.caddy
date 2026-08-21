@@ -91,7 +91,15 @@ yastremskyi.com {
 
 	# Everything else — HTML above all — must revalidate, or a deploy takes days
 	# to reach anyone.
-	@revalidate not path /_astro/* /fonts/* /og/*
+	#
+	# /api/* is excluded because a `header` directive here applies to every
+	# matching response, including ones produced by a reverse-proxied service that
+	# already set its own Cache-Control. Without the exclusion the status endpoint
+	# answered with two of them concatenated —
+	# `public, max-age=0, must-revalidate, public, max-age=60` — which is a header
+	# no client should have to interpret. An endpoint knows how cacheable its own
+	# answer is; the site block does not.
+	@revalidate not path /_astro/* /fonts/* /og/* /api/*
 	header @revalidate Cache-Control "public, max-age=0, must-revalidate"
 
 	header {
