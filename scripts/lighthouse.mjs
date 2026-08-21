@@ -22,6 +22,7 @@
 
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const BASE = process.env.LH_BASE ?? 'http://localhost:4330';
@@ -50,6 +51,15 @@ const OUT = 'docs/evidence';
  * can look, and let the local and production runs be the gate for those two.
  */
 const ON_CI = process.env.CI === 'true';
+
+/**
+ * Runs per route. Three on CI because the numbers there are noisy for the
+ * reason described above, and the median of three is what makes the reported
+ * CPU-bound metrics worth a human glance instead of alarming — the 862 ms TBT
+ * in the table was a single sample, and the same site read 151 ms next to it.
+ * One locally, where the machine is quiet and a second run says nothing new.
+ * Keep it odd, so the median is a value that was actually measured.
+ */
 const RUNS = ON_CI ? 3 : 1;
 
 /** Reported but not enforced on CI — category ids and vitals audit ids alike. See the table above. */
@@ -104,16 +114,39 @@ console.log(
     : 'local: single run, everything enforced',
 );
 
+/**
+ * Median of a sample. With an odd RUNS the value returned is one that was
+ * actually observed, rather than an average of two runs that never happened.
+ */
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
 for (const route of ROUTES) {
   const slug = route === '/' ? 'home' : route.slice(1).replace(/\//g, '-');
-  const file = join(OUT, `lh-${slug}-mobile.json`);
-  await run(`${BASE}${route}`, file);
+  const reports = [];
 
-  const report = JSON.parse(await (await import('node:fs/promises')).readFile(file, 'utf8'));
-  const row = { route, scores: {}, vitals: {} };
+  for (let i = 1; i <= RUNS; i++) {
+    // One file per run, all of them uploaded as CI artifacts, so any number in
+    // the table below can be traced back to the run that produced it.
+    const file = join(
+      OUT,
+      RUNS === 1 ? `lh-${slug}-mobile.json` : `lh-${slug}-mobile-run${i}.json`,
+    );
+    await run(`${BASE}${route}`, file);
+    reports.push(JSON.parse(await readFile(file, 'utf8')));
+  }
+
+  // Each metric is taken as the median independently, so a row can mix runs.
+  // That is the intent: the noise is per-metric — a run can be slow on TBT and
+  // ordinary on LCP — and picking one "median run" would carry that run's
+  // outlier into every other column.
+  const row = { route, runs: RUNS, scores: {}, vitals: {} };
 
   for (const [key, min] of Object.entries(THRESHOLDS)) {
-    const score = Math.round(report.categories[key].score * 100);
+    const score = median(reports.map((r) => Math.round(r.categories[key].score * 100)));
     row.scores[key] = score;
     if (score < min) {
       const line = `${route}: ${key} ${score} < ${min}`;
@@ -123,7 +156,7 @@ for (const route of ROUTES) {
   }
 
   for (const [key, spec] of Object.entries(VITALS)) {
-    const value = report.audits[key].numericValue;
+    const value = median(reports.map((r) => r.audits[key].numericValue));
     row.vitals[spec.label] = value;
     if (value > spec.max) {
       const line = `${route}: ${spec.label} ${value.toFixed(0)}${spec.unit} > ${spec.max}${spec.unit}`;
@@ -157,7 +190,8 @@ writeFileSync(
 // nine megabytes of base64 do not.
 const md = `# Lighthouse evidence
 
-Mobile profile, simulated throttling. Regenerate with:
+Mobile profile, simulated throttling. Each number is the median of ${RUNS} run(s)
+per route. Regenerate with:
 
 \`\`\`bash
 npm run build && npx astro preview --port 4330 &

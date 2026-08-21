@@ -24,6 +24,7 @@
   "results": [
     {
       "route": "/",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -31,13 +32,14 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1208.9892,
+        "LCP": 1207.6864,
         "CLS": 0,
         "TBT": 0
       }
     },
     {
       "route": "/groundwork",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -45,13 +47,14 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1203.176,
+        "LCP": 1204.9453,
         "CLS": 0,
         "TBT": 0
       }
     },
     {
       "route": "/work",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -59,13 +62,14 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1204.6441,
+        "LCP": 1205.6436,
         "CLS": 0,
         "TBT": 0
       }
     },
     {
       "route": "/work/payments-and-clearing",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -73,13 +77,14 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1204.2155,
+        "LCP": 1204.6741,
         "CLS": 0,
         "TBT": 0
       }
     },
     {
       "route": "/about",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -87,13 +92,14 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1054.4631,
+        "LCP": 1204.1627,
         "CLS": 0,
         "TBT": 0
       }
     },
     {
       "route": "/cv",
+      "runs": 1,
       "scores": {
         "performance": 100,
         "accessibility": 100,
@@ -101,7 +107,7 @@
         "seo": 100
       },
       "vitals": {
-        "LCP": 1206.7856,
+        "LCP": 1204.5053,
         "CLS": 0,
         "TBT": 0
       }
