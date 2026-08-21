@@ -23,7 +23,7 @@ comes back here, because the approval was for a sentence that no longer exists.
 And a translation identical to its English — `Groundwork` — never appears here;
 there is nothing for a native speaker to judge.
 
-**Progress: 0 of 322 signed.**
+**Progress: 0 of 352 signed.**
 
 ---
 
@@ -127,6 +127,122 @@ there is nothing for a native speaker to judge.
   - **EN** The person
   - **UK** Людина
 
+- [ ] `uk:cap.accountingandtaxexport`
+  - **EN** Accounting and tax export
+  - **UK** Бухгалтерський і податковий експорт
+
+- [ ] `uk:cap.adversarialverificatio`
+  - **EN** Adversarial verification
+  - **UK** Змагальна перевірка
+
+- [ ] `uk:cap.blastradiusdiscoverybe`
+  - **EN** Blast-radius discovery before planning
+  - **UK** Картографування радіуса ураження до планування
+
+- [ ] `uk:cap.cielabcolourclassifica`
+  - **EN** CIE-Lab colour classification
+  - **UK** Класифікація кольору в CIE-Lab
+
+- [ ] `uk:cap.decimalmoneywithbcmath`
+  - **EN** Decimal money with bcmath
+  - **UK** Десяткові гроші через bcmath
+
+- [ ] `uk:cap.deliverystatuswebhooks`
+  - **EN** Delivery-status webhooks
+  - **UK** Вебхуки статусу доставки
+
+- [ ] `uk:cap.driverfallbackchains`
+  - **EN** Driver fallback chains
+  - **UK** Ланцюжки запасних драйверів
+
+- [ ] `uk:cap.ffmpegandimagickpipeli`
+  - **EN** FFmpeg and Imagick pipelines
+  - **UK** Конвеєри на FFmpeg та Imagick
+
+- [ ] `uk:cap.frontendwhenitisinthew`
+  - **EN** Frontend when it is in the way: Vue, React, TypeScript
+  - **UK** Фронтенд, коли він стоїть на шляху: Vue, React, TypeScript
+
+- [ ] `uk:cap.hebrewrtlandbidipdf`
+  - **EN** Hebrew RTL and bidi PDF
+  - **UK** Іврит, письмо справа наліво і двонапрямні PDF
+
+- [ ] `uk:cap.idempotencykeys`
+  - **EN** Idempotency keys
+  - **UK** Ключі ідемпотентності
+
+- [ ] `uk:cap.integrationhealthprobe`
+  - **EN** Integration health-probe registry
+  - **UK** Реєстр перевірок стану інтеграцій
+
+- [ ] `uk:cap.microservices`
+  - **EN** Microservices
+  - **UK** Мікросервіси
+
+- [ ] `uk:cap.multicurrencyandvat`
+  - **EN** Multi-currency and VAT
+  - **UK** Мультивалютність і ПДВ
+
+- [ ] `uk:cap.oauth2machinetomachine`
+  - **EN** OAuth2 machine-to-machine
+  - **UK** OAuth2 між сервісами
+
+- [ ] `uk:cap.ocrbymorphologicalgrid`
+  - **EN** OCR by morphological grid extraction
+  - **UK** OCR через морфологічне виділення сітки
+
+- [ ] `uk:cap.openapicontractskeptcu`
+  - **EN** OpenAPI contracts kept current
+  - **UK** Контракти OpenAPI, що не відстають
+
+- [ ] `uk:cap.pcicardtokenization`
+  - **EN** PCI card tokenization
+  - **UK** Токенізація карток за PCI
+
+- [ ] `uk:cap.percallcostaccounting`
+  - **EN** Per-call cost accounting
+  - **UK** Облік вартості кожного виклику
+
+- [ ] `uk:cap.promptinjectiondefence`
+  - **EN** Prompt-injection defence
+  - **UK** Захист від ін’єкцій у промпт
+
+- [ ] `uk:cap.providerabstractionand`
+  - **EN** Provider abstraction and fallback
+  - **UK** Абстракція провайдерів і запасний шлях
+
+- [ ] `uk:cap.queuedjobchains`
+  - **EN** Queued job chains
+  - **UK** Ланцюжки задач у черзі
+
+- [ ] `uk:cap.recurringbillingdirect`
+  - **EN** Recurring billing, direct debit
+  - **UK** Регулярні списання, прямий дебет
+
+- [ ] `uk:cap.responseregressiontest`
+  - **EN** Response-regression tests
+  - **UK** Регресійні тести відповідей
+
+- [ ] `uk:cap.schemaconstrainedextra`
+  - **EN** Schema-constrained extraction
+  - **UK** Вилучення, обмежене схемою
+
+- [ ] `uk:cap.serversiderbac`
+  - **EN** Server-side RBAC
+  - **UK** RBAC на боці сервера
+
+- [ ] `uk:cap.specdrivendevelopment`
+  - **EN** Spec-driven development
+  - **UK** Розробка від специфікації
+
+- [ ] `uk:cap.toolcallingwithoutauto`
+  - **EN** Tool calling without auto-execution
+  - **UK** Виклик інструментів без автовиконання
+
+- [ ] `uk:cap.typotolerantsearchandr`
+  - **EN** Typo-tolerant search and ranking
+  - **UK** Пошук і ранжування з допуском одруківок
+
 - [ ] `uk:caps.ai`
   - **EN** Applied AI in production
   - **UK** Прикладний AI у продакшні
@@ -205,11 +321,11 @@ there is nothing for a native speaker to judge.
 
 - [ ] `uk:content:work/payments-and-clearing`
   - **File** `src/content/work/uk/payments-and-clearing.md` — read it there and edit it there;
-    it is 367 words of prose, not a table row.
+    it is 368 words of prose, not a table row.
 
 - [ ] `uk:content:work/voice-to-structured-data`
   - **File** `src/content/work/uk/voice-to-structured-data.md` — read it there and edit it there;
-    it is 394 words of prose, not a table row.
+    it is 395 words of prose, not a table row.
 
 - [ ] `uk:content.englishOnly`
   - **EN** This piece has not been translated yet — the text below is in English.
@@ -988,7 +1104,7 @@ there is nothing for a native speaker to judge.
   - **UK** 6+ років
 
 - [ ] `uk:site.languages`
-  - **EN** English B2 · Ukrainian native · Russian fluent
+  - **EN** English B2 · Ukrainian Native · Russian Fluent
   - **UK** Англійська B2 · українська рідна · російська вільно
 
 - [ ] `uk:site.location`
@@ -1298,6 +1414,10 @@ there is nothing for a native speaker to judge.
 - [ ] `uk:work.caseLabel`
   - **EN** Case study · under NDA, described generically
   - **UK** Кейс · під NDA, описано узагальнено
+
+- [ ] `uk:work.gwChip.analysis`
+  - **EN** Static analysis
+  - **UK** Статичний аналіз
 
 - [ ] `uk:work.gwSummary`
   - **EN** Risk-based task classification L0–L4, {agents} specialised review agents, {gates} automated gates and {procedures} workflow procedures, shipped under {licence} with semantic versioning.

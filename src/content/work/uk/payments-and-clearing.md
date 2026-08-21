@@ -45,9 +45,9 @@ outcome: |
 stack:
   - Laravel
   - bcmath
-  - Idempotency keys
-  - PCI tokenization
-  - Signed webhooks
-  - VAT
+  - Ключі ідемпотентності
+  - Токенізація за PCI
+  - Підписані вебхуки
+  - ПДВ
 ndaReviewed: false
 ---

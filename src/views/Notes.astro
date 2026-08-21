@@ -36,7 +36,13 @@ const dateFormat = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', 
 
 {
   post ? (
-    <Base locale={locale} title={post.data.title} description={post.data.summary} current="/notes">
+    <Base
+      locale={locale}
+      title={post.data.title}
+      description={post.data.summary}
+      current="/notes"
+      ogCard={locale === 'en' ? 'default' : `${locale}-default`}
+    >
       <div class="page-head">
         <div class="wrap">
           <UntranslatedNotice locale={locale} translated={translated} />
@@ -52,7 +58,13 @@ const dateFormat = new Intl.DateTimeFormat(locale === 'uk' ? 'uk-UA' : 'en-GB', 
       <div class="wrap body">{Content && <Content />}</div>
     </Base>
   ) : (
-    <Base locale={locale} title={t('notes.label')} description={t('notes.meta')} current="/notes">
+    <Base
+      locale={locale}
+      title={t('notes.label')}
+      description={t('notes.meta')}
+      current="/notes"
+      ogCard={locale === 'en' ? 'default' : `${locale}-default`}
+    >
       <div class="page-head">
         <div class="wrap">
           <p class="label">{t('notes.label')}</p>

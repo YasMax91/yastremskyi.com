@@ -135,10 +135,10 @@ const ACHIEVEMENTS = [
       {
         site.capabilities.map((group) => (
           <div>
-            <h3>{group.group}</h3>
+            <h3>{t(group.key)}</h3>
             <ul>
               {group.items.map((item) => (
-                <li>{item}</li>
+                <li>{t(item)}</li>
               ))}
             </ul>
           </div>

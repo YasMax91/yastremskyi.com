@@ -94,7 +94,7 @@ const jsonLd = [
           <Picture
             class="portrait"
             src={portrait}
-            alt={site.name}
+            alt={t('site.name')}
             formats={['avif', 'webp']}
             fallbackFormat="jpeg"
             widths={[320, 640, 960]}
@@ -224,7 +224,7 @@ const jsonLd = [
                   `code review` untranslated. */}
               <ul class="chips">
                 {group.items.map((item) => (
-                  <li>{item}</li>
+                  <li>{t(item)}</li>
                 ))}
               </ul>
             </div>

@@ -46,10 +46,10 @@ outcome: |
   терміну зберігання через тридцять днів.
 stack:
   - Whisper STT
-  - Schema-constrained extraction
-  - Tool calling
-  - Queues
+  - Вилучення, обмежене схемою
+  - Виклик інструментів
+  - Черги
   - WebSocket
-  - Hebrew
+  - Іврит
 ndaReviewed: false
 ---

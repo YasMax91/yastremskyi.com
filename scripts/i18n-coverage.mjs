@@ -10,11 +10,30 @@
  * thing: that nothing unreviewed reaches a reader.
  *
  * It reads the built HTML rather than the source, because that is the only place
- * the whole page exists. It earned its keep immediately: it found that case
- * studies and notes were rendering their entire navigation, footer and skip link
- * in English, because a formatter had folded `<Base` onto one line and the
- * locale never reached the layout. Nothing in the source looked wrong, and the
- * pages looked plausible unless you knew what to compare.
+ * a whole page exists. It earned its keep immediately, finding that case studies
+ * and notes were rendering their entire navigation, footer and skip link in
+ * English because a formatter had folded `<Base` onto one line and the locale
+ * never reached the layout. Nothing in the source looked wrong.
+ *
+ * --- What it looks at, and why the first version was wrong ------------------
+ *
+ * The first version reported 100% while a reader could still see English, which
+ * is the worst thing a report can do. Two mistakes, both in this file:
+ *
+ *   It read text nodes only. Attributes a person perceives — `alt`, `title`,
+ *   `aria-label`, `placeholder`, the meta description, the Open Graph title and
+ *   image alt — were invisible to it. The portrait's alt text and an Open Graph
+ *   alt stayed English on every Ukrainian page and nothing said so.
+ *
+ *   It skipped whole element classes — chips and code — on the theory that they
+ *   hold terms. Some do. But "Idempotency keys", "Accounting and tax export" and
+ *   "Blast-radius discovery before planning" are prose that happened to be
+ *   rendered as chips, and silencing the container silenced them too.
+ *
+ * So it now reads everything and subtracts an explicit, readable list of strings
+ * that stay Latin on purpose. Anything new shows up until somebody decides,
+ * deliberately, that it should not — which is the opposite of a container class
+ * silencing whatever gets put inside it later.
  */
 
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
@@ -24,39 +43,64 @@ import { LOCALES, DEFAULT_LOCALE } from '../src/i18n/dictionaries.ts';
 
 const DIST = 'dist';
 
-/**
- * Latin text that is not untranslated prose: identifiers, stack names, proper
- * nouns and the handful of terms a Ukrainian engineer writes in English anyway.
- * Deliberately short — every entry here is a thing the report will stop telling
- * anyone about, so the list has to stay something a person can read.
- */
-const KEEP_LATIN =
-  /^(Groundwork|GitHub|LinkedIn|MIT|OFL|PHP|Laravel|Node|NestJS|MySQL|PostgreSQL|Redis|Docker|OpenAPI|CSS|HTML|JavaScript|TypeScript|Astro|Claude Code|Bash|Caddy|systemd|Resend|Cloudflare|Sentry|UTC|EN|UA|CV|B2|LCP|CLS|TBT|SEO|API|VAT|PCI|NDA|SQL|AI|L0|L1|L2|L3|L4)\b/;
+/** Attributes a reader actually perceives. */
+const ATTRIBUTES = ['alt', 'title', 'aria-label', 'placeholder', 'data-network-error'];
+
+/** Meta values that are prose rather than machinery. */
+const META_PROSE = ['description', 'og:title', 'og:description', 'og:image:alt', 'twitter:title'];
 
 /**
- * Strings that stay English on purpose, listed exactly.
+ * Latin strings that stay Latin on purpose, matched exactly.
  *
- * Job titles are the whole of it: a Ukrainian CV writes "Senior Backend
- * Engineer", and translating it would make the role harder to recognise, not
- * easier. Kept as an explicit list rather than a pattern, because a pattern
- * broad enough to catch these would also hide real untranslated prose — and the
- * point of this report is the number reaching 100%.
+ * Product names, the one project this site may name, and the four job titles.
+ * Exact strings rather than patterns: a pattern loose enough to cover these
+ * would also swallow real untranslated prose, and the point of this report is
+ * the number reaching 100% honestly.
  */
 const DELIBERATE = new Set([
+  'Groundwork',
+  'GitHub',
+  'LinkedIn',
+  'Claude Code',
+  'MIT',
+  // Job titles. A Ukrainian CV writes these in English; translating them makes
+  // the role harder to recognise, not easier.
   'Senior Backend Engineer · Tech Lead',
   'Full-Stack PHP Engineer',
   'PHP Engineer',
   'Junior Engineer (C++ / .NET)',
+  // Stack and platform names.
+  'PHP 8.4, Laravel 12',
+  'PHP 8.4 · Laravel 12 · Node / NestJS',
+  'MySQL 8 · Redis · Docker',
+  'Node, NestJS',
+  'MySQL 8, PostgreSQL',
+  'Redis',
+  'Docker',
+  'Laravel',
+  'Laravel 12',
+  'bcmath',
+  'JSON API',
+  'JSON-LD',
+  'OAuth',
+  'Whisper STT',
+  'WebSocket',
+  'LCP',
+  'Node',
+  'Bash',
+  'OpenAPI',
 ]);
 
-/** Agent and gate identifiers, and anything that reads like one. */
+/** Agent and gate identifiers, and anything shaped like one. */
 const IDENTIFIER = /^[a-z0-9]+(-[a-z0-9]+)+$/;
-
-/** A route is a route in every language — these are paths, not words. */
+/** A route is a route in every language. */
 const ROUTE = /^\/[\w/-]*$/;
-
 /** An address is an address in every language. */
 const EMAIL = /^[^@\s]+@[^@\s]+$/;
+/** A URL, a viewport declaration, a card type — machinery, not prose. */
+const MACHINERY = /^(https?:\/\/|width=device-width|summary_large_image|website|article)/;
+/** Shell and plugin commands. */
+const COMMAND = /^[/$][\w:@/. -]+$/m;
 
 function walk(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -65,35 +109,38 @@ function walk(dir) {
   });
 }
 
-function visibleLines(html) {
-  let h = html.replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ');
-  // Stack chips and gate chips are terms, not prose: "bcmath", "Idempotency
-  // keys", "OpenAPI". They stay English in every language by an explicit
-  // decision, so counting them as untranslated would leave the report
-  // permanently short of 100% and therefore permanently ignored.
-  h = h.replace(/<ul[^>]*class="[^"]*\b(tags|chips)\b[^"]*"[\s\S]*?<\/ul>/g, ' ');
-  // Commands and code are not prose. `/plugin install groundwork@yasmax` is the
-  // same in every language, and a report that keeps asking for it to be
-  // translated is a report that trains people to skim past its findings.
-  h = h.replace(/<(pre|code)[\s\S]*?<\/\1>/g, ' ');
-  h = h.replace(/<[^>]+>/g, '\n');
-  for (const [from, to] of [
-    ['&amp;', '&'],
-    ['&lt;', '<'],
-    ['&gt;', '>'],
-    ['&quot;', '"'],
-    ['&#39;', "'"],
-    ['&nbsp;', ' '],
-  ]) {
-    h = h.split(from).join(to);
+const ENTITIES = [
+  ['&amp;', '&'],
+  ['&lt;', '<'],
+  ['&gt;', '>'],
+  ['&quot;', '"'],
+  ['&#39;', "'"],
+  ['&nbsp;', ' '],
+];
+
+/** Everything a reader can perceive: text, and the attributes that speak. */
+function perceivable(html) {
+  const out = [];
+  const stripped = html.replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ');
+
+  for (const m of stripped.matchAll(/>([^<>]+)</g)) out.push(m[1]);
+
+  for (const attr of ATTRIBUTES) {
+    for (const m of html.matchAll(new RegExp(`\\b${attr}="([^"]*)"`, 'g'))) out.push(m[1]);
   }
-  return h
-    .split('\n')
-    .map((l) => l.trim())
+
+  for (const name of META_PROSE) {
+    const re = new RegExp(`<meta[^>]+(?:name|property)="${name}"[^>]+content="([^"]*)"`, 'g');
+    for (const m of html.matchAll(re)) out.push(m[1]);
+  }
+
+  return out
+    .map((v) => ENTITIES.reduce((acc, [from, to]) => acc.split(from).join(to), v).trim())
     .filter(Boolean);
 }
 
 const CYRILLIC = /[Ѐ-ӿ]/;
+const HAS_WORDS = /[A-Za-z]{3,}/;
 
 if (!existsSync(DIST)) {
   console.error(`${DIST}/ not found — run the build first.`);
@@ -101,7 +148,7 @@ if (!existsSync(DIST)) {
 }
 
 const targets = LOCALES.filter((l) => l !== DEFAULT_LOCALE);
-let totalLines = 0;
+let totalItems = 0;
 let totalEnglish = 0;
 
 for (const locale of targets) {
@@ -112,34 +159,36 @@ for (const locale of targets) {
   const pages = walk(root).filter((f) => extname(f) === '.html');
 
   for (const page of pages.sort()) {
-    const lines = visibleLines(readFileSync(page, 'utf8'));
-    const prose = lines.filter((l) => /[A-Za-z]{4,}/.test(l));
-    const english = prose.filter(
-      (l) =>
-        !CYRILLIC.test(l) &&
-        !KEEP_LATIN.test(l) &&
-        !IDENTIFIER.test(l) &&
-        !DELIBERATE.has(l) &&
-        !EMAIL.test(l) &&
-        !ROUTE.test(l),
-    );
+    const items = perceivable(readFileSync(page, 'utf8')).filter((v) => HAS_WORDS.test(v));
+    const english = [
+      ...new Set(
+        items.filter(
+          (v) =>
+            !CYRILLIC.test(v) &&
+            !DELIBERATE.has(v) &&
+            !IDENTIFIER.test(v) &&
+            !ROUTE.test(v) &&
+            !EMAIL.test(v) &&
+            !MACHINERY.test(v) &&
+            !COMMAND.test(v),
+        ),
+      ),
+    ];
 
-    totalLines += prose.length;
+    totalItems += items.length;
     totalEnglish += english.length;
 
     const route = page.replace(`${DIST}/`, '').replace(/\/index\.html$/, '') || '/';
     const done =
-      prose.length === 0 ? 100 : Math.round(((prose.length - english.length) / prose.length) * 100);
+      items.length === 0 ? 100 : Math.round(((items.length - english.length) / items.length) * 100);
     const bar = '█'.repeat(Math.round(done / 5)).padEnd(20, '·');
     console.log(`  ${bar} ${String(done).padStart(3)}%  ${route}`);
-    if (english.length) {
-      for (const l of english.slice(0, 3)) console.log(`        · ${l.slice(0, 88)}`);
-      if (english.length > 3) console.log(`        · …and ${english.length - 3} more`);
-    }
+    for (const v of english.slice(0, 4)) console.log(`        · ${v.slice(0, 88)}`);
+    if (english.length > 4) console.log(`        · …and ${english.length - 4} more`);
   }
 }
 
-const done = totalLines === 0 ? 100 : Math.round(((totalLines - totalEnglish) / totalLines) * 100);
+const done = totalItems === 0 ? 100 : Math.round(((totalItems - totalEnglish) / totalItems) * 100);
 console.log(
   `\n${done}% translated · ${totalEnglish} English fragment(s) left across ${targets.join(', ')}\n`,
 );

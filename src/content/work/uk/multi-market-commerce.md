@@ -43,8 +43,8 @@ outcome: |
 stack:
   - Laravel 12
   - JSON API
-  - Job chains
-  - Typed DTOs
+  - Ланцюжки задач
+  - Типізовані DTO
   - JSON-LD
   - OAuth
 ndaReviewed: false
