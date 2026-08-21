@@ -53,10 +53,17 @@ jobs:
           # curl's own timing, not the shell's: this is time to last byte for the
           # document, which is what a visitor waits for, and it excludes the
           # runner's own startup.
-          read -r code seconds < <(
-            curl -sS -o /dev/null --max-time 30 \
-              -w '%{http_code} %{time_total}' "${SITE}/" || echo "0 30"
-          )
+          #
+          # Read into one variable and split it, rather than `read a b < <(...)`.
+          # `-w` emits no trailing newline, `read` returns non-zero when it hits
+          # EOF without one, and GitHub runs every step under `bash -e` — so the
+          # obvious version aborted the job on its first command, before printing
+          # anything at all. A step that dies silently on a successful curl is
+          # worse than one that fails loudly.
+          response="$(curl -sS -o /dev/null --max-time 30 \
+            -w '%{http_code} %{time_total}' "${SITE}/" || echo '0 30')"
+          code="${response%% *}"
+          seconds="${response##* }"
 
           ms=$(awk -v s="${seconds}" 'BEGIN { printf "%d", s * 1000 }')
           ok=false
@@ -64,13 +71,18 @@ jobs:
 
           # Days until the certificate the public actually gets expires. Measured
           # at the edge, because that is the certificate a visitor is served.
+          #
+          # `|| true` on the whole pipeline: `openssl s_client` routinely exits
+          # non-zero on a connection it nonetheless read the certificate from,
+          # and with `pipefail` under `bash -e` that would take the job down over
+          # an optional field.
           end="$(echo | openssl s_client -connect yastremskyi.com:443 \
             -servername yastremskyi.com 2>/dev/null \
-            | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)"
+            | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2 || true)"
 
           tls_field=""
           if [[ -n "${end}" ]]; then
-            end_epoch="$(date -u -d "${end}" +%s 2>/dev/null || echo '')"
+            end_epoch="$(date -u -d "${end}" +%s 2>/dev/null || true)"
             if [[ -n "${end_epoch}" ]]; then
               days=$(( (end_epoch - $(date -u +%s)) / 86400 ))
               [[ "${days}" -ge 0 ]] && tls_field=",\"tlsDaysRemaining\":${days}"
