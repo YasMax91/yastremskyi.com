@@ -51,6 +51,27 @@ export function renderedLocale(locale: Locale): Locale {
   return locale === DEFAULT_LOCALE || COMPLETE_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE;
 }
 
+/**
+ * Whether a path exists in more than one language.
+ *
+ * Two do not, for different reasons. The CV is English in every locale by an
+ * explicit decision — it is written for international employers and a translated
+ * one would be a second document to keep true. The 404 is a single page the
+ * server rewrites to for any missing path, in any language.
+ *
+ * Both the hreflang alternates and the language switcher ask this, because a
+ * page that advertises a translation it does not have is a broken link with
+ * extra steps — and the link checker says so the moment the locale is published.
+ */
+export function hasCounterpart(path: string): boolean {
+  // Strip a *known* locale prefix, not any two letters: `/cv` is two letters
+  // and a `[a-z]{2}` pattern eats it, which made the CV advertise a Ukrainian
+  // version of itself — the one page that by decision has none.
+  const prefix = LOCALES.find((l) => path === `/${l}` || path.startsWith(`/${l}/`));
+  const bare = (prefix ? path.slice(prefix.length + 1) : path) || '/';
+  return !bare.startsWith('/cv') && !bare.startsWith('/404');
+}
+
 /** Build a path in the given locale. English lives at the root. */
 export function localePath(path: string, locale: Locale): string {
   const clean = path.startsWith('/') ? path : `/${path}`;

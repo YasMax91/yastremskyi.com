@@ -1,6 +1,13 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import { useTranslations, localePath, LOCALES, DEFAULT_LOCALE, type Locale } from '../i18n/ui';
+import {
+  useTranslations,
+  localePath,
+  hasCounterpart,
+  LOCALES,
+  DEFAULT_LOCALE,
+  type Locale,
+} from '../i18n/ui';
 import { COMPLETE_LOCALES } from '../i18n/reviewed';
 
 interface Props {
@@ -34,14 +41,14 @@ const links = [
 const path = Astro.url.pathname;
 const basePath =
   locale === DEFAULT_LOCALE ? path : path.replace(new RegExp(`^/${locale}`), '') || '/';
-const hasCounterpart = !basePath.startsWith('/cv');
+const counterpart = hasCounterpart(basePath);
 
 const others = LOCALES.filter(
   (l) => l !== locale && (l === DEFAULT_LOCALE || COMPLETE_LOCALES.includes(l)),
 ).map((l) => ({
   locale: l,
   label: l === 'uk' ? 'UA' : l.toUpperCase(),
-  href: localePath(hasCounterpart ? basePath : '/', l),
+  href: localePath(counterpart ? basePath : '/', l),
 }));
 ---
 

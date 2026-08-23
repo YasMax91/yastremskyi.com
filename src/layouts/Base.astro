@@ -1,7 +1,14 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { useTranslations, DEFAULT_LOCALE, LOCALES, localePath, type Locale } from '../i18n/ui';
+import {
+  useTranslations,
+  DEFAULT_LOCALE,
+  LOCALES,
+  localePath,
+  hasCounterpart,
+  type Locale,
+} from '../i18n/ui';
 import { COMPLETE_LOCALES } from '../i18n/reviewed';
 import { site } from '../data/site';
 import '../styles/global.css';
@@ -53,7 +60,7 @@ const basePath =
     ? Astro.url.pathname
     : Astro.url.pathname.replace(new RegExp(`^/${locale}`), '') || '/';
 
-const alternates = published.map((l) => ({
+const alternates = (hasCounterpart(basePath) ? published : [locale]).map((l) => ({
   locale: l,
   href: new URL(localePath(basePath, l), Astro.site ?? site.origin).href,
 }));
