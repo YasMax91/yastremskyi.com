@@ -109,23 +109,24 @@ const THRESHOLDS = {
 };
 
 /**
- * A separate LCP ceiling for translated routes, stated rather than quietly
- * folded into the general one.
+ * A separate LCP ceiling for translated routes — and the reason is the harness,
+ * not the language.
  *
- * A Ukrainian page carries two alphabets: 45.4 KB of fonts against 29.9, because
- * it renders Cyrillic prose and Latin stack names on the same screen. Its
- * document is longer too, landing just over the initial congestion window. Both
- * costs are real and neither is a defect to fix in markup.
+ * A Ukrainian page fetches six font files against three: it renders Cyrillic
+ * prose and Latin stack names on one screen. Measured here, that costs about
+ * 300 ms, and no preload arrangement recovers it — Cyrillic faces alone give
+ * 1654 ms, all six 1506, Cyrillic plus the Latin mono 1504.
  *
- * Measured, with the alternatives tried rather than assumed: preloading the
- * Cyrillic faces alone gives 1654 ms, all six gives 1506, Cyrillic plus the Latin
- * mono gives 1504. There is no preload arrangement that reaches 1300.
+ * Measured in PRODUCTION it costs nothing: /uk 1290 ms against / at 1293 ms,
+ * with the same six files and 48.9 KB of fonts. The difference is the protocol.
+ * `astro preview` speaks HTTP/1.1, where three extra requests queue behind the
+ * connection limit; the edge speaks HTTP/2 and multiplexes them.
  *
- * So English routes keep the brief's 1300 ms and Ukrainian routes are held to
- * 1600 — tight enough that a real regression still fails, and honest about the
- * price of the second language. The gap is printed on every run, because a bar
- * that differs per route and does not say so is a bar somebody will later find
- * by surprise.
+ * So this ceiling exists to stop a local run failing for a fact about the local
+ * server, and it is deliberately not a claim that the second language is slower.
+ * It is loose enough to absorb the artefact and tight enough that a real
+ * regression — another 100 ms — still fails. The number that describes the site
+ * is the production one, in docs/evidence/i18n.md.
  */
 const TRANSLATED_LCP_MAX = 1600;
 
@@ -228,7 +229,8 @@ const unenforced = [];
 const table = [];
 console.log(
   `LCP ceiling: ${VITALS['largest-contentful-paint'].max} ms, and ${TRANSLATED_LCP_MAX} ms on translated routes — ` +
-    'they carry two alphabets of fonts. See the note in this file.',
+    'they fetch six font files and this server is HTTP/1.1. Production measures them the same. ' +
+    'See the note in this file.',
 );
 console.log(
   ON_CI
