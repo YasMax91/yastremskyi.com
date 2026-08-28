@@ -349,5 +349,20 @@
   "uk:content:work/multi-market-commerce": "41f70526bf4aca48",
   "uk:content:work/payments-and-clearing": "f5b5eef9e03cb5ee",
   "uk:content:work/voice-to-structured-data": "668d0cfe98ac61c5",
-  "uk:site.languages": "1a2a46403c571b23"
+  "uk:site.languages": "1a2a46403c571b23",
+  "uk:gs.gate.defects": "beadb63ef6b11717",
+  "uk:gs.gate.estimate": "8cac4697321b9dd1",
+  "uk:gw.leaves.label": "2fd657385f117ef1",
+  "uk:gw.leaves.lead": "5a17a5e27f651d4b",
+  "uk:gw.leaves.title": "660151dd618cbf04",
+  "uk:gw.lv1.body": "0194ddccff85cd61",
+  "uk:gw.lv1.title": "0d3f725ea7f80521",
+  "uk:gw.lv2.body": "4ab391f5a005e5ed",
+  "uk:gw.lv2.title": "d01de415ce881b6f",
+  "uk:gw.lv3.body": "0018328ccdf7da90",
+  "uk:gw.lv3.title": "8acb3fa24fb14ef5",
+  "uk:gw.lv4.body": "e822a6c9c7ba85ec",
+  "uk:gw.lv4.title": "24d32b969b6a90d1",
+  "uk:gw.meta": "f3443d93dc77557c",
+  "uk:gw.version": "60379fbe4e8e0766"
 }
