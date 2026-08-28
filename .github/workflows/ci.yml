@@ -29,7 +29,15 @@ jobs:
       # the build, then links, heading order and landmarks over the output.
       # Same command a developer runs locally — a CI that checks something
       # different from the local gate is a CI nobody trusts.
+      #
+      # The token is for `npm run facts`, which counts the Groundwork plugin's
+      # public repository. Unauthenticated, the API allows 60 requests an hour
+      # per IP and a shared runner burns that on somebody else's job; with the
+      # token the check answers for this repository's own budget. Without it the
+      # step still degrades to a stated skip rather than a red build.
       - name: Verify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run verify
 
   lighthouse:

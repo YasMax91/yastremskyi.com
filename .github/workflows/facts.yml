@@ -1,0 +1,96 @@
+name: Facts
+
+# The figures this site prints about Groundwork, re-derived from the plugin's
+# public repository on a schedule.
+#
+# `npm run verify` already checks them on every push — but the drift does not
+# come from committing to this repository, it comes from releasing the *other*
+# one. Between 0.27.1 and 0.40.0 the site sat untouched and its numbers went
+# stale on their own; a check that only runs when someone edits the site is a
+# check that cannot see that happen.
+#
+# It also asks the question the site's own claim depends on: is the latest
+# published release still the version the manifest says? That gap reached
+# thirteen versions before anyone counted.
+
+on:
+  schedule:
+    # Monday, 06:00 UTC. GitHub's scheduler drifts; nothing here needs the minute.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: facts
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  figures:
+    name: Re-derive the figures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Not a gate here — the result decides what the next steps do, so a failure
+      # has to be catchable rather than fatal.
+      - name: Check
+        id: check
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run facts -- --releases | tee facts.log
+
+      # Only the numbers are rewritten. A new gate needs a name a reader
+      # understands, in two languages, and a missing release needs a person — so
+      # those stay in the report and keep the job red.
+      - name: Open a pull request with what can be fixed
+        if: steps.check.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run facts -- --fix || true
+
+          {
+            echo '## Groundwork figures'
+            echo
+            echo '```'
+            cat facts.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if git diff --quiet -- src/data/site.ts; then
+            echo 'Nothing the script can rewrite — see the report above.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # One long-lived branch, force-pushed. A branch per week would leave a
+          # graveyard of superseded pull requests saying the same thing.
+          git checkout -B chore/groundwork-figures
+          git commit -am 'chore: re-derive the Groundwork figures from the plugin'
+          git push --force-with-lease -u origin chore/groundwork-figures
+
+          if [ -z "$(gh pr list --head chore/groundwork-figures --state open --json number --jq '.[].number')" ]; then
+            gh pr create \
+              --title 'chore: the Groundwork figures moved' \
+              --body "$(printf '`npm run facts` found the site behind the plugin.\n\n```\n%s\n```\n\nThe numbers are rewritten here. A new gate still needs a display name in both locales, and a missing release still needs publishing.' "$(cat facts.log)")"
+          fi
+
+      # The pull request is a convenience; the red is the signal. A drift that
+      # only ever produced a PR would be a drift nobody reads.
+      - name: Fail on drift
+        if: steps.check.outcome == 'failure'
+        run: exit 1

@@ -25,13 +25,13 @@ config, a hardened systemd unit and a deploy script.
 
 ## 2. Waiting on you
 
-| What                                                    | Why it is blocking                                                                                                        | Effort                               |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| **Register `yastremskyi.com`** and point DNS at the VPS | Nothing below can happen without it. Checked free on 2026-08-19; not reserved                                             | minutes                              |
-| **Resend account + three DNS records**                  | The contact form cannot send until the sending domain is verified. Records are in `deploy/contact.env.example`            | ~20 minutes                          |
-| **Run `deploy/deploy.sh` once**                         | I have no access to the box. Everything it needs is in `deploy/`                                                          | ~30 minutes for the first-time setup |
-| **Push Groundwork to 0.27.1 with tags**                 | The site says "semantic versioning" and links the repository. Today it shows one release, `v0.20.0`, while you run 0.27.1 | minutes                              |
-| **Clear each case study against your NDAs**             | You chose to vet every one personally. Set `ndaReviewed: true` in the frontmatter as you go                               | ~30 minutes                          |
+| What                                                    | Why it is blocking                                                                                                                                                             | Effort                               |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| **Register `yastremskyi.com`** and point DNS at the VPS | Nothing below can happen without it. Checked free on 2026-08-19; not reserved                                                                                                  | minutes                              |
+| **Resend account + three DNS records**                  | The contact form cannot send until the sending domain is verified. Records are in `deploy/contact.env.example`                                                                 | ~20 minutes                          |
+| **Run `deploy/deploy.sh` once**                         | I have no access to the box. Everything it needs is in `deploy/`                                                                                                               | ~30 minutes for the first-time setup |
+| **Publish the Groundwork releases v0.28.0 … v0.40.0**   | The site says "semantic versioning" and links the repository. On 2026-08-28 `main` was 0.40.0 while the releases page still ended at `v0.27.1` — thirteen versions with no tag | minutes, scripted                    |
+| **Clear each case study against your NDAs**             | You chose to vet every one personally. Set `ndaReviewed: true` in the frontmatter as you go                                                                                    | ~30 minutes                          |
 
 ### What I could not verify, and would not claim
 
@@ -84,9 +84,11 @@ whatever distance it happens to be. The proxy is free, the DNS move is one step,
 and it converts a lab claim into a real one.
 
 **Two — ~~make the Groundwork repository look like what the site says it is~~.**
-Done on 2026-08-20: the pending commit is pushed, all 29 versions in the history
-are tagged, and every public version from v0.20.0 to v0.27.1 has a GitHub release.
-The repository now shows what the site claims about it.
+Done on 2026-08-20 up to v0.27.1, and it drifted again by itself: by 2026-08-28
+`main` had reached 0.40.0 with no tag past v0.27.1. Publishing them is now part of
+the same task that re-syncs the figures, and a weekly job
+(`.github/workflows/facts.yml`) asks the question from now on, because this gap
+grows while nobody is editing either repository.
 
 **Three — write the first note.** The section is built and hidden, and one file
 brings it into existence. The subjects are already sitting in your case studies:

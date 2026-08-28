@@ -191,7 +191,6 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:gw.l4.approval",
   "uk:gw.l4.covers",
   "uk:gw.licence",
-  "uk:gw.meta",
   "uk:gw.numberBody",
   "uk:gw.numberTitle",
   "uk:gw.p1.body",
@@ -362,4 +361,4 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:work.nda"
 ]);
 
-export const COMPLETE_LOCALES: readonly string[] = ["uk"];
+export const COMPLETE_LOCALES: readonly string[] = [];

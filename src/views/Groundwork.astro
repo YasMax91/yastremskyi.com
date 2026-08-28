@@ -43,6 +43,21 @@ const AGENTS = [
   { name: 'conformance-reviewer', body: 'gw.a5.body' },
 ] as const;
 
+/**
+ * What a finished task leaves behind — added when the plugin reached 0.40.0.
+ *
+ * These are the four claims that green gates cannot make: how long the work took,
+ * which criterion was actually covered, what the standard said while the code did
+ * something else, and whether the person who has to decide was written to in a
+ * language they use.
+ */
+const LEAVES = [
+  { title: 'gw.lv1.title', body: 'gw.lv1.body' },
+  { title: 'gw.lv2.title', body: 'gw.lv2.body' },
+  { title: 'gw.lv3.title', body: 'gw.lv3.body' },
+  { title: 'gw.lv4.title', body: 'gw.lv4.body' },
+] as const;
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareSourceCode',
@@ -75,6 +90,12 @@ const jsonLd = {
       </p>
       <dl class="meta">
         <div><dt>{t('gw.licence')}</dt><dd>{site.groundwork.licence}</dd></div>
+        {
+          /* The version the figures on this page were counted from. It is here
+            so a reader can check the count against a specific tree rather than
+            against whatever `main` happens to be the day they arrive. */
+        }
+        <div><dt>{t('gw.version')}</dt><dd>{site.groundwork.version}</dd></div>
         <div><dt>{t('gw.runsIn')}</dt><dd>Claude Code</dd></div>
         <div><dt>{t('gw.targets')}</dt><dd>{t('gw.targetsValue')}</dd></div>
         <div><dt>{t('gw.author')}</dt><dd>{t('site.name')}</dd></div>
@@ -157,6 +178,24 @@ const jsonLd = {
           <div>
             <h3>{a.name}</h3>
             <p>{t(a.body)}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section
+    id="evidence"
+    label={t('gw.leaves.label')}
+    title={t('gw.leaves.title')}
+    lead={t('gw.leaves.lead')}
+  >
+    <div class="leaves">
+      {
+        LEAVES.map((l) => (
+          <div>
+            <h3>{t(l.title)}</h3>
+            <p>{t(l.body)}</p>
           </div>
         ))
       }
@@ -368,6 +407,39 @@ const jsonLd = {
 
   .sim-slot {
     margin-top: var(--space-8);
+  }
+
+  /* Two columns rather than the agents' auto-fit: these carry sentences, not
+     identifiers, and a 16rem column would set them at about 28 characters. */
+  .leaves {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-top: var(--rule) solid var(--border);
+    border-left: var(--rule) solid var(--border);
+  }
+
+  @media (min-width: 52rem) {
+    .leaves {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .leaves > div {
+    padding: var(--space-5);
+    border-right: var(--rule) solid var(--border);
+    border-bottom: var(--rule) solid var(--border);
+  }
+
+  .leaves h3 {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+  }
+
+  .leaves p {
+    max-width: var(--measure);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
   }
 
   .agents {

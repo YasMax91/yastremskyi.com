@@ -36,6 +36,11 @@ const pages = walk(DIST).filter((f) => extname(f) === '.html');
 const brokenLinks = [];
 const headingJumps = [];
 const missingLandmarks = [];
+const chipMismatches = [];
+let gateListsSeen = 0;
+
+/** The gate count the site states, read from the same file `npm run facts` guards. */
+const GATES_STATED = Number(/gates:\s*(\d+)/.exec(readFileSync('src/data/site.ts', 'utf8'))[1]);
 const external = new Set();
 let linksChecked = 0;
 
@@ -117,6 +122,24 @@ for (const page of pages) {
   ]) {
     if (!html.includes(needle)) missingLandmarks.push({ page: label, what });
   }
+
+  // --- gate chips ----------------------------------------------------------
+  // The simulator prints one chip per gate identifier, and the figure beside it
+  // is checked against the plugin by `npm run facts`. Nothing until now checked
+  // that the two agree in the built page: a label map that lost an entry would
+  // have printed twelve chips under the word thirteen, in the one place on this
+  // site where a reader is invited to count.
+  //
+  // Matched on `data-gates`, not on the class: Astro appends its scope attribute
+  // to the tag, and `.chips` is also the case-card list on the home page. The
+  // first version of this check selected `<ul class="chips">` exactly, matched
+  // nothing, and passed every page — which is why the run below also asserts
+  // that the check found any gate list at all.
+  for (const [, list] of html.matchAll(/<ul[^>]*\sdata-gates[^>]*>([\s\S]*?)<\/ul>/g)) {
+    gateListsSeen++;
+    const chips = [...list.matchAll(/<li[\s>]/g)].length;
+    if (chips !== GATES_STATED) chipMismatches.push({ page: label, chips, stated: GATES_STATED });
+  }
 }
 
 console.log(`pages:            ${pages.length}`);
@@ -141,6 +164,19 @@ if (missingLandmarks.length) {
   failed += missingLandmarks.length;
   console.log('\nLANDMARKS:');
   for (const m of missingLandmarks) console.log(`  ${m.page}  missing ${m.what}`);
+}
+
+if (gateListsSeen === 0) {
+  failed += 1;
+  console.log('\nGATE CHIPS:');
+  console.log('  no `data-gates` list found in any page — the chip audit checked nothing');
+}
+
+if (chipMismatches.length) {
+  failed += chipMismatches.length;
+  console.log('\nGATE CHIPS:');
+  for (const c of chipMismatches)
+    console.log(`  ${c.page}  ${c.chips} chip(s) rendered, the site states ${c.stated} gates`);
 }
 
 // --- external links -----------------------------------------------------------
@@ -178,7 +214,7 @@ if (CHECK_EXTERNAL && external.size) {
 
 console.log(
   failed === 0
-    ? `\nLinks resolve, headings descend in order, landmarks present${CHECK_EXTERNAL ? ', external links answer' : ''}.`
+    ? `\nLinks resolve, headings descend in order, landmarks present, ${gateListsSeen} gate list(s) match the stated ${GATES_STATED}${CHECK_EXTERNAL ? ', external links answer' : ''}.`
     : `\n${failed} problem(s).`,
 );
 process.exit(failed === 0 ? 0 : 1);

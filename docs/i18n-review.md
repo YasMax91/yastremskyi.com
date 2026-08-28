@@ -23,7 +23,7 @@ comes back here, because the approval was for a sentence that no longer exists.
 And a translation identical to its English — `Groundwork` — never appears here;
 there is nothing for a native speaker to judge.
 
-**Progress: 352 of 352 signed.**
+**Progress: 351 of 366 signed.**
 
 ---
 
@@ -479,9 +479,17 @@ there is nothing for a native speaker to judge.
   - **EN** coverage claim
   - **UK** заявлене покриття
 
+- [ ] `uk:gs.gate.defects`
+  - **EN** defect scan
+  - **UK** скан дефектів
+
 - [x] `uk:gs.gate.edits`
   - **EN** edits locked in discovery
   - **UK** правки заблоковано під час дослідження
+
+- [ ] `uk:gs.gate.estimate`
+  - **EN** estimate claim
+  - **UK** заявлена оцінка
 
 - [x] `uk:gs.gate.format`
   - **EN** format on edit
@@ -755,13 +763,57 @@ there is nothing for a native speaker to judge.
   - **EN** Financial calculation, order lifecycle, the permission model, destructive migrations
   - **UK** Фінансові розрахунки, життєвий цикл замовлення, модель прав, руйнівні міграції
 
+- [ ] `uk:gw.leaves.label`
+  - **EN** Evidence
+  - **UK** Докази
+
+- [ ] `uk:gw.leaves.lead`
+  - **EN** Green gates prove the code compiles and the suite passes. These four exist because the expensive claims are the other ones — how long it took, what was actually verified, and what the standard said while the code did something else.
+  - **UK** Зелені гейти доводять, що код збирається, а тести проходять. Ці чотири речі існують тому, що дорого коштують інші твердження — скільки це насправді зайняло, що саме було перевірено і що казав стандарт, поки код робив інше.
+
+- [ ] `uk:gw.leaves.title`
+  - **EN** What a finished task leaves behind
+  - **UK** Що лишається після завершеної задачі
+
 - [x] `uk:gw.licence`
   - **EN** Licence
   - **UK** Ліцензія
 
-- [x] `uk:gw.meta`
-  - **EN** An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and eleven gates.
-  - **UK** Плагін для Claude Code з відкритим кодом, який робить перевірку частиною процесу розробки: класифікація задач за ризиком L0–L4, п’ять спеціалізованих review-агентів і одинадцять гейтів.
+- [ ] `uk:gw.lv1.body`
+  - **EN** “How long will this take?” is answered from a ledger of the agent’s own active minutes — a median with the sample size it rests on, idle gaps excluded. Human time is a separate line with its owner, and an hour-sized number has to name the slow thing beside it.
+  - **UK** На питання «скільки це займе» відповідає журнал власного активного часу агента — медіана і розмір вибірки, на яку вона спирається, без пауз простою. Людський час — окремий рядок зі своїм власником, а число розміром у годину мусить назвати поруч те повільне, через що воно таке.
+
+- [ ] `uk:gw.lv1.title`
+  - **EN** Estimates are measured, not felt
+  - **UK** Оцінки виміряні, а не відчуті
+
+- [ ] `uk:gw.lv2.body`
+  - **EN** A substantial task leaves a file beside its spec, in three blocks that cannot be confused: measured — commit, exit codes, minutes, each copied from a command’s output; claimed by the agent — every acceptance criterion with its file and its covering test; and reviewed by, left empty for a person. Its last line states that an unsigned receipt is not a review.
+  - **UK** Після серйозної задачі поруч зі специфікацією лишається файл із трьох блоків, які неможливо сплутати: виміряне — коміт, коди виходу, хвилини, кожне скопійоване з виводу команди; заявлене агентом — кожен критерій приймання з його файлом і тестом, що його покриває; і перевірено ким, залишене порожнім для людини. Останній рядок каже: непідписана квитанція — це не рецензія.
+
+- [ ] `uk:gw.lv2.title`
+  - **EN** The receipt, and the line nobody signed
+  - **UK** Квитанція і рядок, який ніхто не підписав
+
+- [ ] `uk:gw.lv3.body`
+  - **EN** Five defect classes found in real repositories — money kept as a float, configuration read outside the config layer, an irreversible effect inside a transaction — had been written down as standards for months and violated anyway. They are a gate now. Prose is what failed; the check is the retry.
+  - **UK** П’ять класів дефектів, знайдених у справжніх репозиторіях — гроші у вигляді float, читання конфігурації поза шаром конфігурації, незворотна дія всередині транзакції — місяцями були записані як стандарт і все одно порушувалися. Тепер це гейт. Підвела саме проза; перевірка — друга спроба.
+
+- [ ] `uk:gw.lv3.title`
+  - **EN** A rule beats a paragraph
+  - **UK** Правило сильніше за абзац
+
+- [ ] `uk:gw.lv4.body`
+  - **EN** Every text where the person decides — the discovery report, each question, the list of blind spots — opens with the lived consequence in everyday words, and keeps the field name and the status code after it. Nothing technical is removed. It just stops being the opening.
+  - **UK** Кожен текст, де рішення ухвалює людина — звіт із дослідження, кожне питання, перелік сліпих зон — починається з наслідку буденними словами, а назва поля і код статусу йдуть після нього. Нічого технічного не прибрано. Воно просто перестає бути початком.
+
+- [ ] `uk:gw.lv4.title`
+  - **EN** Plain language first
+  - **UK** Спершу людською мовою
+
+- [ ] `uk:gw.meta`
+  - **EN** An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and gates that must be green before anything is called done.
+  - **UK** Плагін для Claude Code з відкритим кодом, який робить перевірку частиною процесу розробки: класифікація задач за ризиком L0–L4, п’ять спеціалізованих review-агентів і гейти, які мають бути зеленими, перш ніж щось назвуть готовим.
 
 - [x] `uk:gw.numberBody`
   - **EN** Roughly one task in three never reaches code. Not because the tooling refused, but because writing the specification showed the request was mis-scoped, already solved elsewhere, or cheaper to handle without development at all.
@@ -866,6 +918,10 @@ there is nothing for a native speaker to judge.
 - [x] `uk:gw.targetsValue`
   - **EN** Laravel backends
   - **UK** Laravel-бекенди
+
+- [ ] `uk:gw.version`
+  - **EN** Version
+  - **UK** Версія
 
 - [x] `uk:home.capabilities`
   - **EN** Capability map
