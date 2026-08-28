@@ -1,5 +1,6 @@
 ---
 import { useTranslations, type Locale, type UIKey } from '../i18n/ui';
+import { site } from '../data/site';
 
 /**
  * The signature element (brief §6). Exactly one, executed properly.
@@ -9,8 +10,12 @@ import { useTranslations, type Locale, type UIKey } from '../i18n/ui';
  * and it keeps working with scripting disabled, which the brief requires of the
  * whole site anyway. The budget allowed under 5 KB of JS for this; it costs none.
  *
- * The levels, agent names and gate names are read from the installed plugin at
- * v0.27.1, not from the brief's older figures.
+ * The levels and agent names are read from the plugin itself, not from the
+ * brief's older figures. The gates are stronger than that: the identifiers come
+ * from `site.groundwork.gateKeys`, which `npm run facts` re-derives from the
+ * public repository, and the map below is exhaustive over them — a gate the
+ * plugin adds and nobody names here fails the type check instead of quietly
+ * missing a chip.
  *
  * Agent names — `impact-mapper`, `adversarial-verifier` — and the ids below are
  * identifiers rather than prose, so they are the same in every language. What a
@@ -72,19 +77,26 @@ const LEVELS: Level[] = [
   },
 ];
 
-const GATES: UIKey[] = [
-  'gs.gate.format',
-  'gs.gate.analysis',
-  'gs.gate.tests',
-  'gs.gate.openapi',
-  'gs.gate.runner',
-  'gs.gate.migrations',
-  'gs.gate.edits',
-  'gs.gate.unpushed',
-  'gs.gate.coverage',
-  'gs.gate.intent',
-  'gs.gate.contract',
-];
+type GateKey = (typeof site.groundwork.gateKeys)[number];
+
+/** One human-readable name per gate identifier. Exhaustive by type. */
+const GATE_LABELS: Record<GateKey, UIKey> = {
+  format_on_edit: 'gs.gate.format',
+  analyse_on_stop: 'gs.gate.analysis',
+  test_on_stop: 'gs.gate.tests',
+  openapi_on_stop: 'gs.gate.openapi',
+  defect_scan: 'gs.gate.defects',
+  coverage_claim: 'gs.gate.coverage',
+  estimate_claim: 'gs.gate.estimate',
+  task_intent: 'gs.gate.intent',
+  agent_contract: 'gs.gate.contract',
+  enforce_runner: 'gs.gate.runner',
+  lock_shipped_migrations: 'gs.gate.migrations',
+  lock_edits_in_discovery: 'gs.gate.edits',
+  check_unpushed: 'gs.gate.unpushed',
+};
+
+const GATES: UIKey[] = site.groundwork.gateKeys.map((key) => GATE_LABELS[key]);
 
 interface Props {
   /**
@@ -171,7 +183,13 @@ const DEFAULT_INDEX = 2;
 
   <div class="gates">
     <span class="label">{t('gs.gatesLabel')}</span>
-    <ul class="chips">{GATES.map((g) => <li>{t(g)}</li>)}</ul>
+    {
+      /* `data-gates` marks this list for the build audit, which counts the chips
+        against the figure the site states. The class cannot do it — the case
+        cards on the home page use `.chips` too, and an audit that counted those
+        would report a mismatch for a list that has nothing to do with gates. */
+    }
+    <ul class="chips" data-gates>{GATES.map((g) => <li>{t(g)}</li>)}</ul>
     <small>{t('gs.gatesNote')}</small>
   </div>
 </div>

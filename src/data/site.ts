@@ -51,14 +51,41 @@ export const site = {
     repo: 'https://github.com/YasMax91/groundwork',
     licence: 'MIT',
     /**
-     * Read from the installed plugin at v0.27.1, not from the brief — the brief
-     * quotes 11 procedures and 8 gates, which were true at v0.20 and are now
-     * stale. Publishing a number a reader can check and find wrong is the one
-     * mistake this site cannot afford.
+     * Derived from the plugin's PUBLIC repository by `npm run facts`, not from
+     * the brief and not from whatever is installed on the machine that runs the
+     * build. The brief quotes 11 procedures and 8 gates, true at v0.20; the
+     * installed cache has been a version behind `main` before now. The site
+     * claims a reader can open the repository and recount, so the repository is
+     * what gets counted.
+     *
+     * `npm run facts -- --fix` rewrites the three figures and the version. It
+     * deliberately does not touch `gateKeys`: a new gate needs a name a reader
+     * understands, in two languages, and the build stays red until it has one.
      */
+    version: 'v0.40.0',
     agents: 5,
-    gates: 11,
-    procedures: 14,
+    gates: 13,
+    procedures: 15,
+    /**
+     * The gate identifiers, in the order the simulator prints them — narrative
+     * order, not alphabetical, because the list reads as a sequence: what runs
+     * on edit, then on stop, then what is refused outright.
+     */
+    gateKeys: [
+      'format_on_edit',
+      'analyse_on_stop',
+      'test_on_stop',
+      'openapi_on_stop',
+      'defect_scan',
+      'coverage_claim',
+      'estimate_claim',
+      'task_intent',
+      'agent_contract',
+      'enforce_runner',
+      'lock_shipped_migrations',
+      'lock_edits_in_discovery',
+      'check_unpushed',
+    ],
   },
 
   /**

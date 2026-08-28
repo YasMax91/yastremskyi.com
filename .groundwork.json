@@ -17,7 +17,14 @@
     "coverage_claim": true,
     "task_intent": true,
     "agent_contract": true,
-    "trim_tool_output": true
+    "trim_tool_output": true,
+    "estimate_claim": true,
+    "defect_scan": true
+  },
+  "estimates": {
+    "ledger": true,
+    "idle_seconds": 120,
+    "min_sample": 5
   },
   "memory": {
     "session_context": true,

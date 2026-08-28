@@ -195,12 +195,17 @@ export const ui = {
     'cap.openapicontractskeptcu': 'OpenAPI contracts kept current',
     'cap.serversiderbac': 'Server-side RBAC',
     'cap.frontendwhenitisinthew': 'Frontend when it is in the way: Vue, React, TypeScript',
+    // No count in the meta description on purpose. The figures a reader can
+    // recount live in site.ts, where `npm run facts` re-derives them from the
+    // public repository every build; a number typed into prose is a number
+    // nothing checks, and this one said "eleven" for two gates too long.
     'gw.meta':
-      'An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and eleven gates.',
+      'An open-source Claude Code plugin that makes verification part of the development process: risk-based task classification L0–L4, five specialised review agents, and gates that must be green before anything is called done.',
     'gw.heroA': 'An agent that is',
     'gw.heroB': 'not allowed to say “done”',
     'gw.heroC': 'until the work has been checked.',
     'gw.licence': 'Licence',
+    'gw.version': 'Version',
     'gw.runsIn': 'Runs in',
     'gw.targets': 'Targets',
     'gw.targetsValue': 'Laravel backends',
@@ -254,6 +259,22 @@ export const ui = {
       'Is the “it works” claim true? Tries to refute it against real code, official docs and sandbox results. Defaults to skeptical.',
     'gw.a5.body':
       'Does the diff satisfy the acceptance criteria that were agreed? Judges implementation against spec in a fresh context, and reports gaps rather than style.',
+    'gw.leaves.label': 'Evidence',
+    'gw.leaves.title': 'What a finished task leaves behind',
+    'gw.leaves.lead':
+      'Green gates prove the code compiles and the suite passes. These four exist because the expensive claims are the other ones — how long it took, what was actually verified, and what the standard said while the code did something else.',
+    'gw.lv1.title': 'Estimates are measured, not felt',
+    'gw.lv1.body':
+      '“How long will this take?” is answered from a ledger of the agent’s own active minutes — a median with the sample size it rests on, idle gaps excluded. Human time is a separate line with its owner, and an hour-sized number has to name the slow thing beside it.',
+    'gw.lv2.title': 'The receipt, and the line nobody signed',
+    'gw.lv2.body':
+      'A substantial task leaves a file beside its spec, in three blocks that cannot be confused: measured — commit, exit codes, minutes, each copied from a command’s output; claimed by the agent — every acceptance criterion with its file and its covering test; and reviewed by, left empty for a person. Its last line states that an unsigned receipt is not a review.',
+    'gw.lv3.title': 'A rule beats a paragraph',
+    'gw.lv3.body':
+      'Five defect classes found in real repositories — money kept as a float, configuration read outside the config layer, an irreversible effect inside a transaction — had been written down as standards for months and violated anyway. They are a gate now. Prose is what failed; the check is the retry.',
+    'gw.lv4.title': 'Plain language first',
+    'gw.lv4.body':
+      'Every text where the person decides — the discovery report, each question, the list of blind spots — opens with the lived consequence in everyday words, and keeps the field name and the status code after it. Nothing technical is removed. It just stops being the opening.',
     'gw.adoption.label': 'Adoption',
     'gw.adoption.title': 'In daily use, not in a demo',
     'gw.numberTitle': 'The number worth arguing about',
@@ -375,6 +396,8 @@ export const ui = {
     'gs.gate.analysis': 'static analysis',
     'gs.gate.tests': 'test suite',
     'gs.gate.openapi': 'OpenAPI contract',
+    'gs.gate.defects': 'defect scan',
+    'gs.gate.estimate': 'estimate claim',
     'gs.gate.runner': 'enforced runner',
     'gs.gate.migrations': 'migrations locked',
     'gs.gate.edits': 'edits locked in discovery',
@@ -629,11 +652,12 @@ export const ui = {
     'cap.serversiderbac': 'RBAC на боці сервера',
     'cap.frontendwhenitisinthew': 'Фронтенд, коли він стоїть на шляху: Vue, React, TypeScript',
     'gw.meta':
-      'Плагін для Claude Code з відкритим кодом, який робить перевірку частиною процесу розробки: класифікація задач за ризиком L0–L4, п’ять спеціалізованих review-агентів і одинадцять гейтів.',
+      'Плагін для Claude Code з відкритим кодом, який робить перевірку частиною процесу розробки: класифікація задач за ризиком L0–L4, п’ять спеціалізованих review-агентів і гейти, які мають бути зеленими, перш ніж щось назвуть готовим.',
     'gw.heroA': 'Агент, якому',
     'gw.heroB': 'не дозволено сказати «готово»',
     'gw.heroC': 'доки роботу не перевірено.',
     'gw.licence': 'Ліцензія',
+    'gw.version': 'Версія',
     'gw.runsIn': 'Працює в',
     'gw.targets': 'Ціль',
     'gw.targetsValue': 'Laravel-бекенди',
@@ -687,6 +711,22 @@ export const ui = {
       'Чи правдиве твердження «воно працює»? Намагається спростувати його на реальному коді, офіційній документації та результатах у пісочниці. За замовчуванням налаштований скептично.',
     'gw.a5.body':
       'Чи задовольняє diff узгоджені критерії приймання? Оцінює реалізацію проти специфікації у свіжому контексті й повідомляє про прогалини, а не про стиль.',
+    'gw.leaves.label': 'Докази',
+    'gw.leaves.title': 'Що лишається після завершеної задачі',
+    'gw.leaves.lead':
+      'Зелені гейти доводять, що код збирається, а тести проходять. Ці чотири речі існують тому, що дорого коштують інші твердження — скільки це насправді зайняло, що саме було перевірено і що казав стандарт, поки код робив інше.',
+    'gw.lv1.title': 'Оцінки виміряні, а не відчуті',
+    'gw.lv1.body':
+      'На питання «скільки це займе» відповідає журнал власного активного часу агента — медіана і розмір вибірки, на яку вона спирається, без пауз простою. Людський час — окремий рядок зі своїм власником, а число розміром у годину мусить назвати поруч те повільне, через що воно таке.',
+    'gw.lv2.title': 'Квитанція і рядок, який ніхто не підписав',
+    'gw.lv2.body':
+      'Після серйозної задачі поруч зі специфікацією лишається файл із трьох блоків, які неможливо сплутати: виміряне — коміт, коди виходу, хвилини, кожне скопійоване з виводу команди; заявлене агентом — кожен критерій приймання з його файлом і тестом, що його покриває; і перевірено ким, залишене порожнім для людини. Останній рядок каже: непідписана квитанція — це не рецензія.',
+    'gw.lv3.title': 'Правило сильніше за абзац',
+    'gw.lv3.body':
+      'П’ять класів дефектів, знайдених у справжніх репозиторіях — гроші у вигляді float, читання конфігурації поза шаром конфігурації, незворотна дія всередині транзакції — місяцями були записані як стандарт і все одно порушувалися. Тепер це гейт. Підвела саме проза; перевірка — друга спроба.',
+    'gw.lv4.title': 'Спершу людською мовою',
+    'gw.lv4.body':
+      'Кожен текст, де рішення ухвалює людина — звіт із дослідження, кожне питання, перелік сліпих зон — починається з наслідку буденними словами, а назва поля і код статусу йдуть після нього. Нічого технічного не прибрано. Воно просто перестає бути початком.',
     'gw.adoption.label': 'Використання',
     'gw.adoption.title': 'У щоденній роботі, а не в демо',
     'gw.numberTitle': 'Цифра, про яку варто сперечатися',
@@ -808,6 +848,8 @@ export const ui = {
     'gs.gate.analysis': 'статичний аналіз',
     'gs.gate.tests': 'набір тестів',
     'gs.gate.openapi': 'контракт OpenAPI',
+    'gs.gate.defects': 'скан дефектів',
+    'gs.gate.estimate': 'заявлена оцінка',
     'gs.gate.runner': 'примусовий runner',
     'gs.gate.migrations': 'міграції заблоковано',
     'gs.gate.edits': 'правки заблоковано під час дослідження',

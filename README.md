@@ -24,15 +24,31 @@ npm run verify       # everything below, in one command
 
 `npm run verify` runs these in order, and stops at the first failure.
 
-| Command                | What it proves                                                                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `npm run format:check` | Prettier, over everything except the hand-formatted contract documents                                              |
-| `npm run lint`         | ESLint with typescript-eslint and the Astro plugin                                                                  |
-| `npm run check`        | `astro check` — types across `.astro`, `.ts` and the content schemas                                                |
-| `npm test`             | The contact endpoint: 27 tests, delivery injected so nothing calls a paid API                                       |
-| `npm run contrast`     | Every colour pair the design uses, measured against WCAG 2.2 AA — reading the shipping token file, not a copy of it |
-| `npm run build`        | Static output                                                                                                       |
-| `npm run audit`        | Over the built HTML: internal links resolve, headings descend without skipping, landmarks present                   |
+| Command                | What it proves                                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run format:check` | Prettier, over everything except the hand-formatted contract documents                                                                       |
+| `npm run lint`         | ESLint with typescript-eslint and the Astro plugin                                                                                           |
+| `npm run check`        | `astro check` — types across `.astro`, `.ts` and the content schemas                                                                         |
+| `npm test`             | The contact and status endpoints and the fact checker: 103 tests, delivery injected so nothing calls a paid API                              |
+| `npm run contrast`     | Every colour pair the design uses, measured against WCAG 2.2 AA — reading the shipping token file, not a copy of it                          |
+| `npm run facts`        | The Groundwork figures this site prints, re-derived from the plugin's public repository — see below                                          |
+| `npm run build`        | Static output                                                                                                                                |
+| `npm run audit`        | Over the built HTML: internal links resolve, headings descend without skipping, landmarks present, and the gate chips match the stated count |
+| `npm run motion`       | Every animated rule is CSS, scroll-driven animation sits inside `@supports`, and the hero is left alone                                      |
+| `npm run i18n:check`   | The dictionaries against the review file: how many Ukrainian lines are signed, and how many still render English                             |
+
+### The figures about Groundwork
+
+The site states how many procedures, gates and review agents the plugin has, and invites the reader
+to open the repository and recount. `npm run facts` does the recounting: it fetches the plugin's
+public `main`, counts the skills, the agent definitions and the gate toggles the hooks actually read,
+and fails if `src/data/site.ts` disagrees. `--fix` rewrites the numbers; a new gate still needs a
+display name in both locales, and until it has one the type check stays red. Offline it falls back to
+the installed plugin and says so; with neither source it reports a skip rather than a pass.
+
+A weekly workflow runs the same check, because the drift comes from releasing the plugin rather than
+from editing this site — between v0.27.1 and v0.40.0 these numbers went stale while nothing here
+changed.
 
 Separately, because it needs a running server and takes a minute:
 
