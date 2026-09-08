@@ -7,7 +7,7 @@
 # and `caddy validate` runs before every reload — if it fails, nothing has
 # changed and the site that was already running is still running.
 #
-#   docker run --rm -e SITE_ADDRESS=warmap.duckdns.org \
+#   docker run --rm -e SITE_ADDRESS=example.com \
 #     -v /opt/tiles/deploy/Caddyfile:/etc/caddy/Caddyfile:ro \
 #     caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 #

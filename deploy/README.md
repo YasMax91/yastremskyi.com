@@ -8,10 +8,11 @@ was executed against the box and the results checked from outside.
 
 ## The shape of it, and why
 
-The server is **not dedicated to this site**. It is a 1 GB DigitalOcean droplet
-running three unrelated projects in Docker, and one of them — `tiles-web-1`, a
-Caddy container serving `warmap.duckdns.org` — already owned ports 80 and 443.
-There was no room for a second web server, so this site shares that Caddy.
+The server is **not dedicated to this site**. It is a DigitalOcean droplet with
+one vCPU and 2 GB of RAM, running several unrelated projects in Docker, and one
+of them — `tiles-web-1`, a Caddy container serving another project's domain —
+already owned ports 80 and 443. There was no room for a second web server, so
+this site shares that Caddy.
 
 | Piece            | Where                                                                                       | Served by                                       |
 | ---------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -75,7 +76,7 @@ TLS-ALPN is disabled in the site block regardless: it validates over 443, which
 Cloudflare terminates, and Caddy picks a challenge at random when several are
 enabled — so leaving it on would mean roughly half of all renewals failing.
 
-## The origin address is not written down here
+## The origin address is not written down here, which is not the same as hidden
 
 Cloudflare proxies this domain, and one of the things that buys is that the
 origin's address is not public: traffic that cannot find the server cannot go
@@ -83,12 +84,38 @@ around the CDN to reach it. Committing the IP to a public repository would hand
 that back. `DEPLOY_HOST` carries it instead — an environment variable on the
 machine doing the deploying.
 
+That is necessary and it is not sufficient, and this document is the proof.
+Until 2026-09-08 the section above named a co-tenant domain on the same box, and
+that domain is not behind Cloudflare. One `dig` on the name returned the address
+this section calls unpublished — the secret was kept everywhere except in the
+file explaining why it was a secret. The name is gone from the current text, but
+the repository is public and its history stands: anyone reading the log can
+recover it, and passive DNS and certificate transparency hold their own copies
+regardless. Removing a name from `main` does not unpublish it.
+
+So treat the unwritten address as obfuscation, not as a control. The control is
+the firewall, and it is open: `ufw` accepts 80 and 443 from Anywhere, v4 and v6,
+so knowing the address is enough to reach Caddy directly and step around the
+CDN. Closing that is not a one-line change, which is why this is recorded as a
+gap and not as a task — the same two ports serve co-tenant projects that are
+_not_ behind Cloudflare, so restricting them to Cloudflare's published ranges
+would take those projects down. A real fix has to be per-site in Caddy, not
+per-port in `ufw`.
+
 ## Deploying a change
 
 ```bash
 npm run verify                      # nothing ships that has not passed the gates
-DEPLOY_HOST=root@<origin-ip> ./deploy/deploy.sh
+DEPLOY_HOST=root@<origin-ip> \
+  DEPLOY_NEIGHBOUR_URL=https://<co-tenant-domain> \
+  ./deploy/deploy.sh
 ```
+
+Both variables live on the deploying machine for the reason given above, and
+neither belongs in this file. `DEPLOY_NEIGHBOUR_URL` is optional: without it the
+deploy still runs and prints `SKIPPED` for the check that the co-tenant site
+survived the Caddy reload. It prints rather than stays silent because a check
+that quietly does not run looks exactly like a check that passed.
 
 The web root is `/var/www/yastremskyi.com` on the host and `/srv/yastremskyi`
 inside the Caddy container — one directory, bind-mounted read-only, so the two
