@@ -41,7 +41,7 @@ config, a hardened systemd unit and a deploy script.
   `61d72a1e…` and `8dbf04b0…`, both logged on the server. Whether they reached
   your inbox rather than a spam folder is the one thing only you can confirm.
 - **The Caddy config has been loaded, validated and reloaded** several times, with
-  `warmap.duckdns.org` answering 200 before and after each change.
+  the co-tenant site on the same Caddy answering 200 before and after each change.
 - **Measured from a real network.** Lighthouse against the deployed site through
   Cloudflare: see `docs/evidence/lighthouse-live.md`. TTFB 64–102 ms.
 - **The rate limiter works in production.** Six posts from one address were
