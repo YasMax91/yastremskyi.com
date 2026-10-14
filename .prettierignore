@@ -5,6 +5,10 @@ package-lock.json
 public/fonts
 docs/concepts
 
+# Claude Code worktrees are whole checkouts of this repository nested inside it,
+# kept out of git by .git/info/exclude, which Prettier does not read.
+.claude/worktrees
+
 # Contract documents are hand-formatted and are not the formatter's business:
 # AGENTS.md and CLAUDE.md carry aligned comment markers, and the brief is an
 # input we do not own.
