@@ -26,6 +26,7 @@ import {
   countCases,
   testsFigure,
   untaggedVersions,
+  fetchWithRetry,
 } from './check-facts.mjs';
 
 /** Groundwork 0.47.0, reduced to the parts the checker reads. */
@@ -299,6 +300,34 @@ test('sums every suite format in a CI log', () => {
   const linux = CI_LOG.replace('passed: 32', 'passed: 24');
   assert.equal(testsFigure([linux, CI_LOG]), 83, 'the largest job is the figure');
   assert.equal(testsFigure([]), null, 'no job log, no figure');
+});
+
+test('a GitHub 5xx is retried once, and nothing else is', async () => {
+  // Observed 2026-10-14: the first weekly run after the fix skipped the test
+  // count because one job log answered 503 for a moment.
+  const answers = (...statuses) => {
+    const calls = [];
+    const impl = async (url) => {
+      calls.push(url);
+      return { ok: statuses[calls.length - 1] < 400, status: statuses[calls.length - 1] };
+    };
+    return { impl, calls };
+  };
+
+  const flaky = answers(503, 200);
+  assert.equal((await fetchWithRetry('u', {}, { fetchImpl: flaky.impl, delayMs: 0 })).status, 200);
+  assert.equal(flaky.calls.length, 2, 'one retry after a 5xx');
+
+  const down = answers(502, 503, 200);
+  assert.equal((await fetchWithRetry('u', {}, { fetchImpl: down.impl, delayMs: 0 })).status, 503);
+  assert.equal(down.calls.length, 2, 'only one retry — a real outage stays a skip');
+
+  const missing = answers(404, 200);
+  assert.equal(
+    (await fetchWithRetry('u', {}, { fetchImpl: missing.impl, delayMs: 0 })).status,
+    404,
+  );
+  assert.equal(missing.calls.length, 1, 'a 4xx is an answer, not a flake');
 });
 
 test('an untagged version is reported', () => {
