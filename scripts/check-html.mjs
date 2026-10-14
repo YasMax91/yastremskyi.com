@@ -38,9 +38,15 @@ const headingJumps = [];
 const missingLandmarks = [];
 const chipMismatches = [];
 let gateListsSeen = 0;
+const factMismatches = [];
+let factsSeen = 0;
 
-/** The gate count the site states, read from the same file `npm run facts` guards. */
-const GATES_STATED = Number(/gates:\s*(\d+)/.exec(readFileSync('src/data/site.ts', 'utf8'))[1]);
+/** The figures the site states, read from the same file `npm run facts` guards. */
+const SITE_SOURCE = readFileSync('src/data/site.ts', 'utf8');
+const stated = (key) => Number(new RegExp(`${key}:\\s*(\\d+)`).exec(SITE_SOURCE)[1]);
+const GATES_STATED = stated('gates');
+/** `data-fact` cells on /groundwork and the figure each must open with. */
+const FACTS_STATED = { tests: stated('tests'), versions: stated('versions') };
 const external = new Set();
 let linksChecked = 0;
 
@@ -140,6 +146,19 @@ for (const page of pages) {
     const chips = [...list.matchAll(/<li[\s>]/g)].length;
     if (chips !== GATES_STATED) chipMismatches.push({ page: label, chips, stated: GATES_STATED });
   }
+
+  // --- derived facts --------------------------------------------------------
+  // The header's test and version counts go through a translated template, so
+  // a dictionary edit could drop or mangle the number while site.ts stays right.
+  // Each cell has to open with exactly the figure `npm run facts` guards.
+  for (const [, key, cell] of html.matchAll(
+    /<dd[^>]*\sdata-fact="([a-z]+)"[^>]*>([\s\S]*?)<\/dd>/g,
+  )) {
+    factsSeen++;
+    const shown = /^\d+/.exec(strip(cell))?.[0];
+    if (Number(shown) !== FACTS_STATED[key])
+      factMismatches.push({ page: label, key, shown: strip(cell), stated: FACTS_STATED[key] });
+  }
 }
 
 console.log(`pages:            ${pages.length}`);
@@ -170,6 +189,19 @@ if (gateListsSeen === 0) {
   failed += 1;
   console.log('\nGATE CHIPS:');
   console.log('  no `data-gates` list found in any page — the chip audit checked nothing');
+}
+
+if (factsSeen === 0) {
+  failed += 1;
+  console.log('\nDERIVED FACTS:');
+  console.log('  no `data-fact` cell found in any page — the fact audit checked nothing');
+}
+
+if (factMismatches.length) {
+  failed += factMismatches.length;
+  console.log('\nDERIVED FACTS:');
+  for (const f of factMismatches)
+    console.log(`  ${f.page}  ${f.key} shows "${f.shown}", site.ts states ${f.stated}`);
 }
 
 if (chipMismatches.length) {
@@ -214,7 +246,7 @@ if (CHECK_EXTERNAL && external.size) {
 
 console.log(
   failed === 0
-    ? `\nLinks resolve, headings descend in order, landmarks present, ${gateListsSeen} gate list(s) match the stated ${GATES_STATED}${CHECK_EXTERNAL ? ', external links answer' : ''}.`
+    ? `\nLinks resolve, headings descend in order, landmarks present, ${gateListsSeen} gate list(s) match the stated ${GATES_STATED}, ${factsSeen} fact cell(s) match site.ts${CHECK_EXTERNAL ? ', external links answer' : ''}.`
     : `\n${failed} problem(s).`,
 );
 process.exit(failed === 0 ? 0 : 1);

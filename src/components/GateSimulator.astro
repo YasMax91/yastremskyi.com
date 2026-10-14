@@ -94,6 +94,10 @@ const GATE_LABELS: Record<GateKey, UIKey> = {
   lock_shipped_migrations: 'gs.gate.migrations',
   lock_edits_in_discovery: 'gs.gate.edits',
   check_unpushed: 'gs.gate.unpushed',
+  handoff_on_stop: 'gs.gate.handoff',
+  slice_ledger: 'gs.gate.slices',
+  plain_language: 'gs.gate.plain',
+  full_suite_before_push: 'gs.gate.suite',
 };
 
 const GATES: UIKey[] = site.groundwork.gateKeys.map((key) => GATE_LABELS[key]);

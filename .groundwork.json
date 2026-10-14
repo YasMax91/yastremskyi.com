@@ -19,7 +19,12 @@
     "agent_contract": true,
     "trim_tool_output": true,
     "estimate_claim": true,
-    "defect_scan": true
+    "defect_scan": true,
+    "handoff_on_stop": false,
+    "handoff_skip_reason": "No frontend consumes an API from this repository: it is a static Astro site whose pages are its own frontend, so there is no contract to hand off.",
+    "slice_ledger": true,
+    "plain_language": true,
+    "full_suite_before_push": false
   },
   "estimates": {
     "ledger": true,

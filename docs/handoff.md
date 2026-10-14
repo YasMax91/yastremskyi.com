@@ -25,13 +25,13 @@ config, a hardened systemd unit and a deploy script.
 
 ## 2. Waiting on you
 
-| What                                                    | Why it is blocking                                                                                                                                                             | Effort                               |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| **Register `yastremskyi.com`** and point DNS at the VPS | Nothing below can happen without it. Checked free on 2026-08-19; not reserved                                                                                                  | minutes                              |
-| **Resend account + three DNS records**                  | The contact form cannot send until the sending domain is verified. Records are in `deploy/contact.env.example`                                                                 | ~20 minutes                          |
-| **Run `deploy/deploy.sh` once**                         | I have no access to the box. Everything it needs is in `deploy/`                                                                                                               | ~30 minutes for the first-time setup |
-| **Publish the Groundwork releases v0.28.0 … v0.40.0**   | The site says "semantic versioning" and links the repository. On 2026-08-28 `main` was 0.40.0 while the releases page still ended at `v0.27.1` — thirteen versions with no tag | minutes, scripted                    |
-| **Clear each case study against your NDAs**             | You chose to vet every one personally. Set `ndaReviewed: true` in the frontmatter as you go                                                                                    | ~30 minutes                          |
+| What                                                    | Why it is blocking                                                                                                                                                                                                                              | Effort                               |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **Register `yastremskyi.com`** and point DNS at the VPS | Nothing below can happen without it. Checked free on 2026-08-19; not reserved                                                                                                                                                                   | minutes                              |
+| **Resend account + three DNS records**                  | The contact form cannot send until the sending domain is verified. Records are in `deploy/contact.env.example`                                                                                                                                  | ~20 minutes                          |
+| **Run `deploy/deploy.sh` once**                         | I have no access to the box. Everything it needs is in `deploy/`                                                                                                                                                                                | ~30 minutes for the first-time setup |
+| **Merge the Groundwork README PR**                      | The plugin README and the site state the same October 2026 adoption figures only once it is merged. Every manifest version, v0.1.0 … v0.47.0, is tagged and released as of 2026-10-14, and `npm run facts -- --releases` checks both every week | minutes                              |
+| **Clear each case study against your NDAs**             | You chose to vet every one personally. Set `ndaReviewed: true` in the frontmatter as you go                                                                                                                                                     | ~30 minutes                          |
 
 ### What I could not verify, and would not claim
 
@@ -89,6 +89,12 @@ Done on 2026-08-20 up to v0.27.1, and it drifted again by itself: by 2026-08-28
 the same task that re-syncs the figures, and a weekly job
 (`.github/workflows/facts.yml`) asks the question from now on, because this gap
 grows while nobody is editing either repository.
+
+It drifted a second time, and the weekly job saw it and said nothing: from
+2026-09-21 it printed up to twenty problems every Monday and reported success,
+because `facts | tee` exits with tee's status. Re-synced to 0.47.0 on 2026-10-14,
+with every version tagged; the step now runs under `pipefail`, and
+`scripts/workflows.test.mjs` refuses that shape in any workflow.
 
 **Three — write the first note.** The section is built and hidden, and one file
 brings it into existence. The subjects are already sitting in your case studies:

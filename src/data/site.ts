@@ -1,10 +1,12 @@
 /**
  * Every fact the site states about Max, in one typed place.
  *
- * Two sources are permitted and no others: `portfolio-site-prompt.md` §2 (the
- * brief) and Max's own CV, which he approved as a source on 2026-08-19. If a
- * claim cannot be traced to one of them it does not belong here — the site's
- * whole argument is that its author does not invent things.
+ * Three sources are permitted and no others: `portfolio-site-prompt.md` §2 (the
+ * brief), Max's own CV, which he approved as a source on 2026-08-19, and a
+ * figure he approved in writing with its measurement recorded beside it (the
+ * October adoption figures below). If a claim cannot be traced to one of them it
+ * does not belong here — the site's whole argument is that its author does not
+ * invent things.
  *
  * The phone number is deliberately absent. It appears only in the downloadable
  * PDF, which is served with `X-Robots-Tag: noindex`, so it never enters a search
@@ -58,14 +60,27 @@ export const site = {
      * claims a reader can open the repository and recount, so the repository is
      * what gets counted.
      *
-     * `npm run facts -- --fix` rewrites the three figures and the version. It
+     * `npm run facts -- --fix` rewrites the figures and the version. It
      * deliberately does not touch `gateKeys`: a new gate needs a name a reader
      * understands, in two languages, and the build stays red until it has one.
      */
-    version: 'v0.40.0',
+    version: 'v0.47.0',
     agents: 5,
-    gates: 13,
-    procedures: 15,
+    gates: 17,
+    procedures: 17,
+    /**
+     * Test cases the plugin's own CI runs on every push, from the largest job's
+     * log (macOS, where every suite runs; Linux skips a few). Counted from the
+     * log, not from the files — the log is what a reader can open.
+     */
+    tests: 549,
+    /**
+     * Distinct versions in the manifest's history. The start month is fixed —
+     * the repository's first commit, 2026-06-14 — so the sentence only ever
+     * grows, and every version carries a tag a reader can count. The month lives
+     * in `gw.versionsValue`, not here: Ukrainian needs it in the genitive.
+     */
+    versions: 54,
     /**
      * The gate identifiers, in the order the simulator prints them — narrative
      * order, not alphabetical, because the list reads as a sequence: what runs
@@ -85,19 +100,30 @@ export const site = {
       'lock_shipped_migrations',
       'lock_edits_in_discovery',
       'check_unpushed',
+      'handoff_on_stop',
+      'slice_ledger',
+      'plain_language',
+      'full_suite_before_push',
     ],
   },
 
   /**
-   * Adoption figures from brief §2. Point-in-time by nature, so they are never
-   * rendered without `asOf` beside them.
+   * Adoption figures. Point-in-time by nature, so they are never rendered
+   * without `meta.asOf` beside them.
+   *
+   * August 2026 came from brief §2. October 2026 was measured on Max's machine
+   * on 2026-10-14 and approved by him in chat that day; the method is in
+   * docs/specs/2026-10-14-groundwork-0.47-sync.md §3. A "+" figure is a floor,
+   * never a rounding up: runs are the brief's 340 plus 475 counted since
+   * 2026-09-01 on one machine alone, specs are 323 counted on that machine. The
+   * codebase count is Max's statement; the machine shows 12 Laravel repositories
+   * carrying the plugin. "1 in 3" cannot be re-measured from logs and is his.
    */
   stats: {
-    asOf: 'August 2026',
-    codebases: 7,
-    procedureRuns: 340,
-    specsWritten: 160,
-    frontendHandoffs: 27,
+    codebases: 12,
+    procedureRuns: '800+',
+    specsWritten: '300+',
+    frontendHandoffs: 90,
     stoppedBeforeCode: '1 in 3',
   },
 
