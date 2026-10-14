@@ -47,6 +47,35 @@ const stated = (key) => Number(new RegExp(`${key}:\\s*(\\d+)`).exec(SITE_SOURCE)
 const GATES_STATED = stated('gates');
 /** `data-fact` cells on /groundwork and the figure each must open with. */
 const FACTS_STATED = { tests: stated('tests'), versions: stated('versions') };
+const statedText = (key) => new RegExp(`${key}:\\s*'([^']+)'`).exec(SITE_SOURCE)[1];
+
+/** An international number (+380 67 …), or any `tel:` link. A local 0XX
+ *  pattern was tried and dropped: it matches digits inside asset hashes. */
+const PHONE = /\+\d{1,3}[\s.-]?\(?\d{2,3}\)?[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}\b|\btel:/g;
+const phones = [];
+
+/** The CV's sections in the order of the document Max works from. */
+const CV_SECTIONS = [
+  'summary',
+  'achievements',
+  'experience',
+  'side-projects',
+  'skills',
+  'languages',
+];
+const CV_ROLES = 4;
+/** Every figure /cv states, as the sentence it sits in, read from site.ts. */
+const CV_FIGURES = [
+  `${stated('agents')} specialized review agents`,
+  `${stated('gates')} automated gates`,
+  `${stated('versions')} releases since June 2026`,
+  `${stated('tests')} hook tests in CI`,
+  `${stated('codebases')} production codebases`,
+  `${statedText('procedureRuns')} procedure runs`,
+  `${statedText('specsWritten')} specs`,
+  `${stated('frontendHandoffs')} auto-generated frontend hand-offs`,
+  `${statedText('experience')} building production Laravel platforms`,
+];
 const external = new Set();
 let linksChecked = 0;
 
@@ -159,6 +188,40 @@ for (const page of pages) {
     if (Number(shown) !== FACTS_STATED[key])
       factMismatches.push({ page: label, key, shown: strip(cell), stated: FACTS_STATED[key] });
   }
+
+  // --- phone numbers -------------------------------------------------------
+  // Max's number is kept off the web on purpose (see src/pages/cv.astro), and
+  // the CV he works from carries it. Scanned in the raw HTML, scripts included:
+  // a number in JSON-LD is as published as one in a paragraph.
+  for (const [match] of html.matchAll(PHONE)) phones.push({ page: label, match });
+}
+
+// --- the CV ------------------------------------------------------------------
+// /cv is the source /cv.pdf is printed from, so what it must contain is
+// checked here, where a missing section or a stale figure is caught before
+// anyone prints it.
+const CV_PAGE = join(DIST, 'cv/index.html');
+const cvProblems = [];
+if (existsSync(CV_PAGE)) {
+  const cv = readFileSync(CV_PAGE, 'utf8');
+  const text = strip(cv.replace(/<script[\s\S]*?<\/script>/g, ''));
+
+  const sections = [...cv.matchAll(/<section id="([a-z-]+)"/g)].map((m) => m[1]);
+  if (sections.join(' ') !== CV_SECTIONS.join(' '))
+    cvProblems.push(`sections are [${sections.join(', ')}], expected [${CV_SECTIONS.join(', ')}]`);
+
+  // Two of the four roles carry an intro in the source document, so intros are
+  // not counted; every role has its stack line.
+  for (const part of ['data-role', 'data-stack']) {
+    const n = cv.split(`${part}`).length - 1;
+    if (n !== CV_ROLES)
+      cvProblems.push(`${n} ${part} element(s), expected one per role (${CV_ROLES})`);
+  }
+
+  for (const phrase of CV_FIGURES)
+    if (!text.includes(phrase)) cvProblems.push(`figure missing or stale: "${phrase}"`);
+} else {
+  cvProblems.push(`${CV_PAGE} not built`);
 }
 
 console.log(`pages:            ${pages.length}`);
@@ -204,6 +267,18 @@ if (factMismatches.length) {
     console.log(`  ${f.page}  ${f.key} shows "${f.shown}", site.ts states ${f.stated}`);
 }
 
+if (phones.length) {
+  failed += phones.length;
+  console.log('\nPHONE NUMBERS:');
+  for (const p of phones) console.log(`  ${p.page}  "${p.match}"`);
+}
+
+if (cvProblems.length) {
+  failed += cvProblems.length;
+  console.log('\nCV:');
+  for (const c of cvProblems) console.log(`  cv/index.html  ${c}`);
+}
+
 if (chipMismatches.length) {
   failed += chipMismatches.length;
   console.log('\nGATE CHIPS:');
@@ -246,7 +321,7 @@ if (CHECK_EXTERNAL && external.size) {
 
 console.log(
   failed === 0
-    ? `\nLinks resolve, headings descend in order, landmarks present, ${gateListsSeen} gate list(s) match the stated ${GATES_STATED}, ${factsSeen} fact cell(s) match site.ts${CHECK_EXTERNAL ? ', external links answer' : ''}.`
+    ? `\nLinks resolve, headings descend in order, landmarks present, ${gateListsSeen} gate list(s) match the stated ${GATES_STATED}, ${factsSeen} fact cell(s) match site.ts, no phone number on any page, /cv has its ${CV_SECTIONS.length} sections, ${CV_ROLES} roles and ${CV_FIGURES.length} figures from site.ts${CHECK_EXTERNAL ? ', external links answer' : ''}.`
     : `\n${failed} problem(s).`,
 );
 process.exit(failed === 0 ? 0 : 1);

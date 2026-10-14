@@ -235,6 +235,12 @@ page and the PDF cannot say different things. They already had: a hand-made PDF
 was still quoting figures that were true two plugin versions earlier while the
 page quoted the current ones, and nobody would have noticed until a reader did.
 
+The CV's own copy lives in `src/data/cv.ts`, English only, apart from the
+timeline in `site.ts` that `/about` and the Ukrainian pages translate. Its
+figures are read from `site.ts`, so `npm run facts` keeps the PDF honest too, and
+`npm run audit` fails the build if `/cv` loses a section, states a stale figure,
+or any page carries a phone number.
+
 The script starts its own `astro preview` and stops it when it is done. If a
 preview of this project is already running, it prints from that one and leaves
 it running — preview reads `dist/` on every request, so it serves the build that

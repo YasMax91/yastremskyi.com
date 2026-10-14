@@ -46,6 +46,10 @@ Treat every item as a release gate, not advice.
 All facts below are verified. **Use only these.** Do not invent metrics, clients, testimonials,
 job titles, or technologies. If you want a fact that is not here, ask.
 
+<!-- Added 2026-10-14: Max's October 2026 CV is also a source of facts, confirmed by him in chat
+     that day. Its copy, without the phone number, lives in src/data/cv.ts and renders /cv and
+     /cv.pdf; see docs/specs/2026-10-14-cv-rework.md. -->
+
 ### Identity
 
 - **Name:** Max Yastremskyi
