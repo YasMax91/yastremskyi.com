@@ -150,6 +150,10 @@ Ids continue the 0.40 spec's numbering scheme but are local to this spec.
 - **AC13** — THE plugin README SHALL state the October figures and "549 cases, 25 suites", through a
   PR. → manual: PR URL
 
+- **AC14** — IF a GitHub API call for the test figure answers 5xx THEN THE SYSTEM SHALL retry it once,
+  and SHALL NOT retry a 4xx. → test: `a GitHub 5xx is retried once, and nothing else is` (added after
+  the first post-merge weekly run skipped the figure on a momentary 503)
+
 ## 7. Technical approach
 
 **One clone, every figure.** The repository is 1.7 MB, so a plain clone carries the whole history:

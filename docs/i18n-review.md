@@ -23,7 +23,7 @@ comes back here, because the approval was for a sentence that no longer exists.
 And a translation identical to its English — `Groundwork` — never appears here;
 there is nothing for a native speaker to judge.
 
-**Progress: 365 of 374 signed.**
+**Progress: 374 of 374 signed.**
 
 ---
 
@@ -495,7 +495,7 @@ there is nothing for a native speaker to judge.
   - **EN** format on edit
   - **UK** форматування при редагуванні
 
-- [ ] `uk:gs.gate.handoff`
+- [x] `uk:gs.gate.handoff`
   - **EN** frontend handoff
   - **UK** передача фронтенду
 
@@ -511,7 +511,7 @@ there is nothing for a native speaker to judge.
   - **EN** OpenAPI contract
   - **UK** контракт OpenAPI
 
-- [ ] `uk:gs.gate.plain`
+- [x] `uk:gs.gate.plain`
   - **EN** plain language
   - **UK** зрозуміла мова
 
@@ -519,11 +519,11 @@ there is nothing for a native speaker to judge.
   - **EN** enforced runner
   - **UK** примусовий runner
 
-- [ ] `uk:gs.gate.slices`
+- [x] `uk:gs.gate.slices`
   - **EN** proof for every slice
   - **UK** доказ для кожного зрізу
 
-- [ ] `uk:gs.gate.suite`
+- [x] `uk:gs.gate.suite`
   - **EN** full suite before push
   - **UK** повний набір тестів перед push
 
@@ -935,11 +935,11 @@ there is nothing for a native speaker to judge.
   - **EN** Laravel backends
   - **UK** Laravel-бекенди
 
-- [ ] `uk:gw.tests`
+- [x] `uk:gw.tests`
   - **EN** Tests
   - **UK** Тести
 
-- [ ] `uk:gw.testsValue`
+- [x] `uk:gw.testsValue`
   - **EN** {tests}, run on every push
   - **UK** {tests}, на кожен push
 
@@ -947,11 +947,11 @@ there is nothing for a native speaker to judge.
   - **EN** Version
   - **UK** Версія
 
-- [ ] `uk:gw.versions`
+- [x] `uk:gw.versions`
   - **EN** Versions
   - **UK** Версії
 
-- [ ] `uk:gw.versionsValue`
+- [x] `uk:gw.versionsValue`
   - **EN** {versions} since June 2026
   - **UK** {versions} з червня 2026 року
 
@@ -1119,7 +1119,7 @@ there is nothing for a native speaker to judge.
   - **EN** Ukrainian
   - **UK** Українська
 
-- [ ] `uk:meta.asOf`
+- [x] `uk:meta.asOf`
   - **EN** Approximate, as of October 2026
   - **UK** Приблизно, станом на жовтень 2026
 
