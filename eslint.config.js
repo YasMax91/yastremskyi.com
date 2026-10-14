@@ -5,7 +5,16 @@ import astro from 'eslint-plugin-astro';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist/**', '.astro/**', 'node_modules/**', 'docs/concepts/**'] },
+  {
+    ignores: [
+      'dist/**',
+      '.astro/**',
+      'node_modules/**',
+      'docs/concepts/**',
+      // Claude Code worktrees: whole checkouts of this repo nested inside it.
+      '.claude/worktrees/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
