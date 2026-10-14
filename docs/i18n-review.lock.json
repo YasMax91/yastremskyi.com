@@ -363,5 +363,14 @@
   "uk:gw.lv4.body": "e822a6c9c7ba85ec",
   "uk:gw.lv4.title": "24d32b969b6a90d1",
   "uk:gw.meta": "f3443d93dc77557c",
-  "uk:gw.version": "60379fbe4e8e0766"
+  "uk:gw.version": "60379fbe4e8e0766",
+  "uk:gs.gate.handoff": "19cea3eba1b74fd3",
+  "uk:gs.gate.plain": "561f313b9c9b4b02",
+  "uk:gs.gate.slices": "e51601798dfcbd0a",
+  "uk:gs.gate.suite": "de4cfb074548b396",
+  "uk:gw.tests": "187600768fe2ebe7",
+  "uk:gw.testsValue": "595fc32e2676aa0d",
+  "uk:gw.versions": "33cd622b78e52ced",
+  "uk:gw.versionsValue": "246eb2927d453149",
+  "uk:meta.asOf": "edb5e3927c639b4b"
 }

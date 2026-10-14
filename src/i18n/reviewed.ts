@@ -125,10 +125,14 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:gs.gate.edits",
   "uk:gs.gate.estimate",
   "uk:gs.gate.format",
+  "uk:gs.gate.handoff",
   "uk:gs.gate.intent",
   "uk:gs.gate.migrations",
   "uk:gs.gate.openapi",
+  "uk:gs.gate.plain",
   "uk:gs.gate.runner",
+  "uk:gs.gate.slices",
+  "uk:gs.gate.suite",
   "uk:gs.gate.tests",
   "uk:gs.gate.unpushed",
   "uk:gs.gatesLabel",
@@ -231,7 +235,11 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:gw.tableCaption",
   "uk:gw.targets",
   "uk:gw.targetsValue",
+  "uk:gw.tests",
+  "uk:gw.testsValue",
   "uk:gw.version",
+  "uk:gw.versions",
+  "uk:gw.versionsValue",
   "uk:home.capabilities",
   "uk:home.caps.prose",
   "uk:home.caps.title",
@@ -273,6 +281,7 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:lang.level.native",
   "uk:lang.russian",
   "uk:lang.ukrainian",
+  "uk:meta.asOf",
   "uk:nav.about",
   "uk:nav.cv",
   "uk:nav.inEnglish",
@@ -375,4 +384,4 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:work.nda"
 ]);
 
-export const COMPLETE_LOCALES: readonly string[] = [];
+export const COMPLETE_LOCALES: readonly string[] = ["uk"];
