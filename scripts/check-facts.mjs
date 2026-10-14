@@ -287,6 +287,21 @@ const authHeaders = () =>
   process.env.GITHUB_TOKEN ? { authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {};
 
 /**
+ * One retry on a 5xx, nothing more.
+ *
+ * The first weekly run after the 0.47 sync skipped the test count because one
+ * job log answered 503 for a moment. A server error that brief is a flake; one
+ * that survives a retry is an outage, and stays a loud skip. A 4xx is an
+ * answer — retrying a 403 only spends the rate limit.
+ */
+export async function fetchWithRetry(url, options, { fetchImpl = fetch, delayMs = 3000 } = {}) {
+  const res = await fetchImpl(url, options);
+  if (res.status < 500) return res;
+  await new Promise((r) => setTimeout(r, delayMs));
+  return fetchImpl(url, options);
+}
+
+/**
  * The public repository, cloned to a temporary directory.
  *
  * A clone rather than the tarball the 0.40 version fetched: the version count
@@ -325,7 +340,7 @@ async function fetchRemoteTree() {
 async function fetchTestsFigure() {
   if (!process.env.GITHUB_TOKEN) throw new Error('job logs need GITHUB_TOKEN, and none is set');
   const api = async (path) => {
-    const res = await fetch(`https://api.github.com/repos/${REPO}/${path}`, {
+    const res = await fetchWithRetry(`https://api.github.com/repos/${REPO}/${path}`, {
       headers: { accept: 'application/vnd.github+json', ...authHeaders() },
     });
     if (!res.ok) throw new Error(`GitHub answered ${res.status} for ${path.split('?')[0]}`);
