@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-14
 - **Level:** L2
-- **State:** approved 2026-10-14, in implementation
+- **State:** shipped — live on yastremskyi.com 2026-10-14 (PRs #5, #6; plugin PR YasMax91/groundwork#1)
 - **Supersedes nothing:** extends `2026-08-28-groundwork-0.40-sync.md`; its AC ids are not reused here.
 
 ---
@@ -16,18 +16,18 @@ doubled since.
 
 ## 2. Source requirements (verbatim)
 
-| ID  | Requirement (verbatim)                                                                    | Source                          | Proof |
-| --- | ----------------------------------------------------------------------------------------- | ------------------------------- | ----- |
-| R1  | «Обнови сайт с новыми данными»                                                            | chat, 2026-10-14, first message |       |
-| R2  | «Но цифры немного приукрась, если можно»                                                  | chat, interview round 1         |       |
-| R3  | «Groundwork 0.47.0» · «Новые цифры внедрения»                                             | chat, round 1                   |       |
-| R4  | «17» (gates)                                                                              | chat, round 1                   |       |
-| R5  | «Да, в этой задаче» (publish v0.41.0 … v0.47.0)                                           | chat, round 1                   |       |
-| R6  | «Свежие, с плюсом» · «12» (codebases)                                                     | chat, round 2                   |       |
-| R7  | «Да, в этой задаче» (plugin README) · «Через PR»                                          | chat, rounds 2–3                |       |
-| R8  | «379 автотестов» · «Темп выпуска» → «549» · «54 версии с июня 2026» · «Шапка /groundwork» | chat, rounds 2–3                |       |
-| R9  | «Да, тег + релиз» (v0.1.0, v0.19.1)                                                       | chat, round 4                   |       |
-| R10 | «Одна, после подписи» · «Ты при мне» (deploy)                                             | chat, round 4                   |       |
+| ID  | Requirement (verbatim)                                                                    | Source                          | Proof                                                                                               |
+| --- | ----------------------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| R1  | «Обнови сайт с новыми данными»                                                            | chat, 2026-10-14, first message | live yastremskyi.com 2026-10-14: v0.47.0, 17 gates, 549 / 54 rows on /groundwork and /uk/groundwork |
+| R2  | «Но цифры немного приукрась, если можно»                                                  | chat, interview round 1         | not invented: measured floors (§3) chosen by Max in round 2; AGENTS.md invariant 1                  |
+| R3  | «Groundwork 0.47.0» · «Новые цифры внедрения»                                             | chat, round 1                   | `npm run facts` all ok on main; live / shows 12 · 800+ · 300+ · 90                                  |
+| R4  | «17» (gates)                                                                              | chat, round 1                   | `npm run audit`: 4 gate lists match 17; live /groundwork has 17 chips                               |
+| R5  | «Да, в этой задаче» (publish v0.41.0 … v0.47.0)                                           | chat, round 1                   | 12 releases published; `npm run facts -- --releases` → all 54 versions tagged, v0.47.0 Latest       |
+| R6  | «Свежие, с плюсом» · «12» (codebases)                                                     | chat, round 2                   | live / shows 12 · 800+ · 300+ · 90, "as of October 2026"; /cv and /cv.pdf say 12                    |
+| R7  | «Да, в этой задаче» (plugin README) · «Через PR»                                          | chat, rounds 2–3                | YasMax91/groundwork#1 merged; README on main shows the October figures                              |
+| R8  | «379 автотестов» · «Темп выпуска» → «549» · «54 версии с июня 2026» · «Шапка /groundwork» | chat, rounds 2–3                | live /groundwork header: "549, run on every push" · "54 since June 2026"                            |
+| R9  | «Да, тег + релиз» (v0.1.0, v0.19.1)                                                       | chat, round 4                   | tags v0.1.0 and v0.19.1 published; 54 tags for 54 versions                                          |
+| R10 | «Одна, после подписи» · «Ты при мне» (deploy)                                             | chat, round 4                   | uk signed in chat (#6, 374/374); one deploy by Max from main 9498ff6; checked live                  |
 
 R2 is met by measurement, not invention: AGENTS.md integrity invariant 1 forbids a figure that does not
 trace to a source, and the site's argument is that a reader can recount. The measured figures are
