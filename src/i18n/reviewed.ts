@@ -273,7 +273,6 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:lang.level.native",
   "uk:lang.russian",
   "uk:lang.ukrainian",
-  "uk:meta.asOf",
   "uk:nav.about",
   "uk:nav.cv",
   "uk:nav.inEnglish",
@@ -376,4 +375,4 @@ export const REVIEWED: ReadonlySet<string> = new Set([
   "uk:work.nda"
 ]);
 
-export const COMPLETE_LOCALES: readonly string[] = ["uk"];
+export const COMPLETE_LOCALES: readonly string[] = [];

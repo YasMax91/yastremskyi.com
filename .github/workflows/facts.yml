@@ -44,12 +44,20 @@ jobs:
 
       # Not a gate here — the result decides what the next steps do, so a failure
       # has to be catchable rather than fatal.
+      #
+      # `pipefail` is the whole point of this step. A `run:` with no `shell:` is
+      # `bash -e {0}`, so `facts | tee` exits with tee's 0: from 2026-09-21 to
+      # 2026-10-12 this step printed up to twenty problems a week and succeeded,
+      # and neither the pull request nor the red below ever happened.
+      # `scripts/workflows.test.mjs` refuses the shape anywhere in this directory.
       - name: Check
         id: check
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run facts -- --releases | tee facts.log
+        run: |
+          set -o pipefail
+          npm run facts -- --releases | tee facts.log
 
       # Only the numbers are rewritten. A new gate needs a name a reader
       # understands, in two languages, and a missing release needs a person — so

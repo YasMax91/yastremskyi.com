@@ -38,7 +38,9 @@ const hasPdf = existsSync('dist/cv.pdf') || existsSync('public/cv.pdf');
  */
 
 const ACHIEVEMENTS = [
-  'Authored and open-sourced Groundwork (MIT) — an AI spec-driven development platform for Claude Code: risk-based task classification, five specialised review agents, automated gates and a companion-plugin ecosystem. Adopted across seven production codebases; roughly one task in three is stopped before code as mis-scoped.',
+  // The count is read from site.ts, so the CV and the home page move together.
+  // Until October 2026 it was typed here as "seven" — the one copy nothing checked.
+  `Authored and open-sourced Groundwork (MIT) — an AI spec-driven development platform for Claude Code: risk-based task classification, five specialised review agents, automated gates and a companion-plugin ecosystem. Adopted across ${site.stats.codebases} production codebases; roughly one task in three is stopped before code as mis-scoped.`,
   'Shipped applied AI to production: voice intake behind schema-constrained, temperature-zero extraction, an intent gateway that validates model output instead of executing it, OCR and computer-vision pipelines — with provider fallback, prompt-injection defence and response-regression tests.',
   'Engineered payment and financial subsystems: card tokenization (tokens only), hierarchical payment requests, idempotency-keyed clearing, multi-currency decimal money with bcmath, accounting and tax export, signed-webhook reconciliation and all-or-nothing document issuance.',
   'Built a reusable multi-market headless commerce platform: storefront JSON API plus back-office admin, a retail and wholesale pricing engine, driver-abstracted payments and delivery, and an ERP catalogue sync.',

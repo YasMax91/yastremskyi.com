@@ -96,6 +96,20 @@ const jsonLd = {
             against whatever `main` happens to be the day they arrive. */
         }
         <div><dt>{t('gw.version')}</dt><dd>{site.groundwork.version}</dd></div>
+        {
+          /* Both re-derived by `npm run facts`: the test cases from the plugin's
+            own CI log, the versions from its manifest history. */
+        }
+        <div>
+          <dt>{t('gw.tests')}</dt>
+          <dd data-fact="tests">{t('gw.testsValue', { tests: site.groundwork.tests })}</dd>
+        </div>
+        <div>
+          <dt>{t('gw.versions')}</dt>
+          <dd data-fact="versions">
+            {t('gw.versionsValue', { versions: site.groundwork.versions })}
+          </dd>
+        </div>
         <div><dt>{t('gw.runsIn')}</dt><dd>Claude Code</dd></div>
         <div><dt>{t('gw.targets')}</dt><dd>{t('gw.targetsValue')}</dd></div>
         <div><dt>{t('gw.author')}</dt><dd>{t('site.name')}</dd></div>

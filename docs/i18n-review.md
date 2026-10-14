@@ -23,7 +23,7 @@ comes back here, because the approval was for a sentence that no longer exists.
 And a translation identical to its English — `Groundwork` — never appears here;
 there is nothing for a native speaker to judge.
 
-**Progress: 366 of 366 signed.**
+**Progress: 365 of 374 signed.**
 
 ---
 
@@ -495,6 +495,10 @@ there is nothing for a native speaker to judge.
   - **EN** format on edit
   - **UK** форматування при редагуванні
 
+- [ ] `uk:gs.gate.handoff`
+  - **EN** frontend handoff
+  - **UK** передача фронтенду
+
 - [x] `uk:gs.gate.intent`
   - **EN** task intent
   - **UK** намір задачі
@@ -507,9 +511,21 @@ there is nothing for a native speaker to judge.
   - **EN** OpenAPI contract
   - **UK** контракт OpenAPI
 
+- [ ] `uk:gs.gate.plain`
+  - **EN** plain language
+  - **UK** зрозуміла мова
+
 - [x] `uk:gs.gate.runner`
   - **EN** enforced runner
   - **UK** примусовий runner
+
+- [ ] `uk:gs.gate.slices`
+  - **EN** proof for every slice
+  - **UK** доказ для кожного зрізу
+
+- [ ] `uk:gs.gate.suite`
+  - **EN** full suite before push
+  - **UK** повний набір тестів перед push
 
 - [x] `uk:gs.gate.tests`
   - **EN** test suite
@@ -919,9 +935,25 @@ there is nothing for a native speaker to judge.
   - **EN** Laravel backends
   - **UK** Laravel-бекенди
 
+- [ ] `uk:gw.tests`
+  - **EN** Tests
+  - **UK** Тести
+
+- [ ] `uk:gw.testsValue`
+  - **EN** {tests}, run on every push
+  - **UK** {tests}, на кожен push
+
 - [x] `uk:gw.version`
   - **EN** Version
   - **UK** Версія
+
+- [ ] `uk:gw.versions`
+  - **EN** Versions
+  - **UK** Версії
+
+- [ ] `uk:gw.versionsValue`
+  - **EN** {versions} since June 2026
+  - **UK** {versions} з червня 2026 року
 
 - [x] `uk:home.capabilities`
   - **EN** Capability map
@@ -1087,9 +1119,9 @@ there is nothing for a native speaker to judge.
   - **EN** Ukrainian
   - **UK** Українська
 
-- [x] `uk:meta.asOf`
-  - **EN** Approximate, as of August 2026
-  - **UK** Приблизно, станом на серпень 2026
+- [ ] `uk:meta.asOf`
+  - **EN** Approximate, as of October 2026
+  - **UK** Приблизно, станом на жовтень 2026
 
 - [x] `uk:nav.about`
   - **EN** About
