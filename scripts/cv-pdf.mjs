@@ -216,7 +216,10 @@ async function main() {
     copyFileSync(OUT, KEEP);
 
     const kb = (statSync(OUT).size / 1024).toFixed(1);
-    console.log(`  ${OUT}  ${kb} KB`);
+    // The CV is meant to be two pages; one more line of copy makes it three,
+    // and nothing else would say so.
+    const pages = (readFileSync(OUT, 'latin1').match(/\/Type\s*\/Page(?!s)/g) ?? []).length;
+    console.log(`  ${OUT}  ${pages} page(s), ${kb} KB`);
     console.log(`  ${KEEP}  (kept so the next build carries it)`);
   } finally {
     release();

@@ -5,6 +5,7 @@ import Section from '../components/Section.astro';
 import ButtonRow from '../components/ButtonRow.astro';
 import Button from '../components/Button.astro';
 import { site } from '../data/site';
+import { cv, type CvRole } from '../data/cv';
 import { useTranslations, DEFAULT_LOCALE } from '../i18n/ui';
 
 // The CV is English in every locale by an explicit decision, so it asks for the
@@ -14,11 +15,14 @@ const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'nume
 const when = (value: string) =>
   value === 'present' ? t('tl.present') : monthYear.format(new Date(`${value}-01T00:00:00Z`));
 
+/** `**text**` in cv.ts is emphasis: odd parts of the split are the strong ones. */
+const rich = (text: string) => text.split('**');
+
 /**
- * The PDF is Max's own file rather than something generated from this page, so
- * the two are separate sources by his decision. The link is therefore only
- * rendered when the file is actually there — a CV button that 404s is worse than
- * no button, and the brief allows no broken links.
+ * /cv.pdf is printed from this page by `npm run cv`, so the two cannot say
+ * different things. The link is only rendered when the file is actually there —
+ * a CV button that 404s is worse than no button, and the brief allows no broken
+ * links.
  */
 const hasPdf = existsSync('dist/cv.pdf') || existsSync('public/cv.pdf');
 
@@ -30,22 +34,18 @@ const hasPdf = existsSync('dist/cv.pdf') || existsSync('public/cv.pdf');
  * from a crawler, so a print-only phone number would have been published by the
  * very mechanism meant to keep it private.
  *
- * Putting it back means a separate `/cv-print` route, excluded from the sitemap
- * and served noindex, used only as the source for the PDF. That is buildable;
- * it was judged not worth the machinery for a number a recruiter can ask for in
- * one reply, when a downloadable PDF is forwarded, uploaded to applicant systems
- * and scraped regardless of any header on it.
+ * Max's own CV carries the number; the site's copy of it does not, by his
+ * decision of 2026-10-14. `npm run audit` fails on a phone number in any built
+ * page.
  */
 
-const ACHIEVEMENTS = [
-  // The count is read from site.ts, so the CV and the home page move together.
-  // Until October 2026 it was typed here as "seven" — the one copy nothing checked.
-  `Authored and open-sourced Groundwork (MIT) — an AI spec-driven development platform for Claude Code: risk-based task classification, five specialised review agents, automated gates and a companion-plugin ecosystem. Adopted across ${site.stats.codebases} production codebases; roughly one task in three is stopped before code as mis-scoped.`,
-  'Shipped applied AI to production: voice intake behind schema-constrained, temperature-zero extraction, an intent gateway that validates model output instead of executing it, OCR and computer-vision pipelines — with provider fallback, prompt-injection defence and response-regression tests.',
-  'Engineered payment and financial subsystems: card tokenization (tokens only), hierarchical payment requests, idempotency-keyed clearing, multi-currency decimal money with bcmath, accounting and tax export, signed-webhook reconciliation and all-or-nothing document issuance.',
-  'Built a reusable multi-market headless commerce platform: storefront JSON API plus back-office admin, a retail and wholesale pricing engine, driver-abstracted payments and delivery, and an ERP catalogue sync.',
-  'Delivered order-lifecycle and production-workflow platforms: multi-station scan tracking, quality control, weighted auto-assignment, server-side RBAC and right-to-left document rendering.',
-];
+const roles = site.timeline.map((job) => ({
+  ...job,
+  ...(cv.roles[job.org as keyof typeof cv.roles] as CvRole),
+}));
+const wideSkills = cv.skills.filter((s) => s.wide);
+const columnSkills = cv.skills.filter((s) => !s.wide);
+const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '');
 ---
 
 <Base
@@ -56,11 +56,11 @@ const ACHIEVEMENTS = [
 >
   <div class="page-head">
     <div class="wrap">
-      <p class="label">{site.title}</p>
+      <p class="label">{cv.headline}</p>
       <h1>{site.name}</h1>
       <dl class="meta">
         <div><dt>Based</dt><dd>{site.location}, {site.timezone}</dd></div>
-        <div><dt>Open to</dt><dd>{site.availability}</dd></div>
+        <div><dt>Open to</dt><dd>{cv.availability}</dd></div>
         <div>
           <dt>Email</dt><dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd>
         </div>
@@ -71,6 +71,15 @@ const ACHIEVEMENTS = [
           </dd>
         </div>
       </dl>
+      {/* The masthead line of the document: on paper a profile is worth its address. */}
+      <p class="contact">
+        <span>{site.contact.email}</span>
+        <span>{host(site.contact.linkedin)}</span>
+        <span>{host(site.contact.github)}</span>
+        <span>{host(site.origin)}</span>
+        <span>{site.location} · {site.timezone}</span>
+        <span>{cv.openTo}</span>
+      </p>
       {
         hasPdf ? (
           <p class="pdf">
@@ -89,42 +98,50 @@ const ACHIEVEMENTS = [
     </div>
   </div>
 
-  <Section label="Summary" title="In one paragraph">
-    <p class="prose">
-      Senior Backend Engineer and Tech Lead with {site.experience} shipping production Laravel platforms
-      for CRM, e-commerce, manufacturing and premium-services businesses. I own complex domains end to
-      end — order lifecycles, multi-station production workflows, payments, clearing and accounting —
-      and design microservice back-ends on PHP 8.4 and Laravel 12, integrating payment, messaging, calendar
-      and logistics providers with sandbox-verified reliability. I also build and lead AI-assisted engineering:
-      I authored Groundwork, and I ship applied-AI features to production with a strict bias toward tests,
-      grounding and verified integrations.
+  <Section id="summary" label="Summary" title="In one paragraph">
+    <p class="prose summary">
+      {rich(cv.summary).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}
     </p>
   </Section>
 
-  <Section label="Selected achievements" title="What I have actually shipped">
+  <Section id="achievements" label="Selected achievements" title="What I have actually shipped">
     <ul class="achievements">
-      {ACHIEVEMENTS.map((a) => <li>{a}</li>)}
+      {
+        cv.achievements.map((a) => (
+          <li>{rich(a).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}</li>
+        ))
+      }
     </ul>
   </Section>
 
-  <Section label="Experience" title="Roles">
+  <Section id="experience" label="Experience" title="Roles">
     <ol class="roles">
       {
-        site.timeline.map((job) => (
-          <li>
+        roles.map((job) => (
+          <li data-role>
             <div class="when">
               <span class="num">
                 {when(job.from)} — {when(job.to)}
               </span>
             </div>
-            <div>
-              <h3>{job.role}</h3>
-              <p class="org">{job.org}</p>
+            <div class="body">
+              <h3>
+                <>
+                  <span class="org-name">{job.org}</span>
+                  <span class="sep"> · </span>
+                  <span class="desc">{job.descriptor}</span>
+                </>
+              </h3>
+              <p class="role">{job.role}</p>
+              {job.intro && <p class="intro">{job.intro}</p>}
               <ul>
                 {job.highlights.map((h) => (
-                  <li>{t(h)}</li>
+                  <li>{rich(h).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}</li>
                 ))}
               </ul>
+              <p class="stack" data-stack>
+                <span>Stack:</span> {job.stack}
+              </p>
             </div>
           </li>
         ))
@@ -132,36 +149,52 @@ const ACHIEVEMENTS = [
     </ol>
   </Section>
 
-  <Section label="Technical skills" title="Grouped, not scored">
+  <Section id="side-projects" label="Side projects & consulting" title="Outside the day job">
+    <ul class="side">
+      {
+        cv.sideProjects.map((p) => (
+          <li>{rich(p).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}</li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Section id="skills" label="Technical skills" title="Grouped, not scored">
     <div class="skills">
       {
-        site.capabilities.map((group) => (
-          <div>
-            <h3>{t(group.key)}</h3>
-            <ul>
-              {group.items.map((item) => (
-                <li>{t(item)}</li>
-              ))}
-            </ul>
+        wideSkills.map((group) => (
+          <div class="group wide">
+            <h3>{group.label}</h3>
+            <p>{rich(group.text).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}</p>
           </div>
         ))
       }
+      <div class="columns">
+        {
+          columnSkills.map((group) => (
+            <div class="group">
+              <h3>{group.label}</h3>
+              <p>{rich(group.text).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}</p>
+            </div>
+          ))
+        }
+      </div>
     </div>
   </Section>
 
-  <Section label="Languages & availability" title="Practicalities" last>
+  <Section id="languages" label="Languages & availability" title="Practicalities" last>
     <dl class="langs">
       {
-        site.languages.map((l) => (
+        cv.languages.map((l) => (
           <div>
-            <dt>{t(l.nameKey)}</dt>
-            <dd>{t(l.levelKey)}</dd>
+            <dt>{l.name}</dt>
+            <dd>{l.level}</dd>
           </div>
         ))
       }
-      <div>
+      <div class="avail">
         <dt>Availability</dt>
-        <dd>{site.availability}</dd>
+        <dd>{cv.availability}</dd>
       </div>
     </dl>
     <ButtonRow>
@@ -210,6 +243,11 @@ const ACHIEVEMENTS = [
     margin: var(--space-1) 0 0;
   }
 
+  /* The document's one-line masthead; the screen has the labelled grid above. */
+  .contact {
+    display: none;
+  }
+
   .pdf {
     max-width: var(--measure);
     margin-top: var(--space-5);
@@ -221,14 +259,21 @@ const ACHIEVEMENTS = [
     color: var(--accent-text);
   }
 
+  strong {
+    color: var(--ink);
+    font-weight: var(--weight-bold);
+  }
+
   .achievements,
+  .side,
   .roles {
     padding: 0;
     border-top: var(--rule) solid var(--border);
     list-style: none;
   }
 
-  .achievements > li {
+  .achievements > li,
+  .side > li {
     max-width: var(--measure);
     padding: var(--space-4) 0;
     border-bottom: var(--rule) solid var(--border);
@@ -260,11 +305,35 @@ const ACHIEVEMENTS = [
     font-size: var(--text-xl);
   }
 
-  .org {
-    margin-bottom: var(--space-4);
+  /* On screen the descriptor is its own line; on paper it follows the name. */
+  .roles h3 .sep {
+    display: none;
+  }
+
+  .roles h3 .desc {
+    display: block;
+    margin-top: var(--space-1);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-muted);
+  }
+
+  .role {
+    margin-bottom: var(--space-3);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--accent-text);
+  }
+
+  .intro {
+    max-width: var(--measure);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--ink-muted);
   }
 
   .roles ul {
@@ -284,30 +353,43 @@ const ACHIEVEMENTS = [
     border-bottom: 0;
   }
 
+  .stack {
+    max-width: var(--measure);
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    line-height: 1.7;
+    color: var(--ink-muted);
+  }
+
+  .stack span {
+    color: var(--accent-text);
+  }
+
   .skills {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
     border-top: var(--rule) solid var(--border);
     border-left: var(--rule) solid var(--border);
   }
 
-  .skills > div {
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  .group {
     padding: var(--space-5);
     border-right: var(--rule) solid var(--border);
     border-bottom: var(--rule) solid var(--border);
   }
 
-  .skills h3 {
-    margin-bottom: var(--space-4);
+  .group h3 {
+    margin-bottom: var(--space-3);
     font-size: var(--text-lg);
   }
 
-  .skills ul {
-    padding: 0;
-    list-style: none;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    line-height: 2;
+  .group p {
+    max-width: var(--measure);
+    font-size: var(--text-sm);
     color: var(--ink-muted);
   }
 
@@ -343,31 +425,42 @@ const ACHIEVEMENTS = [
   }
 
   /* ---------------------------------------------------------------------------
-     Print. This is not a styled web page that happens to print — it is the CV,
-     and /cv.pdf is generated from it, so what a printer produces and what a
-     recruiter downloads are the same document. One source, so the page and the
-     PDF cannot drift apart.
+     Print — the CV as a document, laid out after the one Max works from: a
+     one-line masthead, accent section labels over a rule, roles as "Org ·
+     what it does" with the dates on the right, the title in the accent, an
+     italic intro, en-dash highlights and a small Stack line. In the site's own
+     fonts, by his choice, so the PDF and the site read as one family.
 
-     The screen version leads with display type because a visitor is deciding
-     whether to read on. A reader holding the CV has already decided, so print
-     trades the scale for density: two pages instead of six, and every heading
-     doing work.
-     --------------------------------------------------------------------------- */
-  /* ---------------------------------------------------------------------------
-     Print — designed as a document, not as the page with its interface hidden.
-
-     The first attempt was the second thing: shrink the type, drop the nav, keep
-     everything else. What came out read like a form, because the direction's 2px
-     rules that carry a hero at 90pt become a grid of cages at 8.5pt. A CV is a
-     dense, quiet document with one accent and a lot of air, so the boxes are
+     It is not the page with its interface hidden. The direction's 2px rules
+     that carry a hero at 90pt become a grid of cages at 8pt, so the boxes are
      gone and the hierarchy is carried by weight, colour and space.
      --------------------------------------------------------------------------- */
+  /* Margins of the document Max works from (~13 mm), on this page only. A named
+     page, because the site-wide @page in global.css and this one would
+     otherwise be ordered by however the bundler happens to emit them. */
+  @page cv {
+    size: A4;
+    margin: 12mm 13mm 12mm;
+  }
+
   @media print {
+    :global(body) {
+      page: cv;
+    }
+
     /* Paper has one theme, and the accent survives it — a CV with a single warm
-       colour reads as designed; the same page in pure black reads as a fax. */
+       colour reads as designed; the same page in pure black reads as a fax.
+
+       `:root:not([data-theme='light'])` is the OS-dark selector in tokens.css,
+       and it outranks a bare :root. Without it here the page printed under a
+       dark OS kept `color-scheme: dark`, and Chrome painted the @page margins
+       #121212 — measured on the live /cv.pdf, 2026-10-14. */
     :global(:root),
+    :global(:root:not([data-theme='light'])),
     :global(:root[data-theme='dark']),
     :global(:root[data-theme='light']) {
+      color-scheme: light;
+      background: #fff;
       --surface: #fff;
       --surface-sunk: #fff;
       --ink: #14110f;
@@ -378,203 +471,282 @@ const ACHIEVEMENTS = [
     }
 
     .pdf,
+    .meta,
     :global(.cta) {
       display: none !important;
     }
 
-    /* The 62-character measure is right for reading prose on a screen at 16px.
-       At 8.5pt on A4 it leaves half the page empty and breaks the summary into a
-       narrow column, so print sets its own. */
-    :global(.prose) {
+    /* The 62-character measure is right for prose on a screen at 16px. On A4 at
+       8.5pt it leaves half the page empty, so print sets its own. */
+    :global(.prose),
+    .achievements > li,
+    .side > li,
+    .roles ul,
+    .intro,
+    .stack,
+    .group p {
       max-width: none !important;
-      font-size: 8.7pt;
-      line-height: 1.45;
     }
 
     /* --- masthead --- */
     .page-head {
-      padding: 0 0 0.5rem !important;
-      border-bottom: 2pt solid var(--accent) !important;
+      padding: 0 0 0.35rem !important;
+      border-bottom: 1pt solid var(--accent) !important;
     }
 
     .page-head :global(.label) {
-      font-size: 8.5pt;
-      letter-spacing: 0.18em;
+      font-family: var(--font-body);
+      font-size: 8.6pt;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--accent) !important;
     }
 
     .page-head h1 {
-      margin: 0.05rem 0 0.35rem !important;
-      font-size: 25pt;
-      letter-spacing: -0.035em;
+      margin: 0 0 0.12rem !important;
+      font-size: 22pt;
+      letter-spacing: -0.03em;
     }
 
-    .meta {
-      display: flex !important;
-      flex-wrap: wrap;
-      gap: 0.1rem 1.1rem !important;
-      padding-top: 0 !important;
-      border-top: 0 !important;
-      font-size: 8pt;
-    }
-
-    .meta > div {
+    .contact {
       display: flex;
-      gap: 0.3rem;
-      align-items: baseline;
-    }
-
-    .meta dt {
-      color: var(--ink-muted);
-    }
-
-    .meta dd {
-      margin: 0;
+      flex-wrap: wrap;
+      margin: 0.15rem 0 0;
+      font-size: 7.4pt;
       color: var(--ink);
     }
 
-    /* On paper a profile is worth its URL; everything else is noise. */
-    .meta :global(a[href^='http'])::after {
-      content: ' ' attr(href);
-      font-size: 6.5pt;
+    /* Trailing, as in the source document: a wrapped line ends on the dot
+       instead of starting with one. */
+    .contact span:not(:last-child)::after {
+      content: '·';
+      margin: 0 0.35rem;
       color: var(--ink-muted);
-      word-break: break-all;
+    }
+
+    strong {
+      font-weight: 600;
     }
 
     /* --- body --- */
+    :global(.prose).summary {
+      font-size: 8.2pt;
+      line-height: 1.32;
+      color: var(--ink-muted);
+    }
+
     .achievements,
+    .side,
     .roles {
       border-top: 0 !important;
     }
 
-    .achievements > li {
+    .achievements > li,
+    .side > li {
       position: relative;
-      max-width: none;
-      padding: 0.12rem 0 0.12rem 0.7rem !important;
+      padding: 0.05rem 0 0.05rem 0.7rem !important;
       border: 0 !important;
-      font-size: 8.5pt;
-      line-height: 1.4;
-      color: var(--ink);
+      font-size: 8pt;
+      line-height: 1.3;
+      color: var(--ink-muted);
       break-inside: avoid;
     }
 
     .achievements > li::before {
       content: '';
       position: absolute;
-      top: 0.42rem;
-      left: 0;
-      width: 3pt;
-      height: 3pt;
+      top: 0.38rem;
+      left: 0.05rem;
+      width: 3.5pt;
+      height: 3.5pt;
+      border-radius: 50%;
       background: var(--accent);
     }
 
+    .side > li::before {
+      content: '–';
+      position: absolute;
+      left: 0.05rem;
+      color: var(--accent);
+    }
+
     .roles > li {
-      display: grid !important;
-      grid-template-columns: 5.2rem 1fr !important;
-      gap: 0.7rem !important;
-      padding: 0.3rem 0 0.15rem !important;
+      display: block !important;
+      position: relative;
+      padding: 0.3rem 0 0.1rem !important;
       border: 0 !important;
-      break-inside: avoid;
     }
 
     .when {
-      font-size: 7.5pt;
-      color: var(--ink-muted);
-      padding-top: 0.12rem;
-    }
-
-    .roles h3 {
-      margin-bottom: 0 !important;
-      font-size: 11pt;
-      letter-spacing: -0.02em;
+      position: absolute;
+      top: 0.32rem;
+      right: 0;
+      font-family: var(--font-body);
+      font-size: 7.8pt;
+      font-weight: 600;
       color: var(--ink);
     }
 
-    .org {
-      margin-bottom: 0.18rem !important;
-      font-size: 8pt;
-      color: var(--accent) !important;
+    .roles h3 {
+      margin: 0 !important;
+      padding-right: 7rem;
+      font-family: var(--font-body);
+      font-size: 9.6pt;
+      letter-spacing: -0.01em;
+      text-transform: none;
+      color: var(--ink);
+      break-after: avoid;
     }
 
-    .roles ul {
-      max-width: none;
+    .roles h3 .sep {
+      display: inline;
+      font-weight: 400;
+      color: var(--ink-muted);
+    }
+
+    .roles h3 .desc {
+      display: inline;
+      margin: 0;
+      font-size: 9pt;
+      color: var(--ink-muted);
+    }
+
+    .role {
+      margin: 0.02rem 0 0.05rem !important;
+      font-family: var(--font-body);
+      font-size: 8.3pt;
+      font-weight: 600;
+      color: var(--accent);
+      break-after: avoid;
+    }
+
+    .intro {
+      margin: 0 0 0.06rem !important;
+      font-size: 7.9pt;
+      line-height: 1.28;
     }
 
     .roles ul li {
       position: relative;
-      padding: 0.06rem 0 0.06rem 0.65rem !important;
+      padding: 0.02rem 0 0.02rem 0.7rem !important;
       border: 0 !important;
-      font-size: 8.3pt;
-      line-height: 1.38;
+      font-size: 7.9pt;
+      line-height: 1.28;
       color: var(--ink-muted);
+      break-inside: avoid;
     }
 
     .roles ul li::before {
       content: '–';
       position: absolute;
-      left: 0;
+      left: 0.05rem;
       color: var(--accent);
     }
 
-    /* --- skills: columns of plain lists, not a table of boxes --- */
-    .skills {
-      display: grid !important;
-      grid-template-columns: repeat(3, 1fr) !important;
-      gap: 0 1rem !important;
-      border: 0 !important;
-    }
-
-    .skills > div {
-      padding: 0.2rem 0 0.3rem !important;
-      border: 0 !important;
-      break-inside: avoid;
-    }
-
-    .skills h3 {
-      margin-bottom: 0.1rem !important;
-      font-size: 8.5pt;
-      letter-spacing: 0.02em;
-      color: var(--accent) !important;
-    }
-
-    .skills ul {
+    .stack {
+      margin: 0.06rem 0 0 !important;
       font-family: var(--font-body);
-      font-size: 8pt;
-      line-height: 1.45;
+      font-size: 7pt;
+      line-height: 1.3;
+    }
+
+    .stack span {
+      font-weight: 600;
       color: var(--ink-muted);
     }
 
-    /* --- languages: one line, not four cells --- */
+    /* --- skills: the AI groups across the page, the rest in two columns --- */
+    .skills,
+    .columns {
+      display: block !important;
+      border: 0 !important;
+    }
+
+    .columns {
+      column-count: 2;
+      column-gap: 1.2rem;
+    }
+
+    /* The heading and its text run inline, so the line box is the group's own:
+       without a size and leading here they inherit the screen's 16px strut, and
+       every line of skills stood 1.7 lines tall — measured, a quarter page. */
+    .group {
+      padding: 0.04rem 0 0.06rem !important;
+      border: 0 !important;
+      font-size: 7.9pt;
+      line-height: 1.28;
+      break-inside: avoid;
+    }
+
+    .group h3,
+    .group p {
+      display: inline;
+      font-family: var(--font-body);
+      font-size: 7.9pt;
+      line-height: 1.28;
+    }
+
+    .group h3 {
+      margin: 0 !important;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--accent);
+    }
+
+    .group h3::after {
+      content: ' — ';
+      color: var(--ink-muted);
+      font-weight: 400;
+    }
+
+    .group p {
+      color: var(--ink-muted);
+    }
+
+    /* --- languages and availability: one line, not four cells --- */
     .langs {
       display: flex !important;
       flex-wrap: wrap;
-      gap: 0.15rem 1.4rem !important;
+      gap: 0.1rem 0.8rem !important;
       margin-bottom: 0 !important;
       border: 0 !important;
     }
 
     .langs > div {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.3rem;
       align-items: baseline;
       padding: 0 !important;
       border: 0 !important;
     }
 
-    .langs dt {
+    .langs .avail dt {
+      display: none;
+    }
+
+    .langs .avail dd::before {
+      content: '|';
+      margin-right: 0.8rem;
+      color: var(--border);
+    }
+
+    .langs dt,
+    .langs dd {
+      margin: 0 !important;
       font-family: var(--font-body);
-      font-size: 8.5pt;
+      font-size: 7.8pt;
       letter-spacing: 0;
       text-transform: none;
+    }
+
+    .langs dt {
+      font-weight: 600;
       color: var(--ink);
     }
 
     .langs dd {
-      margin: 0 !important;
-      font-family: var(--font-body);
-      font-size: 8.5pt;
-      letter-spacing: 0;
-      text-transform: none;
       color: var(--ink-muted);
     }
   }
