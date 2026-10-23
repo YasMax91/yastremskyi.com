@@ -2,7 +2,8 @@
  * Every fact the site states about Max, in one typed place.
  *
  * Three sources are permitted and no others: `portfolio-site-prompt.md` §2 (the
- * brief), Max's own CV, which he approved as a source on 2026-08-19, and a
+ * brief), Max's own CV, which he approved as a source on 2026-08-19 — and its
+ * October 2026 revision, confirmed 2026-10-14, whose copy lives in cv.ts — and a
  * figure he approved in writing with its measurement recorded beside it (the
  * October adoption figures below). If a claim cannot be traced to one of them it
  * does not belong here — the site's whole argument is that its author does not
