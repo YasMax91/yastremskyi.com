@@ -134,6 +134,13 @@ function fixtureTree({ version = '0.47.0', skills = SKILLS, agents = AGENTS, gat
     'if (cfg.get("gates") or {}).get("lane_guard") is False:\n    pass\n' +
       'if (cfg.get("gates") or {}).get("lane_idle_stop") is False:\n    pass\n',
   );
+  // The shape 0.52 added: a `gates(cfg)` helper, called bare or through the module.
+  // Both keys here are thresholds, so they are read and excluded, never counted.
+  writeFileSync(
+    join(root, 'hooks', 'gw_tests.py'),
+    'max_age = float(gates(cfg).get("full_suite_max_age_hours") or 24)\n' +
+      'budget = float(gw.gates(cfg).get("test_budget_seconds") or 180)\n',
+  );
 
   return root;
 }
@@ -212,6 +219,21 @@ test('a gate read only by a Python hook is counted', () => {
   );
 });
 
+test('a gate read through the gates(cfg) helper is counted', () => {
+  // At 0.52.1 the new keys were found only because a comment happened to name
+  // them. A key read this way and named nowhere else would have been missed.
+  const root = fixtureTree();
+  writeFileSync(
+    join(root, 'hooks', 'gw_registration.py'),
+    'if gw.gates(cfg).get("only_read_this_way") is False:\n    return\n' +
+      'if gates(cfg).get("also_only_this_way") is False:\n    return\n',
+  );
+  const actual = deriveFigures(root);
+
+  assert.ok(actual.gateKeys.includes('only_read_this_way'), 'through the module');
+  assert.ok(actual.gateKeys.includes('also_only_this_way'), 'called bare');
+});
+
 test('gates.get is not a gate', () => {
   const actual = deriveFigures(fixtureTree());
 
@@ -231,6 +253,8 @@ test('excludes non-gates, each with a reason', () => {
     'isolate_stdin',
     'lane_guard',
     'lane_idle_stop',
+    'full_suite_max_age_hours',
+    'test_budget_seconds',
   ]) {
     assert.ok(key in NOT_GATES, `${key} is configuration, and the exclusion says why`);
   }
