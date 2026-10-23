@@ -83,9 +83,18 @@ else
 fi
 
 echo "→ checking the site that shares this Caddy is still up"
-curl -fsS -o /dev/null -w '  warmap %{http_code}\n' https://warmap.duckdns.org/ || {
-  echo "  warmap.duckdns.org did not answer — check the Caddy config" >&2
-  exit 1
-}
+# The neighbour's hostname is deliberately not in this public repository: it is
+# not proxied, so it resolves straight to the origin and hands out the address
+# Cloudflare is there to keep private. It travels in DEPLOY_NEIGHBOUR_URL, next
+# to DEPLOY_HOST, on the machine doing the deploying. Unset means the check is
+# skipped and says so out loud — a silent skip would read like a pass.
+if [[ -n "${DEPLOY_NEIGHBOUR_URL:-}" ]]; then
+  curl -fsS -o /dev/null -w '  neighbour %{http_code}\n' "${DEPLOY_NEIGHBOUR_URL}" || {
+    echo "  the co-tenant site did not answer — check the Caddy config" >&2
+    exit 1
+  }
+else
+  echo "  SKIPPED — set DEPLOY_NEIGHBOUR_URL to check the co-tenant site too"
+fi
 
 echo "done"
