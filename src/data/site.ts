@@ -64,7 +64,7 @@ export const site = {
      * deliberately does not touch `gateKeys`: a new gate needs a name a reader
      * understands, in two languages, and the build stays red until it has one.
      */
-    version: 'v0.47.0',
+    version: 'v0.52.1',
     agents: 5,
     gates: 17,
     procedures: 17,
@@ -73,14 +73,14 @@ export const site = {
      * log (macOS, where every suite runs; Linux skips a few). Counted from the
      * log, not from the files — the log is what a reader can open.
      */
-    tests: 549,
+    tests: 904,
     /**
      * Distinct versions in the manifest's history. The start month is fixed —
      * the repository's first commit, 2026-06-14 — so the sentence only ever
      * grows, and every version carries a tag a reader can count. The month lives
      * in `gw.versionsValue`, not here: Ukrainian needs it in the genitive.
      */
-    versions: 54,
+    versions: 63,
     /**
      * The gate identifiers, in the order the simulator prints them — narrative
      * order, not alphabetical, because the list reads as a sequence: what runs

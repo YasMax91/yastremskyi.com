@@ -63,6 +63,10 @@ export const NOT_GATES = {
   lane_guard:
     'keeps parallel sessions on their own stacks — isolation, like test_db_lock, not a check',
   lane_idle_stop: 'stops an idle lane’s containers — housekeeping, not a check',
+  full_suite_max_age_hours:
+    'how old a whole-suite run may be before the push gate wants another — a threshold, not a check',
+  test_budget_seconds:
+    'how many seconds of targeted tests the test gate runs — a budget, not a check',
 };
 
 /** A non-gate key with a reason above, or a word the patterns below can catch that is no key at all. */
@@ -70,14 +74,17 @@ const isGateKey = (key) => !(key in NOT_GATES) && key !== 'get' && key !== 'gate
 
 /**
  * Every gate key one hook file reads. Shell reads `.gates.<key>` through jq;
- * Python reads `gates.get("<key>")` or `(cfg.get("gates") or {}).get("<key>")`.
- * Prose in a docstring that names `gates.<key>` is caught by the first pattern
- * too, which is right: it names a key the file is about.
+ * Python reads `gates.get("<key>")`, `(cfg.get("gates") or {}).get("<key>")`, or
+ * — since 0.52 — `gates(cfg).get("<key>")`, bare or as `gw.gates(cfg)`. At
+ * 0.52.1 the two keys read that last way were found only because a comment
+ * happened to name them. Prose in a docstring that names `gates.<key>` is caught
+ * by the first pattern too, which is right: it names a key the file is about.
  */
 function gateKeysIn(source) {
   const keys = [];
   for (const [, key] of source.matchAll(/gates\.([a-z_]+)/g)) keys.push(key);
-  for (const [, key] of source.matchAll(/gates\.get\(\s*["']([a-z_]+)["']/g)) keys.push(key);
+  for (const [, key] of source.matchAll(/gates(?:\([a-z_]*\))?\.get\(\s*["']([a-z_]+)["']/g))
+    keys.push(key);
   for (const [, key] of source.matchAll(
     /get\(\s*["']gates["']\s*\)\s*or\s*\{\}\s*\)\s*\.get\(\s*["']([a-z_]+)["']/g,
   ))
